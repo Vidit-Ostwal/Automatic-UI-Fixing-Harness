@@ -1,0 +1,28 @@
+# Test-harness challenge — application under test (prebuilt image).
+#
+#   docker load -i memos-buggy.image.tar.gz
+#   docker compose up                      # app -> http://localhost:5230
+#
+# Each run starts from an empty in-memory database, so runs are reproducible.
+# Your harness should create the host account and seed any fixtures it needs.
+#
+# NOTE: This is the REFERENCE file only.
+# The harness never uses this file directly — docker_manager.py writes
+# per-instance compose files with unique ports and container names so that
+# multiple executor instances can run in parallel without port conflicts.
+
+services:
+  memos-buggy:
+    image: memos-buggy:latest
+    container_name: memos-buggy
+    ports:
+      - "5230:5230"
+    environment:
+      MEMOS_MODE: prod
+    tmpfs:
+      - /var/opt/memos
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:5230/healthz"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
