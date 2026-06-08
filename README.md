@@ -379,46 +379,6 @@ All artifacts are written under `OUTPUT_DIR` (default `output/`).
 | `report.html` | Phase 4 (auto after full run / `--run-goals`, or `--report`) | Human-readable findings report with screenshots |
 | `exploration_memory.md` | BFS | Live log of explored nodes and actions (repo root) |
 
-### `trajectories_goal.json` shape
-
-Each entry contains:
-
-```json
-{
-  "id": "T-001",
-  "description": "create_account → create_new_memo → ...",
-  "goal": "Verify that a user can ...",
-  "instructions": ["On the 'Create your account' page, ...", "..."],
-  "success_criteria": ["The user is successfully logged in ...", "..."]
-}
-```
-
-### `executor_runs/.../run.json` shape
-
-Records per-instruction execution: resolved UI steps, before/after screenshots, URLs, success/error per step, and overall `completed` / `final_state`.
-
-### `verifier_claims/.../claims.json` shape
-
-Contains `findings[]` with `severity`, `title`, `description`, `evidence`, `reproduction_steps`, and screenshot paths — consumed by the HTML report.
-
----
-
-## Exit codes
-
-CI-friendly exit codes:
-
-| Code | Meaning |
-|---|---|
-| `0` | No critical/high findings (or successful planner/goals-only run) |
-| `1` | At least one critical or high finding |
-| `2` | Required input missing (`trajectories.json`, `trajectories_goal.json`, or `verifier_claims/`) |
-
----
-
-## Parallelism
-
-Up to `MAX_PARALLEL` (default 4) `GoalExecutor` instances run concurrently, each with its own Docker container and browser session. A single `VerifierAgent` consumer reads from a shared `asyncio.Queue` and routes step messages by `(test_case_id, run_id)`.
-
 ---
 
 ## Running tests
