@@ -1,0 +1,83 @@
+{
+  "test_case_id": "T-012",
+  "run_id": "d34fd2f19b",
+  "goal": "Verify that a user can create a new account, navigate the calendar to the next month, and select a specific date to filter memos for that day.",
+  "description": "create_account \u2192 navigate_to_next_month \u2192 select_specific_date_july_15",
+  "instructions": [
+    "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+    "Once logged in and viewing the calendar (initially showing June 2026), click the 'Next month' arrow button to navigate to July 2026.",
+    "In the July 2026 calendar view, click on the date '15' to select July 15."
+  ],
+  "success_criteria": [
+    "The user is successfully logged in and the main dashboard with the calendar is visible.",
+    "The calendar header displays 'July 2026' after navigating from the previous month.",
+    "The date '15' in the July 2026 calendar is visually highlighted or selected.",
+    "The memo input area displays a timestamp or filter tag indicating '2026-07-15'.",
+    "The main content area displays 'No data found' or shows memos specifically associated with July 15, 2026."
+  ],
+  "steps": [
+    {
+      "step_index": 0,
+      "instruction": "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+      "resolved_steps": [
+        {
+          "type": "fill",
+          "selector": "[placeholder=\"Username\"]",
+          "value": "alice"
+        },
+        {
+          "type": "fill",
+          "selector": "[placeholder=\"Password\"]",
+          "value": "SecureP@ss123!"
+        },
+        {
+          "type": "click",
+          "selector": "button:has-text(\"Sign up\")"
+        }
+      ],
+      "screenshot_before": "executor_runs/T-012_d34fd2f19b/step_00_before.png",
+      "screenshot_after": "executor_runs/T-012_d34fd2f19b/step_00_after.png",
+      "url_before": "http://localhost:49695/auth/signup",
+      "url_after": "http://localhost:49695/",
+      "success": true,
+      "error": ""
+    },
+    {
+      "step_index": 1,
+      "instruction": "Once logged in and viewing the calendar (initially showing June 2026), click the 'Next month' arrow button to navigate to July 2026.",
+      "resolved_steps": [
+        {
+          "type": "click",
+          "selector": "[aria-label=\"Next\\ month\"]"
+        }
+      ],
+      "screenshot_before": "executor_runs/T-012_d34fd2f19b/step_01_before.png",
+      "screenshot_after": "executor_runs/T-012_d34fd2f19b/step_01_after.png",
+      "url_before": "http://localhost:49695/",
+      "url_after": "http://localhost:49695/",
+      "success": true,
+      "error": ""
+    },
+    {
+      "step_index": 2,
+      "instruction": "In the July 2026 calendar view, click on the date '15' to select July 15.",
+      "resolved_steps": [
+        {
+          "type": "click",
+          "selector": "[data-slot=\"tooltip-trigger\"][aria-label=\"\\32 026-07-15\"]"
+        }
+      ],
+      "screenshot_before": "executor_runs/T-012_d34fd2f19b/step_02_before.png",
+      "screenshot_after": "executor_runs/T-012_d34fd2f19b/step_02_after.png",
+      "url_before": "http://localhost:49695/",
+      "url_after": "http://localhost:49695/?filter=displayTime%3A2026-07-15",
+      "success": true,
+      "error": ""
+    }
+  ],
+  "steps_executed": 3,
+  "steps_succeeded": 3,
+  "final_state": "success",
+  "completed": true,
+  "error": null
+}

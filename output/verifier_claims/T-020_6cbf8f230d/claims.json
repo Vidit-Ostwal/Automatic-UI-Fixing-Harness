@@ -1,0 +1,28 @@
+{
+  "test_case_id": "T-020",
+  "run_id": "6cbf8f230d",
+  "goal": "Verify that a user can successfully create a new Site Host account and navigate to the settings menu to adjust application configuration options.",
+  "description": "create_account \u2192 open_settings_menu \u2192 settings2",
+  "total_steps_verified": 3,
+  "total_findings": 1,
+  "findings": [
+    {
+      "id": "V-T-020-001",
+      "step_index": 1,
+      "instruction": "Once logged in and viewing the main dashboard, click the settings icon (gear symbol) located in the left sidebar to open the settings menu.",
+      "bug_type": "logic",
+      "severity": "high",
+      "title": "Clicking the settings icon did not open the settings menu",
+      "description": "The instruction was to click the settings icon (gear symbol) in the left sidebar to open the settings menu. However, the UI state did not change to show a settings panel or menu. Instead, a filter dropdown ('Shown time', 'Order') appeared near the top of the main content area, which is unrelated to the settings menu. This indicates the action either targeted the wrong element or the settings menu failed to open.",
+      "evidence": "In the BEFORE screenshot, the main content shows a calendar and 'No data found'. In the AFTER screenshot, a filter dropdown with 'Shown time' and 'Order' options is visible, but no settings menu or panel is present. The sidebar icons remain unchanged, and there is no indication that the settings menu was accessed.",
+      "reproduction_steps": [
+        "Log in to the application and navigate to the main dashboard.",
+        "Locate the settings icon (gear symbol) in the left sidebar.",
+        "Click the settings icon.",
+        "Observe that the settings menu does not open; instead, a filter dropdown appears in the main content area."
+      ],
+      "screenshot_before": "executor_runs/T-020_6cbf8f230d/step_01_before.png",
+      "screenshot_after": "executor_runs/T-020_6cbf8f230d/step_01_after.png"
+    }
+  ]
+}

@@ -7,11 +7,18 @@ replay and goal-driven execution share identical fill/click/nav behaviour.
 
 import asyncio
 import logging
+import time
 
 from harness.utils.fill_retry import suggest_fill_value
 from harness.utils.url import normalise_url
 
 logger = logging.getLogger(__name__)
+
+# Post-action settle tuning — wait for DOM + animations before screenshots.
+SETTLE_TIMEOUT_MS = 4_000
+SETTLE_STABLE_MS = 500
+SETTLE_POLL_MS = 100
+SETTLE_MIN_MS = 250
 
 
 async def dismiss_overlays(session) -> None:
@@ -23,27 +30,93 @@ async def dismiss_overlays(session) -> None:
         pass
 
 
-async def wait_for_navigation(session, prev_url: str, timeout_ms: int = 2000) -> None:
-    """
-    After an action, poll for a URL change signalling client-side navigation
-    (React Router pushState).  If the URL changes, wait for the new page to
-    stabilise before returning.
-    """
-    deadline = timeout_ms / 1000
-    slept = 0.0
-    interval = 0.1
-    prev_norm = normalise_url(prev_url)
+async def _dom_signature(session) -> str:
+    """Cheap fingerprint of visible DOM — changes when SPA re-renders."""
+    return await session.page.evaluate(
+        """() => {
+            const body = document.body;
+            if (!body) return '0|0';
+            return body.innerText.length + '|' + document.querySelectorAll('*').length;
+        }"""
+    )
 
-    while slept < deadline:
-        await asyncio.sleep(interval)
-        slept += interval
-        curr_norm = normalise_url(session.page.url)
-        if curr_norm != prev_norm:
-            logger.debug(
-                "step_runner: nav settled %s → %s (%.1fs)", prev_norm, curr_norm, slept
-            )
-            await session._wait_stable()
-            return
+
+async def _wait_animation_frames(session, frames: int = 2) -> None:
+    """Let CSS transitions / React paint cycles finish."""
+    await session.page.evaluate(
+        f"""() => new Promise(resolve => {{
+            let n = 0;
+            const tick = () => {{
+                if (++n >= {frames}) resolve();
+                else requestAnimationFrame(tick);
+            }};
+            requestAnimationFrame(tick);
+        }})"""
+    )
+
+
+async def wait_for_settle(
+    session,
+    prev_url: str | None = None,
+    timeout_ms: int = SETTLE_TIMEOUT_MS,
+) -> None:
+    """
+    Wait for the UI to settle after an action, before capturing screenshots.
+
+    Handles both URL-changing navigations and same-URL SPA updates (calendar
+    flips, modals, list refreshes) by polling until the DOM stops changing.
+    """
+    await asyncio.sleep(SETTLE_MIN_MS / 1000)
+
+    if prev_url is not None:
+        nav_deadline = time.monotonic() + timeout_ms / 1000
+        prev_norm = normalise_url(prev_url)
+        while time.monotonic() < nav_deadline:
+            curr_norm = normalise_url(session.page.url)
+            if curr_norm != prev_norm:
+                logger.debug(
+                    "step_runner: nav settled %s → %s", prev_norm, curr_norm
+                )
+                await session._wait_stable()
+                break
+            await asyncio.sleep(SETTLE_POLL_MS / 1000)
+
+    deadline = time.monotonic() + timeout_ms / 1000
+    last_sig: str | None = None
+    stable_since: float | None = None
+    poll_s = SETTLE_POLL_MS / 1000
+    stable_s = SETTLE_STABLE_MS / 1000
+
+    while time.monotonic() < deadline:
+        try:
+            sig = await _dom_signature(session)
+        except Exception:
+            break
+
+        now = time.monotonic()
+        if sig == last_sig:
+            if stable_since is None:
+                stable_since = now
+            elif now - stable_since >= stable_s:
+                logger.debug("step_runner: DOM stable for %.0fms", SETTLE_STABLE_MS)
+                break
+        else:
+            last_sig = sig
+            stable_since = None
+
+        await asyncio.sleep(poll_s)
+
+    try:
+        await _wait_animation_frames(session)
+    except Exception:
+        pass
+
+    await session._wait_stable()
+
+
+async def wait_for_navigation(session, prev_url: str, timeout_ms: int = SETTLE_TIMEOUT_MS) -> None:
+    """Backward-compatible alias — waits for navigation *and* UI settle."""
+    await wait_for_settle(session, prev_url=prev_url, timeout_ms=timeout_ms)
 
 
 async def execute_steps(

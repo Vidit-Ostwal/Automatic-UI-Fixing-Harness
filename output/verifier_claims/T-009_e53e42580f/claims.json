@@ -1,0 +1,9 @@
+{
+  "test_case_id": "T-009",
+  "run_id": "e53e42580f",
+  "goal": "Verify that a user can create a new account, compose a private memo, and navigate to the June 2026 calendar view.",
+  "description": "create_account \u2192 change_memo_privacy \u2192 june",
+  "total_steps_verified": 4,
+  "total_findings": 0,
+  "findings": []
+}

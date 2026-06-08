@@ -166,6 +166,7 @@ class BrowserSession:
         # page.fill() bypasses synthetic events on controlled inputs without this.
         await self._page.click(selector, timeout=SELECTOR_TIMEOUT_MS)
         await self._page.fill(selector, value, timeout=SELECTOR_TIMEOUT_MS)
+        await self._wait_stable()
 
     async def press(self, selector: str, key: str) -> None:
         await self._page.press(selector, key, timeout=SELECTOR_TIMEOUT_MS)

@@ -1,0 +1,27 @@
+{
+  "test_case_id": "T-004",
+  "run_id": "3ca2f8f12f",
+  "goal": "Verify that a user can register as a Site Host, create a new memo, and successfully navigate to the June 2026 calendar view.",
+  "description": "create_account \u2192 create_new_memo \u2192 june",
+  "total_steps_verified": 3,
+  "total_findings": 1,
+  "findings": [
+    {
+      "id": "V-T-004-001",
+      "step_index": 1,
+      "instruction": "In the main dashboard, type 'Remember to review the project timeline tomorrow morning.' into the text input box labeled 'Any thoughts...' and click the 'Save' button.",
+      "bug_type": "logic",
+      "severity": "high",
+      "title": "Memo creation failed due to incorrect element targeting",
+      "description": "The test step intended to type text into the 'Any thoughts...' input field but the automation script incorrectly targeted a button element instead. This caused the action to fail, and the memo was not created. The expected state change (memo appearing in the feed) did not occur.",
+      "evidence": "The error log shows 'fill('button') raised Error: Element is not an <input>...'. The AFTER screenshot shows the 'Any thoughts...' input is still empty and the feed still displays 'No data found.', confirming the memo was not saved.",
+      "reproduction_steps": [
+        "Navigate to the main dashboard.",
+        "Attempt to type 'Remember to review the project timeline tomorrow morning.' into the text input box labeled 'Any thoughts...' using an incorrect selector that targets a button instead of the input field.",
+        "Observe that the action fails and the memo is not created."
+      ],
+      "screenshot_before": "executor_runs/T-004_3ca2f8f12f/step_01_before.png",
+      "screenshot_after": "executor_runs/T-004_3ca2f8f12f/step_01_after.png"
+    }
+  ]
+}

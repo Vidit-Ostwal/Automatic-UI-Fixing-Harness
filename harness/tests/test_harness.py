@@ -27,6 +27,7 @@ def _make_args(**kwargs) -> argparse.Namespace:
         goals_only=False,
         run_goals=False,
         report=False,
+        rollout=None,
         no_llm=False,
         verbose_bfs=False,
     )
@@ -217,7 +218,7 @@ async def test_run_planner_returns_empty_list_when_no_trajectories(tmp_path):
 
 
 from harness.executor.goal_executor import ExecutorResult
-from run_harness import run_goal_executors
+from run_harness import _clear_executor_artifacts, run_goal_executors
 
 
 def _executor_result(test_case_id: str, run_dir: Path) -> ExecutorResult:
@@ -258,6 +259,51 @@ async def test_run_goal_executors_empty_goals(tmp_path):
     results, claims = await run_goal_executors([], cfg, llm_oracle=None)
     assert results == []
     assert claims == []
+
+
+def test_clear_executor_artifacts_removes_run_dirs(tmp_path):
+    runs = tmp_path / "executor_runs" / "T-001_abc"
+    claims = tmp_path / "verifier_claims" / "T-001_abc"
+    runs.mkdir(parents=True)
+    claims.mkdir(parents=True)
+    (runs / "run.json").write_text("{}")
+    (claims / "claims.json").write_text("{}")
+
+    _clear_executor_artifacts(tmp_path)
+
+    assert not runs.exists()
+    assert not claims.exists()
+
+
+@pytest.mark.asyncio
+async def test_run_goal_executors_rollout_clears_and_repeats(tmp_path):
+    runs = tmp_path / "executor_runs" / "T-old_stale"
+    claims = tmp_path / "verifier_claims" / "T-old_stale"
+    runs.mkdir(parents=True)
+    claims.mkdir(parents=True)
+
+    cfg = HarnessConfig(_make_args(rollout=2, max_trajectories=1, output=str(tmp_path)))
+    goals = _fake_goals(1)
+    run_dir = tmp_path / "executor_runs" / "T-000_run123"
+
+    with (
+        patch(
+            "run_harness._run_one_goal",
+            new=AsyncMock(side_effect=lambda g, *a, **k: _executor_result(g["id"], run_dir)),
+        ) as mock_run,
+        patch("run_harness._run_verifier_consumer", new=AsyncMock(return_value=[])),
+    ):
+        results, _ = await run_goal_executors(goals, cfg, llm_oracle=None)
+
+    assert not (tmp_path / "executor_runs" / "T-old_stale").exists()
+    assert not (tmp_path / "verifier_claims" / "T-old_stale").exists()
+    assert mock_run.call_count == 2
+    assert len(results) == 2
+
+    summary = json.loads((tmp_path / "executor_trajectories.json").read_text())
+    assert len(summary) == 2
+    assert summary[0]["rollout"] == 1
+    assert summary[1]["rollout"] == 2
 
 
 from run_harness import _main

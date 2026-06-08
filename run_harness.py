@@ -25,6 +25,8 @@ Flags:
     --skip-planner     Skip phase 1; load trajectories from OUTPUT_DIR/trajectories.json
     --goals-only       Read existing trajectories.json, write trajectories_goal.json, exit
     --run-goals        Read existing trajectories_goal.json, run goal executors, exit
+    --rollout N        Fresh executor run: clear executor_runs/ and verifier_claims/,
+                       then run executors + verifiers N times (default: 1 when flag set)
     --report           Read verifier claims, open HTML report in browser (standalone)
     --no-llm           Disable LLM oracle (deterministic checks only)
     --depth N          Override DEPTH_N
@@ -37,6 +39,7 @@ import asyncio
 import json
 import logging
 import os
+import shutil
 import sys
 import time
 import uuid
@@ -85,6 +88,7 @@ class HarnessConfig:
         self.goals_only       = args.goals_only
         self.run_goals        = args.run_goals
         self.report           = args.report
+        self.rollout          = args.rollout
         self.no_llm           = args.no_llm
         self.verbose_bfs      = args.verbose_bfs
         self.run_id           = uuid.uuid4().hex[:12]
@@ -231,6 +235,15 @@ async def run_goal_writer(
 # Phase 3 — Goal executors + verifiers (run in parallel)
 # ---------------------------------------------------------------------------
 
+def _clear_executor_artifacts(output_dir: Path) -> None:
+    """Remove prior executor runs and verifier claims before a fresh rollout."""
+    for name in ("executor_runs", "verifier_claims"):
+        path = output_dir / name
+        if path.exists():
+            shutil.rmtree(path)
+            logger.info("Cleared %s", path)
+
+
 async def _run_verifier_consumer(
     queue: "asyncio.Queue[StepMessage]",
     goals_by_id: dict,
@@ -292,26 +305,26 @@ async def _run_one_goal(
         return await executor.run()
 
 
-async def run_goal_executors(
+async def _run_goal_executors_once(
     goals: list[dict],
     config: "HarnessConfig",
     llm_oracle,
+    *,
+    rollout_index: int = 1,
+    rollout_total: int = 1,
 ) -> tuple[list[ExecutorResult], list[Path]]:
-    """
-    Run one GoalExecutor per goal, bounded by max_parallel.
-    A VerifierAgent consumes StepMessages from the same queue simultaneously.
-    Writes executor_trajectories.json summarising all runs.
-    Returns (executor results, verifier claims.json paths).
-    """
-    if not goals:
-        logger.warning("GoalExecutors: no goals to run")
-        return [], []
-
+    """Single pass: run GoalExecutors and VerifierAgents in parallel."""
     capped = goals[: config.max_trajectories]
-    logger.info(
-        "=== PHASE 3: EXECUTORS + VERIFIERS (%d goals, max %d parallel) ===",
-        len(capped), config.max_parallel,
-    )
+    if rollout_total > 1:
+        logger.info(
+            "=== PHASE 3: EXECUTORS + VERIFIERS (rollout %d/%d, %d goals, max %d parallel) ===",
+            rollout_index, rollout_total, len(capped), config.max_parallel,
+        )
+    else:
+        logger.info(
+            "=== PHASE 3: EXECUTORS + VERIFIERS (%d goals, max %d parallel) ===",
+            len(capped), config.max_parallel,
+        )
 
     goals_by_id = {g["id"]: g for g in goals if "id" in g}
     step_queue: asyncio.Queue[StepMessage] = asyncio.Queue()
@@ -336,36 +349,78 @@ async def run_goal_executors(
     results: list[ExecutorResult] = await asyncio.gather(*executor_tasks)
     claims_paths: list[Path] = await verifier_task
 
-    # Write summary.
-    config.output_dir.mkdir(parents=True, exist_ok=True)
-    summary = [
-        {
-            "test_case_id":    r.test_case_id,
-            "run_id":          r.run_id,
-            "final_state":     r.final_state,
-            "completed":       r.completed,
-            "steps_executed":  r.steps_executed,
-            "steps_succeeded": r.steps_succeeded,
-            "run_dir":         str(r.run_dir.relative_to(config.output_dir)),
-            "error":           r.error,
-        }
-        for r in results
-    ]
-    summary_path = config.output_dir / "executor_trajectories.json"
-    summary_path.write_text(json.dumps(summary, indent=2))
-    logger.info("Executor summary written to %s", summary_path)
-
     succeeded = sum(1 for r in results if r.completed)
     logger.info(
-        "GoalExecutors done: %d/%d goals completed successfully",
-        succeeded, len(results),
+        "GoalExecutors rollout %d/%d done: %d/%d goals completed successfully",
+        rollout_index, rollout_total, succeeded, len(results),
     )
     if claims_paths:
-        logger.info("Verifier claims written:")
+        logger.info("Verifier claims (rollout %d/%d):", rollout_index, rollout_total)
         for p in claims_paths:
             logger.info("  → %s", p)
 
     return results, claims_paths
+
+
+async def run_goal_executors(
+    goals: list[dict],
+    config: "HarnessConfig",
+    llm_oracle,
+) -> tuple[list[ExecutorResult], list[Path]]:
+    """
+    Run GoalExecutors + VerifierAgents for each goal, bounded by max_parallel.
+
+    When --rollout N is set, clears executor_runs/ and verifier_claims/ first,
+    then repeats the full executor+verifier pass N times.
+    Writes executor_trajectories.json summarising all runs.
+    Returns (executor results, verifier claims.json paths).
+    """
+    if not goals:
+        logger.warning("GoalExecutors: no goals to run")
+        return [], []
+
+    rollout_total = config.rollout if config.rollout is not None else 1
+    if rollout_total < 1:
+        logger.error("--rollout must be >= 1 (got %d)", rollout_total)
+        raise ValueError(f"rollout must be >= 1, got {rollout_total}")
+
+    if config.rollout is not None:
+        _clear_executor_artifacts(config.output_dir)
+
+    all_results: list[ExecutorResult] = []
+    all_claims: list[Path] = []
+    summary: list[dict] = []
+
+    for rollout_index in range(1, rollout_total + 1):
+        results, claims_paths = await _run_goal_executors_once(
+            goals,
+            config,
+            llm_oracle,
+            rollout_index=rollout_index,
+            rollout_total=rollout_total,
+        )
+        all_results.extend(results)
+        all_claims.extend(claims_paths)
+        for r in results:
+            entry = {
+                "rollout":         rollout_index,
+                "test_case_id":    r.test_case_id,
+                "run_id":          r.run_id,
+                "final_state":     r.final_state,
+                "completed":       r.completed,
+                "steps_executed":  r.steps_executed,
+                "steps_succeeded": r.steps_succeeded,
+                "run_dir":         str(r.run_dir.relative_to(config.output_dir)),
+                "error":           r.error,
+            }
+            summary.append(entry)
+
+    config.output_dir.mkdir(parents=True, exist_ok=True)
+    summary_path = config.output_dir / "executor_trajectories.json"
+    summary_path.write_text(json.dumps(summary, indent=2))
+    logger.info("Executor summary written to %s", summary_path)
+
+    return all_results, all_claims
 
 
 # ---------------------------------------------------------------------------
@@ -465,6 +520,8 @@ def _parse_args() -> argparse.Namespace:
                    help="BFS depth override (env: DEPTH_N)")
     p.add_argument("--max-trajectories", type=int, default=None,
                    help="Executor cap override (env: MAX_TRAJECTORIES)")
+    p.add_argument("--rollout", type=int, default=None, metavar="N",
+                   help="Clear executor_runs/ and verifier_claims/, then run N rollout(s)")
     p.add_argument("--output",       default=None,
                    help="Output directory override (env: OUTPUT_DIR)")
     return p.parse_args()
@@ -474,8 +531,14 @@ async def _main() -> int:
     args = _parse_args()
     config = HarnessConfig(args)
 
-    logger.info("Harness run %s | depth=%d | max_traj=%d | max_parallel=%d",
-                config.run_id, config.depth_n, config.max_trajectories, config.max_parallel)
+    rollout_label = (
+        str(config.rollout) if config.rollout is not None else "off"
+    )
+    logger.info(
+        "Harness run %s | depth=%d | max_traj=%d | max_parallel=%d | rollout=%s",
+        config.run_id, config.depth_n, config.max_trajectories,
+        config.max_parallel, rollout_label,
+    )
 
     # --report: standalone report viewer — no harness phases run.
     if config.report:

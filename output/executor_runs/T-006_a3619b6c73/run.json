@@ -1,0 +1,95 @@
+{
+  "test_case_id": "T-006",
+  "run_id": "a3619b6c73",
+  "goal": "Verify that a user can create a new account, save a private memo, and navigate the calendar forward to a future month.",
+  "description": "create_account \u2192 change_memo_privacy \u2192 navigate_to_august_2026",
+  "instructions": [
+    "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+    "In the 'Any thoughts...' input box, type 'Personal reminder for the weekend.', click the 'Private' button to set the visibility, and then click the 'Save' button.",
+    "Locate the calendar widget currently showing 'June 2026' and click the 'Next month' arrow button twice to advance the view to 'August 2026'."
+  ],
+  "success_criteria": [
+    "The user is successfully logged in and the main dashboard displays the calendar view.",
+    "The memo 'Personal reminder for the weekend.' appears in the feed with a timestamp of 'now' and is marked as private.",
+    "The calendar widget header explicitly displays 'August 2026'.",
+    "The previously saved memo remains visible in the feed after navigating to the new month."
+  ],
+  "steps": [
+    {
+      "step_index": 0,
+      "instruction": "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+      "resolved_steps": [
+        {
+          "type": "fill",
+          "selector": "[placeholder=\"Username\"]",
+          "value": "alice"
+        },
+        {
+          "type": "fill",
+          "selector": "[placeholder=\"Password\"]",
+          "value": "SecureP@ss123!"
+        },
+        {
+          "type": "click",
+          "selector": "button:has-text(\"Sign up\")"
+        }
+      ],
+      "screenshot_before": "executor_runs/T-006_a3619b6c73/step_00_before.png",
+      "screenshot_after": "executor_runs/T-006_a3619b6c73/step_00_after.png",
+      "url_before": "http://localhost:49586/auth/signup",
+      "url_after": "http://localhost:49586/",
+      "success": true,
+      "error": ""
+    },
+    {
+      "step_index": 1,
+      "instruction": "In the 'Any thoughts...' input box, type 'Personal reminder for the weekend.', click the 'Private' button to set the visibility, and then click the 'Save' button.",
+      "resolved_steps": [
+        {
+          "type": "fill",
+          "selector": "textarea",
+          "value": "Personal reminder for the weekend."
+        },
+        {
+          "type": "click",
+          "selector": "#radix-_r_5b_"
+        },
+        {
+          "type": "click",
+          "selector": "button:has-text(\"Save\")"
+        }
+      ],
+      "screenshot_before": "executor_runs/T-006_a3619b6c73/step_01_before.png",
+      "screenshot_after": "executor_runs/T-006_a3619b6c73/step_01_after.png",
+      "url_before": "http://localhost:49586/",
+      "url_after": "http://localhost:49586/",
+      "success": true,
+      "error": ""
+    },
+    {
+      "step_index": 2,
+      "instruction": "Locate the calendar widget currently showing 'June 2026' and click the 'Next month' arrow button twice to advance the view to 'August 2026'.",
+      "resolved_steps": [
+        {
+          "type": "click",
+          "selector": "[aria-label=\"Next\\ month\"]"
+        },
+        {
+          "type": "click",
+          "selector": "[aria-label=\"Next\\ month\"]"
+        }
+      ],
+      "screenshot_before": "executor_runs/T-006_a3619b6c73/step_02_before.png",
+      "screenshot_after": "executor_runs/T-006_a3619b6c73/step_02_after.png",
+      "url_before": "http://localhost:49586/",
+      "url_after": "http://localhost:49586/",
+      "success": true,
+      "error": ""
+    }
+  ],
+  "steps_executed": 3,
+  "steps_succeeded": 3,
+  "final_state": "success",
+  "completed": true,
+  "error": null
+}

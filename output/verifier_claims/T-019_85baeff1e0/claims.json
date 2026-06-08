@@ -1,0 +1,9 @@
+{
+  "test_case_id": "T-019",
+  "run_id": "85baeff1e0",
+  "goal": "Verify that a user can successfully create a new account as the Site Host and then navigate the calendar view backward to display previous months.",
+  "description": "create_account \u2192 navigate_to_previous_month \u2192 previous_month",
+  "total_steps_verified": 5,
+  "total_findings": 0,
+  "findings": []
+}

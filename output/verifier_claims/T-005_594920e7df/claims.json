@@ -1,9 +1,0 @@
-{
-  "test_case_id": "T-005",
-  "run_id": "594920e7df",
-  "goal": "Verify that a user can successfully create a new Site Host account and then select a specific date on the calendar to filter the memo view.",
-  "description": "create_account \u2192 select_calendar_date",
-  "total_steps_verified": 5,
-  "total_findings": 0,
-  "findings": []
-}

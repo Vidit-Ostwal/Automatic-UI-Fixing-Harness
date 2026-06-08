@@ -38,7 +38,7 @@ from typing import Optional
 from harness.browser import BrowserSession
 from harness.docker import DockerInstance
 from harness.executor.step_message import QUEUE_DONE_SENTINEL, StepMessage
-from harness.utils.step_runner import dismiss_overlays, execute_steps, wait_for_navigation
+from harness.utils.step_runner import dismiss_overlays, execute_steps, wait_for_settle
 
 logger = logging.getLogger(__name__)
 
@@ -254,8 +254,8 @@ class GoalExecutor:
                 session, resolved_steps, self._llm
             )
 
-        # ── wait for SPA navigation to settle (same as BFS explorer) ─
-        await wait_for_navigation(session, before_state.url)
+        # ── wait for UI to settle (nav, SPA re-render, animations) ───
+        await wait_for_settle(session, prev_url=before_state.url)
 
         # ── after screenshot + state ─────────────────────────────────
         after_state = await session.capture_state()
