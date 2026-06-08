@@ -20,8 +20,9 @@ Phase 3 — EXECUTORS + VERIFIERS  (parallel)
   N Docker instances, one per goal → GoalExecutor runs each instruction
   VerifierAgent consumes step events → verifier_claims/T-NNN_<run_id>/claims.json
 
-Phase 4 — REPORT  (standalone, via --report)
+Phase 4 — REPORT
   Load verifier claims → render report.html → serve locally and open in browser
+  (runs automatically after a full pipeline or --run-goals; also via --report)
 ```
 
 **Key design note:** Executors are **goal-driven**, not raw trajectory replay. Each executor reads only `trajectories_goal.json` (plain-English instructions) and uses the LLM to resolve them to concrete UI actions at runtime. BFS trajectories inform goal writing via screenshots and step metadata, but are not replayed directly.
@@ -126,7 +127,7 @@ CLI flags `--depth`, `--max-trajectories`, and `--output` override `DEPTH_N`, `M
 | `--skip-planner` | off | Skip Phase 1; load existing `trajectories.json` from output dir |
 | `--goals-only` | off | Load `trajectories.json` → write `trajectories_goal.json` → exit |
 | `--run-goals` | off | Load `trajectories_goal.json` → run executors + verifiers only |
-| `--report` | off | Load verifier claims → render + serve `report.html` in browser |
+| `--report` | off | Render + serve `report.html` only (skip all other phases) |
 | `--no-llm` | off | Disable LLM oracle (deterministic BFS only; executors cannot resolve instructions) |
 | `--verbose-bfs` | off | Step-level BFS logs (equivalent to `BFS_VERBOSE=1`) |
 | `--depth N` | env / `3` | BFS depth override |
@@ -155,19 +156,19 @@ CLI flags `--depth`, `--max-trajectories`, and `--output` override `DEPTH_N`, `M
 There is a single entry point:
 
 ```bash
-uv run python run_harness.py [options]
+uv run run_harness.py [options]
 ```
 
 ### Execution modes overview
 
 | Mode | Command | Phases run | Requires |
 |---|---|---|---|
-| **Full pipeline** | `uv run python run_harness.py` | 1 → 2 → 3 | Docker, Playwright, LLM (recommended) |
+| **Full pipeline** | `uv run run_harness.py` | 1 → 2 → 3 → 4 | Docker, Playwright, LLM (recommended) |
 | **Planner only** | `--planner-only` | 1 → 2 | Docker, Playwright |
-| **Skip planner** | `--skip-planner` | 2 → 3 | `trajectories.json` |
+| **Skip planner** | `--skip-planner` | 2 → 3 → 4 | `trajectories.json` |
 | **Goals only** | `--goals-only` | 2 | `trajectories.json` |
-| **Run goals only** | `--run-goals` | 3 | `trajectories_goal.json` |
-| **Report** | `--report` | 4 | `verifier_claims/` |
+| **Run goals only** | `--run-goals` | 3 → 4 | `trajectories_goal.json` |
+| **Report only** | `--report` | 4 | `verifier_claims/` |
 | **Rollout** | `--rollout N` (with full or `--run-goals`) | 3 × N | Clears executor artifacts first |
 
 The flags `--report`, `--goals-only`, and `--run-goals` are **standalone entry modes** — each short-circuits the normal pipeline. All other flags compose with the default flow.
@@ -176,20 +177,22 @@ The flags `--report`, `--goals-only`, and `--run-goals` are **standalone entry m
 
 ### 1. Full pipeline (default)
 
-Runs BFS exploration → goal writing → parallel executors + verifiers.
+Runs BFS exploration → goal writing → parallel executors + verifiers → HTML report.
 
 ```bash
 # Local Qwen — no API key needed
-uv run python run_harness.py
+uv run run_harness.py
 
 # Anthropic (better quality)
-ANTHROPIC_API_KEY=sk-ant-... uv run python run_harness.py
+ANTHROPIC_API_KEY=sk-ant-... uv run run_harness.py
 
 # Tune depth, trajectory cap, and output location
-uv run python run_harness.py --depth 4 --max-trajectories 15 --output my-run/
+uv run run_harness.py --depth 4 --max-trajectories 15 --output my-run/
 ```
 
-**Note:** The full pipeline does **not** auto-generate `report.html`. Run `--report` separately after executors finish (see mode 7).
+When executors finish, Phase 4 runs automatically: `report.html` is written, a local server starts (default port 8765), and the report opens in your browser. The process blocks until you press Ctrl+C.
+
+If no verifier claims were produced (e.g. zero trajectories), the report step is skipped.
 
 ---
 
@@ -198,7 +201,7 @@ uv run python run_harness.py --depth 4 --max-trajectories 15 --output my-run/
 Runs Phase 1 (BFS) and Phase 2 (goal writer), prints discovered trajectories, then exits without running executors.
 
 ```bash
-uv run python run_harness.py --planner-only
+uv run run_harness.py --planner-only
 ```
 
 Produces:
@@ -226,13 +229,13 @@ Example terminal output:
 Tune exploration:
 
 ```bash
-uv run python run_harness.py --planner-only --depth 2 --output my-run/ --verbose-bfs
+uv run run_harness.py --planner-only --depth 2 --output my-run/ --verbose-bfs
 ```
 
 Deterministic exploration without LLM:
 
 ```bash
-uv run python run_harness.py --no-llm --planner-only
+uv run run_harness.py --no-llm --planner-only
 ```
 
 ---
@@ -242,17 +245,17 @@ uv run python run_harness.py --no-llm --planner-only
 Loads `trajectories.json` from the output dir, regenerates goals, then runs executors + verifiers.
 
 ```bash
-uv run python run_harness.py --skip-planner --output my-run/
+uv run run_harness.py --skip-planner --output my-run/
 ```
 
 Useful after `--planner-only` when you want to execute without re-exploring:
 
 ```bash
 # Step 1: explore
-uv run python run_harness.py --planner-only --output my-run/
+uv run run_harness.py --planner-only --output my-run/
 
 # Step 2: execute against saved trajectories
-uv run python run_harness.py --skip-planner --output my-run/
+uv run run_harness.py --skip-planner --output my-run/
 ```
 
 ---
@@ -262,7 +265,7 @@ uv run python run_harness.py --skip-planner --output my-run/
 Reads existing `trajectories.json`, writes fresh `trajectories_goal.json`, and exits. Does not run BFS or executors.
 
 ```bash
-uv run python run_harness.py --goals-only --output my-run/
+uv run run_harness.py --goals-only --output my-run/
 ```
 
 Use when you want to regenerate plain-English goals (e.g. after changing the LLM provider or model) without re-exploring.
@@ -271,10 +274,10 @@ Use when you want to regenerate plain-English goals (e.g. after changing the LLM
 
 ### 5. Run goals only (execute existing goals)
 
-Reads `trajectories_goal.json`, runs executors + verifiers, and exits. Skips BFS and goal writing.
+Reads `trajectories_goal.json`, runs executors + verifiers, then opens the HTML report. Skips BFS and goal writing.
 
 ```bash
-uv run python run_harness.py --run-goals --output my-run/
+uv run run_harness.py --run-goals --output my-run/
 ```
 
 Use when goals are already written and you only need to re-execute.
@@ -288,25 +291,25 @@ Clears prior `executor_runs/` and `verifier_claims/`, then runs the full executo
 With existing goals:
 
 ```bash
-uv run python run_harness.py --run-goals --rollout 3 --output my-run/
+uv run run_harness.py --run-goals --rollout 3 --output my-run/
 ```
 
 As part of the full pipeline:
 
 ```bash
-uv run python run_harness.py --rollout 2
+uv run run_harness.py --rollout 2
 ```
 
 Rollout results are summarized in `executor_trajectories.json` with a `rollout` index per entry.
 
 ---
 
-### 7. HTML report (standalone)
+### 7. HTML report only (standalone)
 
-Loads all `verifier_claims/*/claims.json`, renders `report.html`, starts a local HTTP server (default port 8765), and opens the report in your browser. Blocks until Ctrl+C.
+Re-render and view a report from existing verifier claims without re-running the harness. Useful when you already have `verifier_claims/` and only want to open the report again.
 
 ```bash
-uv run python run_harness.py --report --output my-run/
+uv run run_harness.py --report --output my-run/
 ```
 
 ---
@@ -316,7 +319,7 @@ uv run python run_harness.py --report --output my-run/
 Disables the LLM oracle entirely. BFS falls back to DOM heuristics for action identification. Goal writing uses a heuristic fallback. Executors cannot resolve plain-English instructions without an LLM.
 
 ```bash
-uv run python run_harness.py --no-llm --planner-only   # exploration only
+uv run run_harness.py --no-llm --planner-only   # exploration only
 ```
 
 For meaningful executor runs, an LLM provider is required.
@@ -325,34 +328,32 @@ For meaningful executor runs, an LLM provider is required.
 
 ### Common multi-step workflows
 
-**Explore → review → execute → report**
+**Explore → review → execute**
 
 ```bash
-uv run python run_harness.py --planner-only --output my-run/
+uv run run_harness.py --planner-only --output my-run/
 # Review my-run/trajectories.json and screenshots/
-uv run python run_harness.py --skip-planner --output my-run/
-uv run python run_harness.py --report --output my-run/
+uv run run_harness.py --skip-planner --output my-run/
+# Report opens automatically when executors finish
 ```
 
 **Explore → execute in one shot**
 
 ```bash
-uv run python run_harness.py --depth 3 --max-trajectories 10
-uv run python run_harness.py --report
+uv run run_harness.py --depth 3 --max-trajectories 10
 ```
 
 **Regenerate goals and re-execute**
 
 ```bash
-ANTHROPIC_API_KEY=sk-ant-... uv run python run_harness.py --goals-only
-uv run python run_harness.py --run-goals --rollout 2
-uv run python run_harness.py --report
+ANTHROPIC_API_KEY=sk-ant-... uv run run_harness.py --goals-only
+uv run run_harness.py --run-goals --rollout 2
 ```
 
 **Flaky-behavior investigation with rollouts**
 
 ```bash
-uv run python run_harness.py --run-goals --rollout 5 --max-trajectories 5
+uv run run_harness.py --run-goals --rollout 5 --max-trajectories 5
 ```
 
 ---
@@ -369,7 +370,7 @@ All artifacts are written under `OUTPUT_DIR` (default `output/`).
 | `executor_runs/T-NNN_<run_id>/` | Phase 3 | `run.json`, `step_NN_before.png`, `step_NN_after.png` |
 | `verifier_claims/T-NNN_<run_id>/claims.json` | Phase 3 | Findings with severity, evidence, reproduction steps |
 | `executor_trajectories.json` | Phase 3 | Summary of all executor runs (includes rollout index) |
-| `report.html` | `--report` | Human-readable findings report with screenshots |
+| `report.html` | Phase 4 (auto after full run / `--run-goals`, or `--report`) | Human-readable findings report with screenshots |
 | `exploration_memory.md` | BFS | Live log of explored nodes and actions (repo root) |
 
 ### `trajectories_goal.json` shape
@@ -441,9 +442,100 @@ run_harness.py
   │            (LLM resolves instructions → step_runner)
   │            → executor_runs/ + verifier_claims/
   │
-  └─ Phase 4: collector → render → serve  (--report only)
+  └─ Phase 4: collector → render → serve  (auto after execution, or --report)
               → report.html
 ```
+
+---
+
+## What's next
+
+This harness is a working prototype, not a finished exploration engine. The current design makes deliberate trade-offs that limit coverage, reliability, and speed. Below are the main gaps and concrete directions for improvement.
+
+### 1. BFS explorer — the biggest bottleneck
+
+Phase 1 runs entirely inside **one Docker instance and one browser session**. Every action is tried sequentially on shared server state. That creates several hard problems:
+
+**Sequential, stateful exploration.** Creating a memo, pinning it, or navigating the calendar permanently changes the backend. The explorer cannot return to a pristine "empty account" state — it only moves forward. Later actions are explored on top of earlier side-effects, so trajectories discovered late in the run reflect a polluted world, not an isolated workflow.
+
+**Fragile state restoration.** Before each action, the explorer calls `_restore_node()`: navigate to the parent URL (sometimes with a full reload), then **replay** a chain of prior clicks to reopen popups, dropdowns, or filters. This works for simple cases but breaks on slow or complex UI:
+- Reloads time out or settle before the page is interactive
+- Replay steps fail when elements move, overlays block clicks, or async content hasn't loaded
+- Auth-guard redirects send the browser somewhere other than the target URL
+- Server mutations survive reloads (by design), so "restore" never means "undo"
+
+When restoration fails, the action is skipped entirely — coverage is silently lost.
+
+**Action bleed between siblings.** Even with per-action reloads, sibling actions at the same node compete on the same mutated server. Trying "archive memo" after "create memo" is fine; trying "create account" again at the same URL path is deduplicated and never retried.
+
+**Proposed fix — forked exploration with independent Docker instances:**
+
+Instead of restoring state in one session, treat each parent-suggested action as an isolated experiment:
+
+```
+Parent state (URL + replay chain + screenshot)
+    │
+    ├─ Docker A + Browser A  →  try action "create_memo"
+    ├─ Docker B + Browser B  →  try action "open_settings"
+    ├─ Docker C + Browser C  →  try action "navigate_calendar"
+    └─ ...
+```
+
+Each fork gets a **fresh container** (clean DB, clean session), replays only the parent's path to reach the starting UI, executes one action, captures the child state, and tears down. Sibling actions no longer interfere. Slow or failed restores on one branch do not block others. This is essentially a **parallel tree expansion** model rather than in-place BFS — closer to how fuzzers and model-checkers branch execution.
+
+Trade-off: more Docker churn and LLM calls, but much higher fidelity and parallelism. `MAX_PARALLEL` already exists for executors; the same pattern could apply to exploration.
+
+### 2. Exploration coverage caps
+
+| Limit | Default | Effect |
+|---|---|---|
+| `DEPTH_N` | 3 | Deep workflows (multi-page settings, long forms) are never reached |
+| `max_actions_per_node` | 8 | LLM may identify 15+ workflows; the rest are dropped |
+| `visited_url_actions` | per URL path | Each action name is tried once per URL+replay context — valid retries in different data states are skipped |
+| State hash | structural skeleton | Two pages with the same DOM shape but different data (e.g. 1 memo vs 50 memos) may hash identically and collapse |
+
+Raising depth and action caps helps marginally but worsens the sequential-state problem above. Forked exploration is the structural fix.
+
+### 3. Planner → executor disconnect
+
+BFS discovers trajectories with concrete selectors and step sequences. Phase 2 converts them to plain English. Phase 3 **throws away the selectors** and asks the LLM to re-resolve each instruction against a fresh page.
+
+This means:
+- Executor behavior can diverge from what the planner actually explored
+- Flaky LLM resolution produces false failures (executor partial runs like `T-001` are common)
+- The verifier judges a different path than the one BFS proved reachable
+
+**Improvement:** hybrid execution — use BFS-recorded selectors as a deterministic fallback when the LLM's resolution disagrees, or skip goal translation entirely for replay-based executors on stable workflows.
+
+### 4. LLM cost, latency, and non-determinism
+
+The LLM is invoked in four places: action identification, goal writing, instruction resolution, and per-step verification. A full run with 20 trajectories × 3 instructions can mean hundreds of vision calls. Results vary between runs (hence `--rollout`), which makes CI gating noisy.
+
+**Improvement:** cache LLM responses keyed by (page hash, prompt), use smaller models for resolution vs verification, and add a deterministic replay mode for regression runs.
+
+### 5. Verification and reporting gaps
+
+- **Verifier is a single sequential consumer** — it processes step messages from all executors through one queue handler; it does not limit throughput today but could under higher parallelism.
+- **No auto-fix** — the harness finds bugs but does not patch code or suggest CSS/DOM fixes.
+- **No visual regression baselines** — geometry checks exist in the browser layer but are not wired into the verifier pipeline as first-class oracles.
+- **Report blocks on Ctrl+C** — convenient for local review, awkward for headless CI (needs a `--no-serve` or generate-only mode).
+
+### 6. App and environment coupling
+
+- Docker image (`memos-buggy:latest`) and port `5230` are hardcoded.
+- No app config file — retargeting a different web app requires code changes across planner prompts, goal writer, and executor prompts.
+- The Docker image tarball is not in the repo; setup is manual.
+
+**Improvement:** an `app.yaml` descriptor (image, health path, seed URL, auth flow) so the harness can target arbitrary local apps without forked prompts.
+
+### Suggested roadmap (priority order)
+
+1. **Forked BFS** — independent Docker per parent action; biggest reliability win.
+2. **Selector-aware executors** — replay BFS steps when possible, LLM only when stuck.
+3. **Exploration parallelism** — bound by `MAX_PARALLEL`, same as executors.
+4. **CI mode** — generate `report.html` without starting a server or opening a browser.
+5. **App descriptor** — decouple from Memos-specific assumptions.
+6. **LLM response caching** — cut cost and variance on repeated runs.
 
 ---
 

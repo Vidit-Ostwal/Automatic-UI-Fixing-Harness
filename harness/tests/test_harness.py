@@ -306,7 +306,24 @@ async def test_run_goal_executors_rollout_clears_and_repeats(tmp_path):
     assert summary[1]["rollout"] == 2
 
 
-from run_harness import _main
+from run_harness import _main, _open_report_after_run
+
+
+def test_open_report_after_run_skips_when_no_claims(tmp_path):
+    with patch("run_harness.open_report") as mock_open:
+        _open_report_after_run(tmp_path)
+    mock_open.assert_not_called()
+
+
+def test_open_report_after_run_opens_when_claims_exist(tmp_path):
+    claims = tmp_path / "verifier_claims" / "T-001_abc"
+    claims.mkdir(parents=True)
+    (claims / "claims.json").write_text('{"findings": []}')
+
+    with patch("run_harness.open_report") as mock_open:
+        _open_report_after_run(tmp_path)
+
+    mock_open.assert_called_once_with(tmp_path)
 
 
 @pytest.mark.asyncio
@@ -320,6 +337,7 @@ async def test_main_returns_0_on_clean_run(tmp_path, monkeypatch):
         patch("run_harness.run_planner", new=AsyncMock(return_value=(_fake_traj(1), []))),
         patch("run_harness.run_goal_writer", new=AsyncMock(return_value=_fake_goals(1))),
         patch("run_harness.run_goal_executors", new=AsyncMock(return_value=([], []))),
+        patch("run_harness._open_report_after_run"),
     ):
         code = await _main()
 
@@ -348,6 +366,7 @@ async def test_main_returns_1_on_critical_finding(tmp_path, monkeypatch):
         patch("run_harness.run_planner", new=AsyncMock(return_value=(_fake_traj(1), []))),
         patch("run_harness.run_goal_writer", new=AsyncMock(return_value=_fake_goals(1))),
         patch("run_harness.run_goal_executors", new=AsyncMock(return_value=([], [claims_path]))),
+        patch("run_harness._open_report_after_run"),
     ):
         code = await _main()
 
@@ -376,6 +395,7 @@ async def test_main_skip_planner_loads_from_file(tmp_path):
         patch("run_harness.run_planner") as mock_planner,
         patch("run_harness.run_goal_writer", new=AsyncMock(return_value=_fake_goals(2))),
         patch("run_harness.run_goal_executors", new=AsyncMock(return_value=([], []))),
+        patch("run_harness._open_report_after_run"),
     ):
         code = await _main()
 
@@ -394,6 +414,7 @@ async def test_main_no_llm_flag_disables_llm_oracle(tmp_path, monkeypatch):
         patch("run_harness.run_planner", new=AsyncMock(return_value=([], []))),
         patch("run_harness.run_goal_writer", new=AsyncMock(return_value=[])),
         patch("run_harness.run_goal_executors", new=AsyncMock(return_value=([], []))) as mock_exec,
+        patch("run_harness._open_report_after_run"),
     ):
         await _main()
 

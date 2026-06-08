@@ -11,6 +11,8 @@ Four-phase execution:
   Phase 3  EXECUTORS   — N parallel GoalExecutors, one per goal
   Phase 3  VERIFIERS   — run simultaneously, consuming executor StepMessages
                          (findings written to output/verifier_claims/*/claims.json)
+  Phase 4  REPORT      — after a full run, render report.html and open in browser
+                         (also available standalone via --report)
 
 Configuration (env vars, all optional):
     DEPTH_N            BFS depth          (default: 3)
@@ -478,6 +480,16 @@ def _print_run_summary(
 # Main
 # ---------------------------------------------------------------------------
 
+def _open_report_after_run(output_dir: Path) -> None:
+    """Render and serve the HTML report when verifier claims exist."""
+    claims_root = output_dir / "verifier_claims"
+    if not claims_root.is_dir() or not any(claims_root.glob("*/claims.json")):
+        logger.info("No verifier claims — skipping report")
+        return
+    logger.info("=== PHASE 4: REPORT ===")
+    open_report(output_dir)
+
+
 def _print_trajectories(trajectories: list[dict]) -> None:
     """Pretty-print discovered trajectories to stdout."""
     print(f"\n{'='*60}")
@@ -575,7 +587,9 @@ async def _main() -> int:
         _, claims_paths = await run_goal_executors(goals, config, llm_oracle)
         duration = time.monotonic() - start
         critical, high = _print_run_summary(config, [], claims_paths, None, duration)
-        return 1 if (critical + high) > 0 else 0
+        exit_code = 1 if (critical + high) > 0 else 0
+        _open_report_after_run(config.output_dir)
+        return exit_code
 
     # Phase 1 — Planner.
     bfs_findings: list[Finding] = []
@@ -611,8 +625,9 @@ async def _main() -> int:
         config, trajectories, claims_paths, bfs_findings, duration
     )
 
-    # Exit 1 if any critical or high findings — useful for CI.
-    return 1 if (critical + high) > 0 else 0
+    exit_code = 1 if (critical + high) > 0 else 0
+    _open_report_after_run(config.output_dir)
+    return exit_code
 
 
 if __name__ == "__main__":
