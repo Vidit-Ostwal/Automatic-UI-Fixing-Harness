@@ -1,28 +1,15 @@
 """
-step_runner.py — shared low-level step execution helpers.
+Shared low-level browser step execution.
 
-Extracted from BFS explorer so GoalExecutor uses the exact same execution
-model: fill verification with LLM fallback, overlay dismissal, and
-post-action navigation wait.
-
-Public API
-----------
-execute_steps(session, steps, llm_oracle)
-    Execute a list of {type, selector, value} dicts in sequence.
-    Returns (success, reason, had_fill_issues).
-    Mirrors BFS explorer's _execute_action() exactly.
-
-wait_for_navigation(session, prev_url, timeout_ms=2000)
-    Poll for a SPA URL change after an action, then wait for stability.
-    Mirrors BFS explorer's _wait_for_navigation() exactly.
-
-dismiss_overlays(session)
-    Press Escape to close any open Radix dropdown or dialog.
-    Mirrors BFS explorer's _dismiss_overlays() exactly.
+Used by both planner (BFS explorer) and executor (GoalExecutor) so workflow
+replay and goal-driven execution share identical fill/click/nav behaviour.
 """
 
 import asyncio
 import logging
+
+from utils.fill_retry import suggest_fill_value
+from utils.url import normalise_url
 
 logger = logging.getLogger(__name__)
 
@@ -42,10 +29,8 @@ async def wait_for_navigation(session, prev_url: str, timeout_ms: int = 2000) ->
     (React Router pushState).  If the URL changes, wait for the new page to
     stabilise before returning.
     """
-    from planner.state_hasher import normalise_url
-
     deadline = timeout_ms / 1000
-    slept    = 0.0
+    slept = 0.0
     interval = 0.1
     prev_norm = normalise_url(prev_url)
 
@@ -69,19 +54,7 @@ async def execute_steps(
     """
     Execute a sequence of {type, selector, value} step dicts.
 
-    Identical behaviour to BFS explorer's _execute_action():
-      - fill: writes the value then reads back input_value() to verify
-              acceptance. If the field rejected the value, asks the LLM
-              for an alternative (suggest_fill_value) and retries once.
-      - click / press / select: executed directly.
-
-    Returns
-    -------
-    (success, reason, had_fill_issues)
-      success          True when all steps completed without error.
-      reason           Empty string on success; error description on failure.
-      had_fill_issues  True when at least one fill value was initially rejected
-                       and an LLM alternative was needed.
+    Returns (success, reason, had_fill_issues).
     """
     if not steps:
         return False, "no steps to execute", False
@@ -90,8 +63,8 @@ async def execute_steps(
 
     for step in steps:
         step_type = step.get("type", "click")
-        selector  = step.get("selector", "")
-        value     = step.get("value", "")
+        selector = step.get("selector", "")
+        value = step.get("value", "")
 
         try:
             if step_type == "fill":
@@ -99,7 +72,7 @@ async def execute_steps(
                 try:
                     actual = await session.page.input_value(selector, timeout=2000)
                 except Exception:
-                    actual = value  # can't verify — assume accepted
+                    actual = value
 
                 if actual != value:
                     had_fill_issues = True
@@ -110,8 +83,8 @@ async def execute_steps(
                     alt = None
                     if llm_oracle is not None:
                         screenshot = await session.page.screenshot()
-                        alt = await llm_oracle.suggest_fill_value(
-                            selector, value, actual, screenshot
+                        alt = await suggest_fill_value(
+                            llm_oracle, selector, value, actual, screenshot
                         )
                     if alt is not None:
                         logger.info("step_runner: fill retry with LLM value %r", alt)

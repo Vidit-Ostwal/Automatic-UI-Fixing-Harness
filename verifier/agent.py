@@ -101,7 +101,10 @@ class VerifierAgent:
 
         if self._llm is not None:
             try:
-                raw = await self._llm.verify_step(
+                from verifier.prompts import verify_step as llm_verify_step
+
+                raw = await llm_verify_step(
+                    self._llm,
                     goal=self._goal,
                     history=self._history,
                     current_step=current,

@@ -10,7 +10,7 @@ user intention:
 
 Two-layer pipeline
 ------------------
-1. LLM analysis  (primary, uses LLMOracle.analyze_page_actions)
+1. LLM analysis  (primary, uses planner.prompts.analyze_page_actions)
    Sends the real element list + a11y tree + screenshot to the LLM, which
    reasons about distinct workflows and infers contextually appropriate fill
    values for each field from its label, placeholder, and surrounding UI.
@@ -206,8 +206,10 @@ async def llm_group(
     Ask the LLMOracle to reason about complete workflows on this page.
     Returns None on any failure so the caller falls back to dom_group().
     """
-    groups = await oracle.analyze_page_actions(
-        a11y_tree, screenshot, elements=elements, explored_context=explored_context
+    from planner.prompts import analyze_page_actions
+
+    groups = await analyze_page_actions(
+        oracle, a11y_tree, screenshot, elements=elements, explored_context=explored_context
     )
     if groups is None:
         return None

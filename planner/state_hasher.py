@@ -13,7 +13,8 @@ the visible text differs.
 import hashlib
 import json
 import re
-from urllib.parse import urlparse
+
+from utils.url import normalise_url
 
 
 def extract_structural_skeleton(node: dict, depth: int = 0) -> dict:
@@ -63,15 +64,6 @@ def interactive_fingerprint(elements: list[dict]) -> str:
         if e.get("selector")
     )
     return hashlib.md5("|".join(parts).encode()).hexdigest()
-
-
-def normalise_url(url: str) -> str:
-    """
-    Keep scheme + host + path. Drop query params and fragments.
-    For SPAs these are often ephemeral (search terms, scroll position).
-    """
-    parsed = urlparse(url)
-    return f"{parsed.scheme}://{parsed.netloc}{parsed.path}".rstrip("/")
 
 
 def state_hash(

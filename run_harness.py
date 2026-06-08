@@ -4,12 +4,13 @@ run_harness.py — top-level entry point for the autonomous UI test harness.
 Usage:
     uv run python run_harness.py [options]
 
-Three-phase execution:
-  Phase 1  PLANNER     — one Docker instance, BFS exploration, emit trajectories.json
-  Phase 1b GOAL WRITER — LLM converts each trajectory into plain-English goals,
-                         emits trajectories_goal.json
-  Phase 2  EXECUTORS   — N parallel Docker instances, each running one trajectory,
-                         oracles firing at every step
+Four-phase execution:
+  Phase 1  PLANNER     — BFS exploration, emit trajectories.json
+  Phase 2  GOAL WRITER — LLM converts each trajectory into plain-English goals,
+                         emit trajectories_goal.json
+  Phase 3  EXECUTORS   — N parallel GoalExecutors, one per goal
+  Phase 3  VERIFIERS   — run simultaneously, consuming executor StepMessages
+                         (findings written to output/verifier_claims/*/claims.json)
 
 Configuration (env vars, all optional):
     DEPTH_N            BFS depth          (default: 3)
@@ -54,16 +55,10 @@ logger = logging.getLogger("harness")
 from browser.session import BrowserSession
 from docker_manager import DockerInstance
 from executor.goal_executor import ExecutorResult, GoalExecutor
-from executor.runner import RunnerConfig, TrajectoryRunner, steps_from_trajectory
 from executor.step_message import QUEUE_DONE_SENTINEL, StepMessage
+from models import Finding
 from verifier.agent import VerifierAgent
-from oracles.diff import DiffOracle
-from oracles.logic import LogicOracle
-from oracles.visual import VisualOracle
 from planner import BFSExplorer, extract_trajectories, trajectories_to_json, write_trajectory_goals
-from reporter.collector import FindingCollector
-from reporter.merger import merge
-from reporter.render import RunReport, render_html, render_json
 
 
 # ---------------------------------------------------------------------------
@@ -152,10 +147,10 @@ def _save_trajectory_screenshots(
                 (folder / f"{i:02d}_{safe_name}.png").write_bytes(png)
 
 
-async def run_planner(config: HarnessConfig, llm_oracle) -> tuple[list[dict], FindingCollector]:
+async def run_planner(config: HarnessConfig, llm_oracle) -> tuple[list[dict], list[Finding]]:
     """
     Spin up one Docker instance, BFS-explore the app, return serialised
-    trajectories and a FindingCollector with any crashes found during exploration.
+    trajectories and any crashes/findings discovered during exploration.
     Also writes trajectories.json to the output dir.
     """
     logger.info("=== PHASE 1: PLANNER (depth=%d) ===", config.depth_n)
@@ -202,12 +197,7 @@ async def run_planner(config: HarnessConfig, llm_oracle) -> tuple[list[dict], Fi
     traj_path.write_text(json.dumps(serialised, indent=2))
     logger.info("Trajectories saved to %s", traj_path)
 
-    # Wrap BFS findings in a collector so they flow into the normal merge path.
-    bfs_collector = FindingCollector(trajectory_id="BFS-exploration")
-    for finding in result.findings:
-        bfs_collector.add(finding)
-
-    return serialised, bfs_collector
+    return serialised, list(result.findings)
 
 
 # ---------------------------------------------------------------------------
@@ -218,23 +208,24 @@ async def run_goal_writer(
     trajectories: list[dict],
     config: HarnessConfig,
     llm_oracle,
-) -> None:
+) -> list[dict]:
     """
     For each trajectory, ask the LLM to produce a plain-English goal document
     (goal, instructions, success_criteria) and write trajectories_goal.json.
     Safe to call without an LLM — heuristic fallback is always used then.
     """
-    logger.info("=== PHASE 1b: GOAL WRITER (%d trajectories) ===", len(trajectories))
+    logger.info("=== PHASE 2: GOAL WRITER (%d trajectories) ===", len(trajectories))
     goals = await write_trajectory_goals(trajectories, llm_oracle, output_dir=config.output_dir)
 
     config.output_dir.mkdir(parents=True, exist_ok=True)
     goal_path = config.output_dir / "trajectories_goal.json"
     goal_path.write_text(json.dumps(goals, indent=2))
     logger.info("Trajectory goals saved to %s", goal_path)
+    return goals
 
 
 # ---------------------------------------------------------------------------
-# Phase 2a — Goal executors (agentic, goal-driven)
+# Phase 3 — Goal executors + verifiers (run in parallel)
 # ---------------------------------------------------------------------------
 
 async def _run_verifier_consumer(
@@ -302,20 +293,20 @@ async def run_goal_executors(
     goals: list[dict],
     config: "HarnessConfig",
     llm_oracle,
-) -> list[ExecutorResult]:
+) -> tuple[list[ExecutorResult], list[Path]]:
     """
     Run one GoalExecutor per goal, bounded by max_parallel.
-    Input is ONLY goals from trajectories_goal.json — no trajectories.json needed.
-    A shared asyncio.Queue carries StepMessages (verifier will consume these later).
+    A VerifierAgent consumes StepMessages from the same queue simultaneously.
     Writes executor_trajectories.json summarising all runs.
+    Returns (executor results, verifier claims.json paths).
     """
     if not goals:
         logger.warning("GoalExecutors: no goals to run")
-        return []
+        return [], []
 
     capped = goals[: config.max_trajectories]
     logger.info(
-        "=== PHASE 2a: GOAL EXECUTORS (%d goals, max %d parallel) ===",
+        "=== PHASE 3: EXECUTORS + VERIFIERS (%d goals, max %d parallel) ===",
         len(capped), config.max_parallel,
     )
 
@@ -371,123 +362,58 @@ async def run_goal_executors(
         for p in claims_paths:
             logger.info("  → %s", p)
 
-    return results
+    return results, claims_paths
 
 
 # ---------------------------------------------------------------------------
-# Phase 2b — single trajectory-replay executor (original)
+# Run summary
 # ---------------------------------------------------------------------------
 
-async def run_one_trajectory(
-    trajectory: dict,
-    llm_oracle,
-    semaphore: asyncio.Semaphore,
-) -> FindingCollector:
-    """
-    Acquire a concurrency slot, spin up a Docker instance, run the trajectory,
-    return the collector. Never raises — exceptions produce an empty collector
-    with a logged warning.
-    """
-    async with semaphore:
-        traj_id = trajectory.get("id", "T-???")
-        logger.info("Executor %s starting", traj_id)
-        try:
-            async with DockerInstance.start() as docker:
-                steps = steps_from_trajectory(trajectory)
-                runner = TrajectoryRunner(
-                    steps=steps,
-                    config=RunnerConfig(
-                        trajectory_id=traj_id,
-                        app_url=docker.url,
-                    ),
-                    visual_oracle=VisualOracle(llm_oracle=llm_oracle),
-                    logic_oracle=LogicOracle(),
-                    diff_oracle=DiffOracle(llm_oracle=llm_oracle),
-                    llm_oracle=llm_oracle,
-                )
-                collector = await runner.run()
-                logger.info(
-                    "Executor %s finished: %d finding(s)", traj_id, len(collector)
-                )
-                return collector
-        except Exception as e:
-            logger.warning("Executor %s failed: %s", traj_id, e)
-            return FindingCollector(trajectory_id=traj_id)
+def _count_severities(
+    claims_paths: list[Path],
+    bfs_findings: list[Finding] | None = None,
+) -> dict[str, int]:
+    counts = {"critical": 0, "high": 0, "medium": 0, "low": 0, "total": 0}
+    for path in claims_paths:
+        if not path.exists():
+            continue
+        for raw in json.loads(path.read_text()).get("findings", []):
+            counts["total"] += 1
+            sev = raw.get("severity", "low")
+            if sev in counts:
+                counts[sev] += 1
+    for finding in bfs_findings or []:
+        counts["total"] += 1
+        sev = finding.severity.value
+        if sev in counts:
+            counts[sev] += 1
+    return counts
 
 
-# ---------------------------------------------------------------------------
-# Phase 2 — all executors in parallel
-# ---------------------------------------------------------------------------
-
-async def run_executors(
-    trajectories: list[dict],
-    config: HarnessConfig,
-    llm_oracle,
-) -> list[FindingCollector]:
-    capped = trajectories[: config.max_trajectories]
-    logger.info(
-        "=== PHASE 2: EXECUTORS (%d trajectories, max %d parallel) ===",
-        len(capped), config.max_parallel,
-    )
-
-    semaphore = asyncio.Semaphore(config.max_parallel)
-    tasks = [
-        run_one_trajectory(t, llm_oracle, semaphore)
-        for t in capped
-    ]
-    collectors = await asyncio.gather(*tasks)
-    return list(collectors)
-
-
-# ---------------------------------------------------------------------------
-# Report generation
-# ---------------------------------------------------------------------------
-
-def generate_report(
-    collectors: list[FindingCollector],
+def _print_run_summary(
     config: HarnessConfig,
     trajectories: list[dict],
+    claims_paths: list[Path],
+    bfs_findings: list[Finding] | None,
     duration: float,
-) -> None:
-    findings, noise = merge(collectors)
-
-    report = RunReport(
-        run_id=config.run_id,
-        app_url="http://localhost (see trajectories.json for per-instance URLs)",
-        findings=findings,
-        suppressed_noise=noise,
-        trajectories_explored=len(trajectories),
-        duration_seconds=duration,
-    )
-
-    json_path = render_json(report, config.output_dir)
-    html_path = render_html(report, config.output_dir)
-
-    logger.info("Report written:")
-    logger.info("  JSON → %s", json_path)
-    logger.info("  HTML → %s", html_path)
-
-    # Print summary to stdout.
-    total    = len(findings)
-    critical = sum(1 for f in findings if f.severity.value == "critical")
-    high     = sum(1 for f in findings if f.severity.value == "high")
-    medium   = sum(1 for f in findings if f.severity.value == "medium")
-    low      = sum(1 for f in findings if f.severity.value == "low")
-
+) -> tuple[int, int]:
+    counts = _count_severities(claims_paths, bfs_findings)
     print("\n" + "=" * 60)
     print(f"  Run ID : {config.run_id}")
     print(f"  Duration: {duration:.1f}s")
-    print(f"  Trajectories explored: {len(trajectories)}")
-    print(f"  Findings: {total} total")
-    print(f"    Critical : {critical}")
-    print(f"    High     : {high}")
-    print(f"    Medium   : {medium}")
-    print(f"    Low      : {low}")
-    print(f"  Suppressed noise: {len(noise)}")
-    print(f"  Report: {html_path}")
+    print(f"  Trajectories: {len(trajectories)}")
+    print(f"  Verifier claims: {len(claims_paths)} file(s)")
+    print(f"  Findings: {counts['total']} total")
+    print(f"    Critical : {counts['critical']}")
+    print(f"    High     : {counts['high']}")
+    print(f"    Medium   : {counts['medium']}")
+    print(f"    Low      : {counts['low']}")
+    if claims_paths:
+        print("  Claims:")
+        for p in claims_paths:
+            print(f"    → {p}")
     print("=" * 60 + "\n")
-
-    return critical, high
+    return counts["critical"], counts["high"]
 
 
 # ---------------------------------------------------------------------------
@@ -561,7 +487,7 @@ async def _main() -> int:
         await run_goal_writer(trajectories, config, llm_oracle)
         return 0
 
-    # --run-goals: standalone goal execution — only needs trajectories_goal.json.
+    # --run-goals: skip planner + goal writer; run executors + verifiers only.
     if config.run_goals:
         goal_path = config.output_dir / "trajectories_goal.json"
         if not goal_path.exists():
@@ -569,11 +495,13 @@ async def _main() -> int:
             return 2
         goals = json.loads(goal_path.read_text())
         logger.info("Loaded %d goals from %s", len(goals), goal_path)
-        await run_goal_executors(goals, config, llm_oracle)
-        return 0
+        _, claims_paths = await run_goal_executors(goals, config, llm_oracle)
+        duration = time.monotonic() - start
+        critical, high = _print_run_summary(config, [], claims_paths, None, duration)
+        return 1 if (critical + high) > 0 else 0
 
     # Phase 1 — Planner.
-    bfs_collector: Optional[FindingCollector] = None
+    bfs_findings: list[Finding] = []
     if config.skip_planner:
         traj_path = config.output_dir / "trajectories.json"
         if not traj_path.exists():
@@ -582,30 +510,29 @@ async def _main() -> int:
         trajectories = json.loads(traj_path.read_text())
         logger.info("Loaded %d trajectories from %s", len(trajectories), traj_path)
     else:
-        trajectories, bfs_collector = await run_planner(config, llm_oracle)
+        trajectories, bfs_findings = await run_planner(config, llm_oracle)
 
     if not trajectories:
         logger.warning("No trajectories to execute — check BFS depth and app URL")
         trajectories = []
 
-    # Phase 1b — Goal writer (always runs after planner, including --skip-planner).
-    await run_goal_writer(trajectories, config, llm_oracle)
+    # Phase 2 — Goal writer (always runs after planner, including --skip-planner).
+    goals = await run_goal_writer(trajectories, config, llm_oracle)
 
     # Early exit when only BFS exploration was requested.
     if config.planner_only:
         _print_trajectories(trajectories)
         return 0
 
-    # Phase 2 — Executors.
-    collectors = await run_executors(trajectories, config, llm_oracle)
+    # Phase 3 — Executors + verifiers (parallel).
+    _, claims_paths = await run_goal_executors(goals, config, llm_oracle)
 
     duration = time.monotonic() - start
 
-    # Phase 3 — Report (include BFS findings alongside executor findings).
-    all_collectors = list(collectors)
-    if bfs_collector and len(bfs_collector) > 0:
-        all_collectors.insert(0, bfs_collector)
-    critical, high = generate_report(all_collectors, config, trajectories, duration)
+    # Summary — verifier claims are the primary output; include BFS findings in counts.
+    critical, high = _print_run_summary(
+        config, trajectories, claims_paths, bfs_findings, duration
+    )
 
     # Exit 1 if any critical or high findings — useful for CI.
     return 1 if (critical + high) > 0 else 0

@@ -46,8 +46,8 @@ class _MockProvider:
         self._response = response
         self.calls: list[dict] = []
 
-    async def complete(self, system: str, messages: list[dict]) -> str:
-        self.calls.append({"system": system, "messages": messages})
+    async def complete(self, system: str, messages: list[dict], max_tokens: int = 512) -> str:
+        self.calls.append({"system": system, "messages": messages, "max_tokens": max_tokens})
         return self._response
 
     @staticmethod
@@ -386,7 +386,7 @@ async def test_llm_oracle_works_with_local_provider(monkeypatch):
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
 
     class _FakeLocal:
-        async def complete(self, system, messages):
+        async def complete(self, system, messages, max_tokens=512):
             return '{"verdict":"noise","description":"loading","severity":null,"reasoning":"spinner"}'
         @staticmethod
         def image_block(png_bytes):

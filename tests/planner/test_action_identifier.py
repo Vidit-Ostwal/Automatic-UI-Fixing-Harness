@@ -11,6 +11,8 @@ Covers:
   - ActionIdentifier with mock LLM uses analyze_page_actions output
 """
 
+import json
+
 import pytest
 from planner.action_identifier import (
     ActionIdentifier,
@@ -167,8 +169,12 @@ async def test_identifier_empty_elements():
 # ---------------------------------------------------------------------------
 
 class _FailingOracle:
-    async def analyze_page_actions(self, a11y_tree, screenshot, elements=None):
-        return None   # signals failure; caller should fall back
+    async def complete(self, system, messages, max_tokens=512):
+        raise RuntimeError("LLM failure")
+
+    @staticmethod
+    def image_block(png_bytes):
+        return {"type": "image_url", "image_url": {"url": "fake"}}
 
 
 @pytest.mark.asyncio
@@ -205,8 +211,12 @@ _MOCK_WORKFLOWS = [
 
 
 class _MockOracle:
-    async def analyze_page_actions(self, a11y_tree, screenshot, elements=None):
-        return _MOCK_WORKFLOWS
+    async def complete(self, system, messages, max_tokens=512):
+        return json.dumps(_MOCK_WORKFLOWS)
+
+    @staticmethod
+    def image_block(png_bytes):
+        return {"type": "image_url", "image_url": {"url": "fake"}}
 
 
 @pytest.mark.asyncio
@@ -270,8 +280,12 @@ _FORM_ONLY_WORKFLOWS = [
 
 
 class _FormOnlyOracle:
-    async def analyze_page_actions(self, a11y_tree, screenshot, elements=None):
-        return _FORM_ONLY_WORKFLOWS
+    async def complete(self, system, messages, max_tokens=512):
+        return json.dumps(_FORM_ONLY_WORKFLOWS)
+
+    @staticmethod
+    def image_block(png_bytes):
+        return {"type": "image_url", "image_url": {"url": "fake"}}
 
 
 @pytest.mark.asyncio

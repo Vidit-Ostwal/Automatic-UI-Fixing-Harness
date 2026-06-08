@@ -57,11 +57,12 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from browser.session import BrowserSession
-from executor.step_runner import dismiss_overlays, execute_steps, wait_for_navigation
+from utils.step_runner import dismiss_overlays, execute_steps, wait_for_navigation
 from models import Finding
 from oracles.logic import LogicOracle
 from planner.action_identifier import ActionIdentifier, SemanticAction
-from planner.state_hasher import normalise_url, state_hash
+from planner.state_hasher import state_hash
+from utils.url import normalise_url
 
 if TYPE_CHECKING:
     from oracles.llm import LLMOracle
@@ -703,8 +704,10 @@ class BFSExplorer:
             screenshot = await self._session.page.screenshot()
 
             self._box_llm_open(f"LLM: alt-fill attempt {attempt_num}/{max_attempts}")
-            alt_fills = await self._llm.suggest_alternative_fills(
-                action.name, steps_dicts, screenshot,
+            from planner.prompts import suggest_alternative_fills
+
+            alt_fills = await suggest_alternative_fills(
+                self._llm, action.name, steps_dicts, screenshot,
                 previous_attempts=previous_attempts,
             )
             self._box_llm_close()

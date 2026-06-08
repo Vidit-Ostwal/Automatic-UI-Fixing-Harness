@@ -101,7 +101,9 @@ async def _write_one(
         if not screenshots:
             logger.debug("Goal writer: %s — no screenshots found, LLM call text-only", traj_id)
         try:
-            goal_data = await llm_oracle.write_trajectory_goal(trajectory, screenshots)
+            from planner.prompts import write_trajectory_goal
+
+            goal_data = await write_trajectory_goal(llm_oracle, trajectory, screenshots)
             if goal_data:
                 logger.info(
                     "Goal writer: %s — LLM goal written (%d screenshot(s) sent)",

@@ -38,7 +38,7 @@ from typing import Optional
 from browser.session import BrowserSession
 from docker_manager import DockerInstance
 from executor.step_message import QUEUE_DONE_SENTINEL, StepMessage
-from executor.step_runner import dismiss_overlays, execute_steps, wait_for_navigation
+from utils.step_runner import dismiss_overlays, execute_steps, wait_for_navigation
 
 logger = logging.getLogger(__name__)
 
@@ -238,7 +238,10 @@ class GoalExecutor:
             error = "no LLM oracle — cannot resolve instruction"
         else:
             elements = await session.get_interactive_elements()
-            resolved_steps = await self._llm.resolve_instruction(
+            from executor.prompts import resolve_instruction
+
+            resolved_steps = await resolve_instruction(
+                self._llm,
                 before_png, elements, instruction
             ) or []
             if not resolved_steps:
