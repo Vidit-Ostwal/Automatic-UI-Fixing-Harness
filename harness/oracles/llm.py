@@ -9,7 +9,6 @@ OpenAI-compatible endpoint (Qwen/Qwen3.5-9B).  Provider priority:
                   when neither cloud key is present
 
 Domain-specific prompts live alongside their consumers:
-  oracles/prompts.py   — visual and diff judgment
   planner/prompts.py   — workflow discovery, goal writing, form retry
   executor/prompts.py  — action resolution and fill retry
   verifier/prompts.py  — per-step verification
@@ -26,67 +25,9 @@ LOCAL_LLM_MODEL     override local model name          (default: Qwen/Qwen3.5-9B
 """
 
 import base64
-import json
 import os
-from dataclasses import dataclass
-from typing import Optional
 
-from harness.utils.llm import strip_code_fence
-
-
-# ---------------------------------------------------------------------------
-# Data types
-# ---------------------------------------------------------------------------
-
-@dataclass
-class OracleVerdict:
-    verdict: str               # "bug" | "ok" | "noise"
-    description: str
-    severity: Optional[str]    # "critical" | "high" | "medium" | "low" | None
-    reasoning: str
-
-
-# ---------------------------------------------------------------------------
-# Shared parsing helpers
-# ---------------------------------------------------------------------------
-
-_VALID_VERDICTS = {"bug", "ok", "noise"}
-_VALID_SEVERITIES = {"critical", "high", "medium", "low", None}
-
-
-def parse_verdict(raw: str) -> OracleVerdict:
-    """Parse LLM JSON response into OracleVerdict, with safe fallbacks."""
-    try:
-        raw = strip_code_fence(raw)
-        data = json.loads(raw)
-    except (json.JSONDecodeError, IndexError):
-        return OracleVerdict(
-            verdict="noise",
-            description="LLM returned unparseable response.",
-            severity=None,
-            reasoning=raw[:200],
-        )
-
-    verdict = data.get("verdict", "noise")
-    if verdict not in _VALID_VERDICTS:
-        verdict = "noise"
-
-    severity = data.get("severity")
-    if severity not in _VALID_SEVERITIES:
-        severity = None
-    if verdict != "bug":
-        severity = None
-
-    return OracleVerdict(
-        verdict=verdict,
-        description=data.get("description", ""),
-        severity=severity,
-        reasoning=data.get("reasoning", ""),
-    )
-
-
-# Backward-compatible alias used by tests.
-_parse_verdict = parse_verdict
+import httpx
 
 
 # ---------------------------------------------------------------------------
@@ -155,14 +96,12 @@ class _LocalProvider:
     OpenAI-compatible local inference endpoint (Qwen/Qwen3.5-9B by default).
 
     Requires no API key.  Supports both vision (image_url) and text-only calls.
-    Uses httpx for async HTTP so there is no extra runtime dependency.
     """
 
     DEFAULT_URL   = "http://20.150.215.227"
     DEFAULT_MODEL = "Qwen/Qwen3.5-9B"
 
     def __init__(self):
-        import httpx
         base = os.environ.get("LOCAL_LLM_URL", self.DEFAULT_URL).rstrip("/")
         self._endpoint = f"{base}/v1/chat/completions"
         self._model    = os.environ.get("LOCAL_LLM_MODEL", self.DEFAULT_MODEL)
@@ -238,12 +177,3 @@ class LLMOracle:
 
     def image_block(self, png_bytes: bytes) -> dict:
         return self._provider.image_block(png_bytes)
-
-    # Convenience wrappers for oracle checks (prompts live in oracles/prompts.py).
-    async def judge_screenshot(self, screenshot: bytes, context: str = "") -> OracleVerdict:
-        from harness.oracles.prompts import judge_screenshot
-        return await judge_screenshot(self, screenshot, context)
-
-    async def judge_diff(self, before, after, action: str) -> OracleVerdict:
-        from harness.oracles.prompts import judge_diff
-        return await judge_diff(self, before, after, action)

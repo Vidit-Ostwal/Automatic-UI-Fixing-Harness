@@ -32,7 +32,7 @@ State explosion prevention:
                           at every subsequent list state.
 
 Crash detection:
-  - LogicOracle.check_no_crash() fires after every action during exploration.
+  - LogicOracle fires check_no_crash() after every action during exploration.
     Cheap (no LLM), catches crashes/blank pages immediately rather than
     waiting for executor replay.
 
