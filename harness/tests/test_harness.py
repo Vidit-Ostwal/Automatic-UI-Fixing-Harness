@@ -26,6 +26,7 @@ def _make_args(**kwargs) -> argparse.Namespace:
         skip_planner=False,
         goals_only=False,
         run_goals=False,
+        report=False,
         no_llm=False,
         verbose_bfs=False,
     )

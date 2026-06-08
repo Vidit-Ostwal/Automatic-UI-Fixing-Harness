@@ -25,6 +25,7 @@ Flags:
     --skip-planner     Skip phase 1; load trajectories from OUTPUT_DIR/trajectories.json
     --goals-only       Read existing trajectories.json, write trajectories_goal.json, exit
     --run-goals        Read existing trajectories_goal.json, run goal executors, exit
+    --report           Read verifier claims, open HTML report in browser (standalone)
     --no-llm           Disable LLM oracle (deterministic checks only)
     --depth N          Override DEPTH_N
     --max-trajectories Override MAX_TRAJECTORIES
@@ -59,6 +60,7 @@ from harness.executor.step_message import QUEUE_DONE_SENTINEL, StepMessage
 from harness.models import Finding
 from harness.verifier.agent import VerifierAgent
 from harness.planner import BFSExplorer, extract_trajectories, trajectories_to_json, write_trajectory_goals
+from harness.reporter import open_report
 
 
 # ---------------------------------------------------------------------------
@@ -82,6 +84,7 @@ class HarnessConfig:
         self.skip_planner     = args.skip_planner
         self.goals_only       = args.goals_only
         self.run_goals        = args.run_goals
+        self.report           = args.report
         self.no_llm           = args.no_llm
         self.verbose_bfs      = args.verbose_bfs
         self.run_id           = uuid.uuid4().hex[:12]
@@ -452,6 +455,8 @@ def _parse_args() -> argparse.Namespace:
                    help="Read existing trajectories.json, write trajectories_goal.json, and exit")
     p.add_argument("--run-goals", action="store_true",
                    help="Read existing trajectories_goal.json, run goal executors, and exit")
+    p.add_argument("--report", action="store_true",
+                   help="Read verifier claims from output dir, open HTML report in browser")
     p.add_argument("--no-llm",       action="store_true",
                    help="Disable LLM oracle (deterministic checks only)")
     p.add_argument("--verbose-bfs",  action="store_true",
@@ -471,6 +476,15 @@ async def _main() -> int:
 
     logger.info("Harness run %s | depth=%d | max_traj=%d | max_parallel=%d",
                 config.run_id, config.depth_n, config.max_trajectories, config.max_parallel)
+
+    # --report: standalone report viewer — no harness phases run.
+    if config.report:
+        claims_root = config.output_dir / "verifier_claims"
+        if not claims_root.is_dir():
+            logger.error("--report set but %s not found — run the harness first", claims_root)
+            return 2
+        open_report(config.output_dir)
+        return 0
 
     llm_oracle = _build_llm_oracle(config.no_llm)
 
