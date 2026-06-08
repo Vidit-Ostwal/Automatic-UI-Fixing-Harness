@@ -464,8 +464,6 @@ Phase 1 runs entirely inside **one Docker instance and one browser session**. Ev
 
 **Sequential, stateful exploration.** Creating a memo, pinning it, or navigating the calendar permanently changes the backend. The explorer cannot return to a pristine "empty account" state — it only moves forward. Later actions are explored on top of earlier side-effects, so trajectories discovered late in the run reflect a polluted world, not an isolated workflow.
 
-**Reload failures are swallowed silently.** Before each action, `_restore_node()` reloads the page. The reload call sits inside a bare `except Exception: pass` block (`bfs_explorer.py:619–621`) and the function returns `True` regardless of whether the reload succeeded. If the page load times out or throws, BFS captures state from the previous (stale) page, records edges from it, and continues — with no log entry indicating anything went wrong. Every screenshot and edge recorded after a silent reload failure is corrupted data.
-
 **Replay chain failure abandons the entire subtree.** For same-URL state transitions (open dropdown, apply filter), BFS stores a replay sequence and re-executes it before each child action (`bfs_explorer.py:572–583`). If any single step in that chain fails — element shifted, animation still running, overlay in the way — the function returns `False` immediately and the entire subtree below that node is abandoned. There is no retry, no partial credit, and no log distinguishing "replay failed" from "action legitimately unreachable".
 
 **`max_actions_per_node` is a silent first-N truncation.** When the LLM identifies more workflows than the cap allows (`bfs_explorer.py:411`), the code takes `all_actions[:max_actions]` — whatever the LLM returned first. There is no priority ranking by importance or novelty. Deep or unusual workflows that appear later in the LLM response are silently dropped.
@@ -495,7 +493,6 @@ Trade-off: more Docker churn and LLM calls, but much higher fidelity and paralle
 |---|---|---|
 | `DEPTH_N` | 3 | Deep workflows (multi-page settings, long forms) are never reached |
 | `max_actions_per_node` | 8 | LLM may identify 15+ workflows; excess are dropped (first-N, no ranking) |
-| `visited_url_actions` | per (URL path, replay fingerprint) | Each action name is tried once per context — valid retries in different data states are skipped |
 | State hash | structural skeleton + interactive fingerprint | Two pages with the same DOM shape and controls but different data (e.g. different memo content) hash identically and collapse |
 
 The state hash (`state_hasher.py`) strips all text content — memo body, counts, labels — and only captures element roles, tag types, aria state attributes, and selector+role pairs for interactive controls. Pages that differ purely in data (not in which controls are present) are treated as the same state. Data-dependent bugs such as wrong counts or truncated content at N items are invisible to BFS deduplication.
@@ -506,8 +503,6 @@ Raising depth and action caps helps marginally but worsens the sequential-state 
 
 This is the sharpest correctness gap in the pipeline. BFS discovers trajectories with concrete selectors and step sequences. Phase 2 converts them to plain English. Phase 3 throws away the selectors entirely — the executor and BFS both start at `docker.url`, so the starting point is consistent, but the concrete resolution path is not.
 
-**No selector fallback exists.** `resolve_instruction()` (`executor/prompts.py:56–71`) is the only resolution path. On any failure — LLM timeout, JSON parse error, empty response — it returns `None` via a bare `except Exception: return None`. The executor records the step as failed with the message "LLM could not resolve instruction to any UI steps" and moves on. The BFS-discovered selectors that would have worked are never consulted; there is no fallback chain.
-
 **LLM re-resolution can pick a different element.** BFS proved that `button[aria-label="Save"]` is the correct target for a given step. The goal writer converts that to "Click the Save button". At execution time, the LLM sees the current page and may resolve this to a different selector — especially if the page has multiple save-like controls or the element list has changed slightly. There is no check that the resolved selector matches what BFS found.
 
 **Verifier judges a path the planner never proved reachable.** Because the executor re-resolves instructions with potentially different selectors, the steps it actually takes can diverge from what BFS explored. The verifier's findings are grounded in the executor's path, not the BFS-proven one.
@@ -517,32 +512,11 @@ This is the sharpest correctness gap in the pipeline. BFS discovers trajectories
 1. Pass the BFS-recorded selector for each instruction step as an optional hint alongside the plain-English instruction. The executor tries the hint selector first; falls back to LLM resolution only if the selector is stale or missing.
 2. Alternatively, add a direct replay mode: for stable workflows, skip goal translation entirely and replay BFS steps deterministically.
 
-### 4. LLM cost, latency, and non-determinism
-
-The LLM is invoked in four places: action identification (BFS), goal writing, instruction resolution (executor), and per-step verification. A full run with 20 trajectories × 3 instructions can mean hundreds of vision calls. Results vary between runs (hence `--rollout`), which makes CI gating noisy.
-
-**Improvement:** cache LLM responses keyed by (page hash, prompt), use smaller models for resolution vs verification, and add a deterministic replay mode for regression runs.
-
-### 5. Verification and reporting gaps
-
-**Single sequential verifier consumer.** `_run_verifier_consumer()` (`run_harness.py:246–287`) is one asyncio task that awaits each `verify_step()` call — which itself awaits a full LLM vision call — before pulling the next message from the queue. With `MAX_PARALLEL=4` executors publishing steps concurrently, messages accumulate in the queue while the verifier is mid-LLM-call. The queue has no `maxsize` so executors are never blocked, but the verifier task lags behind proportionally to parallelism. Under higher parallelism, the final `await verifier_task` becomes the wall-clock bottleneck even after all executors have finished.
+### 4. Verification and reporting gaps
 
 **Verifier history is screenshot-only.** History appended after each step stores only `screenshot_after` and `url_after` (`verifier/agent.py:148–154`). Data mutations that produce no visual change — a field silently set to the wrong value, a count stored incorrectly — are invisible to the verifier across steps.
 
-**No auto-fix** — the harness finds bugs but does not patch code or suggest CSS/DOM fixes.
-
 **No visual regression baselines** — geometry checks exist in the browser layer but are not wired into the verifier pipeline as first-class oracles.
-
-**Report blocks on Ctrl+C** — convenient for local review, awkward for headless CI (needs a `--no-serve` or generate-only mode).
-
-### 6. App and environment coupling
-
-- Docker image (`memos-buggy:latest`) and port `5230` are hardcoded.
-- No app config file — retargeting a different web app requires code changes across planner prompts, goal writer, and executor prompts.
-- The Docker image tarball is not in the repo; setup is manual.
-
-**Improvement:** an `app.yaml` descriptor (image, health path, seed URL, auth flow) so the harness can target arbitrary local apps without forked prompts.
-
 ---
 
 ## Dependencies
