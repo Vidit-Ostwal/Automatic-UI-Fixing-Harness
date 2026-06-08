@@ -477,6 +477,7 @@ This is the sharpest correctness gap in the pipeline. BFS discovers trajectories
 **Verifier history is screenshot-only.** History appended after each step stores only `screenshot_after` and `url_after` (`verifier/agent.py:148–154`). Data mutations that produce no visual change — a field silently set to the wrong value, a count stored incorrectly — are invisible to the verifier across steps.
 
 **No visual regression baselines** — geometry checks exist in the browser layer but are not wired into the verifier pipeline as first-class oracles.
+
 ---
 
 
