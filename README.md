@@ -519,13 +519,52 @@ This is the sharpest correctness gap in the pipeline. BFS discovers trajectories
 **No visual regression baselines** — geometry checks exist in the browser layer but are not wired into the verifier pipeline as first-class oracles.
 ---
 
-## Dependencies
 
-| Package | Purpose |
-|---|---|
-| `playwright` | Browser automation |
-| `anthropic` | Claude API |
-| `openai` | GPT API |
-| `httpx` | Local LLM HTTP calls |
-| `pillow` | Image handling |
-| `pytest`, `pytest-asyncio`, `respx` | Testing |
+## Proposed architecture
+
+```mermaid
+flowchart LR
+    subgraph EXPLORE["Phase 1 — BFS Explorer (forked)"]
+        DA["🐳 Docker A\nfresh DB · action A"]
+        DB["🐳 Docker B\nfresh DB · action B"]
+        DC["🐳 Docker C\nfresh DB · action C"]
+    end
+
+    Q1[/"Raw Traj\nQueue"/]
+
+    subgraph WRITE["Phase 2 — Goal Writer Pool (parallel)"]
+        GW1["Worker 1\nT-001 → goal + instructions"]
+        GW2["Worker 2\nT-007 → goal + instructions"]
+        GW3["Worker N…"]
+    end
+
+    Q2[/"Goal\nQueue"/]
+
+    subgraph EXEC["Phase 3 — Executor Pool (N rollouts each)"]
+        E1["Executor 1 — T-001\nrollout 1 ▓▓▓▓▓▓ done\nrollout 2 ▓▓▓░░ running\nrollout 3 ░░░░░ queued"]
+        E2["Executor 2 — T-007\nrollout 1 ▓▓▓▓▓▓ done\nrollout 2 ▓▓▓▓▓ running"]
+        EN["Executor N…"]
+    end
+
+    TS[("Trajectory\nStore\nexecutor_runs/")]
+
+    subgraph VERIFY["Phase 4 — Verifier (streaming · one per goal+rollout)"]
+        V1["Verifier T-001/r1\ngrading steps as they arrive"]
+        V2["Verifier T-001/r2"]
+        VN["Verifier T-007/r1…"]
+    end
+
+    RPT["📊 Live Report\nreport.html\nCI exit 0/1"]
+
+    DA & DB & DC --> Q1
+    Q1 --> GW1 & GW2 & GW3
+    GW1 & GW2 & GW3 --> Q2
+    Q2 --> E1 & E2 & EN
+    E1 & E2 & EN --> TS
+    E1 & E2 & EN -->|"StepMessage stream"| V1 & V2 & VN
+    V1 & V2 & VN --> RPT
+```
+
+Each stage is fully pipelined — the explorer is still running while goal writers and executors are already consuming earlier discoveries. No stage waits for the previous one to finish.
+
+---
