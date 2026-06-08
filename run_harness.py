@@ -52,13 +52,13 @@ logging.basicConfig(
 )
 logger = logging.getLogger("harness")
 
-from browser.session import BrowserSession
-from docker_manager import DockerInstance
-from executor.goal_executor import ExecutorResult, GoalExecutor
-from executor.step_message import QUEUE_DONE_SENTINEL, StepMessage
-from models import Finding
-from verifier.agent import VerifierAgent
-from planner import BFSExplorer, extract_trajectories, trajectories_to_json, write_trajectory_goals
+from harness.browser import BrowserSession
+from harness.docker import DockerInstance
+from harness.executor.goal_executor import ExecutorResult, GoalExecutor
+from harness.executor.step_message import QUEUE_DONE_SENTINEL, StepMessage
+from harness.models import Finding
+from harness.verifier.agent import VerifierAgent
+from harness.planner import BFSExplorer, extract_trajectories, trajectories_to_json, write_trajectory_goals
 
 
 # ---------------------------------------------------------------------------
@@ -95,7 +95,7 @@ def _build_llm_oracle(no_llm: bool):
     if no_llm:
         return None
     try:
-        from oracles.llm import LLMOracle
+        from harness.oracles.llm import LLMOracle
         return LLMOracle.from_env()
     except EnvironmentError as e:
         logger.warning("LLM oracle disabled: %s", e)
@@ -119,7 +119,7 @@ def _save_trajectory_screenshots(
       ...
     Files are ordered by prefix so any file browser shows the sequence.
     """
-    from planner.trajectory_extractor import Trajectory
+    from harness.planner.trajectory_extractor import Trajectory
 
     for traj in trajectories:
         traj_id   = traj.id if hasattr(traj, "id") else traj.get("id", "T-???")
