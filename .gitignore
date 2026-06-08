@@ -29,9 +29,8 @@ htmlcov/
 .ruff_cache/
 .pytype/
 
-# Environment / secrets
+# Local .env with API keys — copy from .env.example (never commit real secrets)
 .env
-.env.*
 !.env.example
 
 # OS

@@ -27,14 +27,13 @@ from typing import AsyncIterator
 
 import httpx
 
+from harness.config import env_int, env_str, load_env
+
+load_env()
+
 logger = logging.getLogger(__name__)
 
-HEALTH_TIMEOUT = 120
 HEALTH_INTERVAL = 2
-HEALTH_PATH = "/healthz"
-
-IMAGE_NAME = "memos-buggy:latest"
-CONTAINER_PORT = 5230
 
 _COMPOSE_TEMPLATE = """\
 services:
@@ -48,7 +47,7 @@ services:
     tmpfs:
       - /var/opt/memos
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:{container_port}/healthz"]
+      test: ["CMD", "wget", "-qO-", "http://localhost:{container_port}{health_path}"]
       interval: 5s
       timeout: 3s
       retries: 20
@@ -68,10 +67,11 @@ def _write_compose_file(
     tmp_dir: str,
 ) -> Path:
     content = _COMPOSE_TEMPLATE.format(
-        image=IMAGE_NAME,
+        image=env_str("DOCKER_IMAGE"),
         container_name=container_name,
         host_port=host_port,
-        container_port=CONTAINER_PORT,
+        container_port=env_int("CONTAINER_PORT"),
+        health_path=env_str("HEALTH_PATH"),
     )
     path = Path(tmp_dir) / "docker-compose.yml"
     path.write_text(content)
@@ -89,12 +89,14 @@ async def _run(cmd: list[str], cwd: str | None = None) -> tuple[int, str, str]:
     return proc.returncode, stdout.decode(), stderr.decode()
 
 
-async def _wait_healthy(url: str, timeout: int = HEALTH_TIMEOUT) -> None:
+async def _wait_healthy(url: str, timeout: int | None = None) -> None:
+    timeout = timeout if timeout is not None else env_int("HEALTH_TIMEOUT")
+    health_path = env_str("HEALTH_PATH")
     deadline = asyncio.get_event_loop().time() + timeout
     async with httpx.AsyncClient() as client:
         while asyncio.get_event_loop().time() < deadline:
             try:
-                r = await client.get(url + HEALTH_PATH, timeout=3)
+                r = await client.get(url + health_path, timeout=3)
                 if r.status_code == 200:
                     logger.info("Docker: %s is healthy", url)
                     return
@@ -169,3 +171,8 @@ class DockerInstance:
                 "docker compose down returned %d for project %s:\n%s",
                 code, self.project, err,
             )
+
+
+# Back-compat aliases used by tests and external imports.
+IMAGE_NAME = env_str("DOCKER_IMAGE")
+CONTAINER_PORT = env_int("CONTAINER_PORT")

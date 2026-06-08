@@ -40,13 +40,16 @@ import argparse
 import asyncio
 import json
 import logging
-import os
 import shutil
 import sys
 import time
 import uuid
 from pathlib import Path
 from typing import Optional
+
+from harness.config import env_bool, env_int, env_str, load_env
+
+load_env()
 
 # ---------------------------------------------------------------------------
 # Logging — set up before any local imports so all modules inherit the config
@@ -72,19 +75,13 @@ from harness.reporter import open_report
 # Config
 # ---------------------------------------------------------------------------
 
-def _env_int(name: str, default: int) -> int:
-    try:
-        return int(os.environ.get(name, default))
-    except ValueError:
-        return default
-
-
 class HarnessConfig:
     def __init__(self, args: argparse.Namespace):
-        self.depth_n          = args.depth          or _env_int("DEPTH_N", 3)
-        self.max_trajectories = args.max_trajectories or _env_int("MAX_TRAJECTORIES", 20)
-        self.max_parallel     = _env_int("MAX_PARALLEL", 4)
-        self.output_dir       = Path(args.output or os.environ.get("OUTPUT_DIR", "output"))
+        self.depth_n          = args.depth          or env_int("DEPTH_N")
+        self.max_trajectories = args.max_trajectories or env_int("MAX_TRAJECTORIES")
+        self.max_parallel     = env_int("MAX_PARALLEL")
+        self.max_actions_per_node = env_int("MAX_ACTIONS_PER_NODE")
+        self.output_dir       = Path(args.output or env_str("OUTPUT_DIR"))
         self.planner_only     = args.planner_only
         self.skip_planner     = args.skip_planner
         self.goals_only       = args.goals_only
@@ -92,7 +89,7 @@ class HarnessConfig:
         self.report           = args.report
         self.rollout          = args.rollout
         self.no_llm           = args.no_llm
-        self.verbose_bfs      = args.verbose_bfs
+        self.verbose_bfs      = args.verbose_bfs or env_bool("BFS_VERBOSE")
         self.run_id           = uuid.uuid4().hex[:12]
 
 
@@ -172,7 +169,7 @@ async def run_planner(config: HarnessConfig, llm_oracle) -> tuple[list[dict], li
                 session=session,
                 llm_oracle=llm_oracle,
                 max_depth=config.depth_n,
-                max_actions_per_node=8,
+                max_actions_per_node=config.max_actions_per_node,
                 verbose=config.verbose_bfs,
             )
             result = await explorer.explore(docker.url)

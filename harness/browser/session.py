@@ -21,7 +21,10 @@ from playwright.async_api import (
     Response,
 )
 
+from harness.config import env_bool, env_int, load_env
 from harness.models import PageState
+
+load_env()
 
 
 # How long to wait for network to go idle before capturing state.
@@ -85,11 +88,17 @@ class BrowserSession:
     @asynccontextmanager
     async def create(
         cls,
-        headless: bool = True,
-        viewport_width: int = 1280,
-        viewport_height: int = 800,
+        headless: bool | None = None,
+        viewport_width: int | None = None,
+        viewport_height: int | None = None,
         base_url: str = "",
     ) -> AsyncIterator["BrowserSession"]:
+        if headless is None:
+            headless = env_bool("BROWSER_HEADLESS")
+        if viewport_width is None:
+            viewport_width = env_int("BROWSER_VIEWPORT_WIDTH")
+        if viewport_height is None:
+            viewport_height = env_int("BROWSER_VIEWPORT_HEIGHT")
         async with async_playwright() as pw:
             browser = await pw.chromium.launch(headless=headless)
             context = await browser.new_context(

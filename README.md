@@ -73,43 +73,56 @@ uv sync
 uv run playwright install chromium
 ```
 
-### 3. Configure LLM provider (optional but recommended)
+### 3. Configure the harness
+
+All defaults live in **`.env.example`** (committed to the repo). Copy it to `.env` and fill in your values:
 
 ```bash
-# Cloud — Anthropic (best quality)
-export ANTHROPIC_API_KEY=sk-ant-...
+cp .env.example .env
+# Edit .env — add your API key, tune depth, etc.
+```
 
-# Cloud — OpenAI
-export OPENAI_API_KEY=sk-...
+`.env` is gitignored so API keys stay local. Never commit real secrets.
 
-# Local — no API key needed (default fallback when no cloud key is set)
-export LLM_PROVIDER=local
-export LOCAL_LLM_URL=http://your-host:port
-export LOCAL_LLM_MODEL=Qwen/Qwen3.5-9B
+**Minimum setup** — for a local LLM, set `LOCAL_LLM_URL` in `.env` (e.g. `http://localhost:8000`). For cloud LLMs, set one of:
+
+```bash
+ANTHROPIC_API_KEY=sk-ant-...
+# or
+OPENAI_API_KEY=sk-...
 ```
 
 ---
 
 ## Configuration
 
-All configuration is via **environment variables** and **CLI flags**. There are no config files or `.env` templates in the repo (though you can source your own `.env` before running).
+Configuration is loaded from **`.env`** at startup (via `harness/config.py`). Defaults are defined once in `harness/config.py` and mirrored in **`.env.example`**. CLI flags override specific values at runtime.
 
-### Environment variables
+### Environment variables (`.env`)
 
 | Variable | Default | Description |
 |---|---|---|
 | `DEPTH_N` | `3` | BFS exploration depth (max hops from root state) |
 | `MAX_TRAJECTORIES` | `20` | Cap on goals executed in Phase 3 |
 | `MAX_PARALLEL` | `4` | Max concurrent Docker + executor instances |
+| `MAX_ACTIONS_PER_NODE` | `8` | Max workflows tried per BFS state |
 | `OUTPUT_DIR` | `output` | Root output directory for all artifacts |
-| `LLM_PROVIDER` | auto | Force provider: `anthropic` \| `openai` \| `local` |
-| `ANTHROPIC_API_KEY` | — | Required when using Anthropic |
-| `OPENAI_API_KEY` | — | Required when using OpenAI |
-| `ANTHROPIC_MODEL` | `claude-sonnet-4-6` | Override Anthropic model |
-| `OPENAI_MODEL` | `gpt-4o` | Override OpenAI model |
-| `LOCAL_LLM_URL` | `http://20.150.215.227` | Local OpenAI-compatible endpoint base URL |
+| `BFS_VERBOSE` | `0` | Set to `1` for step-level BFS debug logs |
+| `LLM_PROVIDER` | _(auto)_ | Force provider: `anthropic` \| `openai` \| `local` |
+| `ANTHROPIC_API_KEY` | _(empty)_ | Required when using Anthropic |
+| `OPENAI_API_KEY` | _(empty)_ | Required when using OpenAI |
+| `ANTHROPIC_MODEL` | `claude-sonnet-4-6` | Anthropic model |
+| `OPENAI_MODEL` | `gpt-4o` | OpenAI model |
+| `LOCAL_LLM_URL` | _(empty)_ | Local OpenAI-compatible endpoint (required when using `local`) |
 | `LOCAL_LLM_MODEL` | `Qwen/Qwen3.5-9B` | Local model name |
-| `BFS_VERBOSE` | unset | Set to `1` for step-level BFS debug logs |
+| `DOCKER_IMAGE` | `memos-buggy:latest` | Docker image for the app under test |
+| `CONTAINER_PORT` | `5230` | Port inside the container |
+| `HEALTH_PATH` | `/healthz` | Health-check endpoint |
+| `HEALTH_TIMEOUT` | `120` | Seconds to wait for container health |
+| `BROWSER_HEADLESS` | `true` | Run Playwright headless |
+| `BROWSER_VIEWPORT_WIDTH` | `1280` | Browser viewport width |
+| `BROWSER_VIEWPORT_HEIGHT` | `800` | Browser viewport height |
+| `REPORT_PORT` | `8765` | Preferred port for the HTML report server |
 
 **LLM provider priority** (first match wins):
 
@@ -135,19 +148,12 @@ CLI flags `--depth`, `--max-trajectories`, and `--output` override `DEPTH_N`, `M
 | `--rollout N` | off | Clear `executor_runs/` + `verifier_claims/`, then run N executor passes |
 | `--output DIR` | env / `output` | Output directory override |
 
-### Internal defaults (not exposed via CLI or env)
+### Code-only settings (not in `.env`)
 
 | Setting | Value | Location |
 |---|---|---|
-| Docker image | `memos-buggy:latest` | `harness/docker/manager.py` |
-| Container port | `5230` | same |
-| Health check path | `/healthz` | same |
-| Health timeout | `120s` | same |
-| Max actions per BFS node | `8` | `run_harness.py` → `BFSExplorer` |
-| Browser headless | `true` | `harness/browser/session.py` |
-| Browser viewport | `1280×800` | `harness/browser/session.py` |
 | Exploration memory file | `exploration_memory.md` (repo root) | `harness/planner/bfs_explorer.py` |
-| Report server port | `8765` (auto-increments if busy) | `harness/reporter/serve.py` |
+| Report port fallback | auto-increments from `REPORT_PORT` if busy | `harness/reporter/serve.py` |
 
 ---
 

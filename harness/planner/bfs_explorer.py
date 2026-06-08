@@ -49,13 +49,13 @@ Output:
 
 import asyncio
 import logging
-import os
 import sys
 from collections import deque
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from harness.config import env_bool
 from harness.browser import BrowserSession
 from harness.utils.step_runner import dismiss_overlays, execute_steps, wait_for_navigation
 from harness.models import Finding
@@ -228,7 +228,7 @@ class BFSExplorer:
         self._logic = LogicOracle()
         self._max_depth = max_depth
         self._max_actions = max_actions_per_node
-        self._verbose = verbose or os.environ.get("BFS_VERBOSE", "") == "1"
+        self._verbose = verbose or env_bool("BFS_VERBOSE")
         self._box_depth = 0  # updated per-node for indentation
 
     # ------------------------------------------------------------------

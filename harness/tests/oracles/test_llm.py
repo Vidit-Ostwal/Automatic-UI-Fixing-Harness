@@ -18,6 +18,8 @@ from harness.oracles.llm import (
     _build_provider,
 )
 
+_TEST_LOCAL_URL = "http://127.0.0.1:8000"
+
 
 class _MockProvider:
     def __init__(self, response: str):
@@ -68,11 +70,13 @@ def test_build_provider_no_keys_falls_back_to_local(monkeypatch):
     monkeypatch.delenv("LLM_PROVIDER", raising=False)
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.setenv("LOCAL_LLM_URL", _TEST_LOCAL_URL)
     assert isinstance(_build_provider(), _LocalProvider)
 
 
 def test_build_provider_local_explicit(monkeypatch):
     monkeypatch.setenv("LLM_PROVIDER", "local")
+    monkeypatch.setenv("LOCAL_LLM_URL", _TEST_LOCAL_URL)
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     assert isinstance(_build_provider(), _LocalProvider)
@@ -80,6 +84,7 @@ def test_build_provider_local_explicit(monkeypatch):
 
 def test_build_provider_local_lower_priority_than_anthropic(monkeypatch):
     monkeypatch.setenv("LLM_PROVIDER", "local")
+    monkeypatch.setenv("LOCAL_LLM_URL", _TEST_LOCAL_URL)
     monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-fake")
     assert isinstance(_build_provider(), _LocalProvider)
 
@@ -129,11 +134,17 @@ def test_local_provider_image_block_base64_encodes_bytes():
     assert base64.standard_b64decode(encoded) == raw
 
 
-def test_local_provider_default_endpoint(monkeypatch):
+def test_local_provider_requires_url(monkeypatch):
     monkeypatch.delenv("LOCAL_LLM_URL", raising=False)
+    with pytest.raises(EnvironmentError, match="LOCAL_LLM_URL"):
+        _LocalProvider()
+
+
+def test_local_provider_default_model(monkeypatch):
+    monkeypatch.setenv("LOCAL_LLM_URL", _TEST_LOCAL_URL)
     monkeypatch.delenv("LOCAL_LLM_MODEL", raising=False)
     p = _LocalProvider()
-    assert "20.150.215.227" in p._endpoint
+    assert p._endpoint == f"{_TEST_LOCAL_URL}/v1/chat/completions"
     assert p._model == "Qwen/Qwen3.5-9B"
 
 
@@ -148,10 +159,10 @@ def test_local_provider_env_var_overrides(monkeypatch):
 @pytest.mark.asyncio
 @respx.mock
 async def test_local_provider_complete_text_only(monkeypatch):
-    monkeypatch.delenv("LOCAL_LLM_URL", raising=False)
+    monkeypatch.setenv("LOCAL_LLM_URL", _TEST_LOCAL_URL)
     monkeypatch.delenv("LOCAL_LLM_MODEL", raising=False)
 
-    respx.post("http://20.150.215.227/v1/chat/completions").mock(
+    respx.post(f"{_TEST_LOCAL_URL}/v1/chat/completions").mock(
         return_value=httpx.Response(200, json={
             "choices": [{"message": {"content": "ok"}}]
         })
@@ -165,7 +176,7 @@ async def test_local_provider_complete_text_only(monkeypatch):
 @pytest.mark.asyncio
 @respx.mock
 async def test_local_provider_complete_sends_system_message(monkeypatch):
-    monkeypatch.delenv("LOCAL_LLM_URL", raising=False)
+    monkeypatch.setenv("LOCAL_LLM_URL", _TEST_LOCAL_URL)
     monkeypatch.delenv("LOCAL_LLM_MODEL", raising=False)
 
     captured = {}
@@ -177,7 +188,7 @@ async def test_local_provider_complete_sends_system_message(monkeypatch):
             "choices": [{"message": {"content": "ok"}}]
         })
 
-    respx.post("http://20.150.215.227/v1/chat/completions").mock(side_effect=capture)
+    respx.post(f"{_TEST_LOCAL_URL}/v1/chat/completions").mock(side_effect=capture)
 
     p = _LocalProvider()
     await p.complete("SYSTEM PROMPT", [{"role": "user", "content": "Hello"}])
@@ -191,7 +202,7 @@ async def test_local_provider_complete_sends_system_message(monkeypatch):
 @respx.mock
 async def test_local_provider_complete_sends_correct_model(monkeypatch):
     monkeypatch.setenv("LOCAL_LLM_MODEL", "test-model-v1")
-    monkeypatch.delenv("LOCAL_LLM_URL", raising=False)
+    monkeypatch.setenv("LOCAL_LLM_URL", _TEST_LOCAL_URL)
 
     captured = {}
 
@@ -202,7 +213,7 @@ async def test_local_provider_complete_sends_correct_model(monkeypatch):
             "choices": [{"message": {"content": "ok"}}]
         })
 
-    respx.post("http://20.150.215.227/v1/chat/completions").mock(side_effect=capture)
+    respx.post(f"{_TEST_LOCAL_URL}/v1/chat/completions").mock(side_effect=capture)
 
     p = _LocalProvider()
     await p.complete("sys", [{"role": "user", "content": "hi"}])
@@ -212,10 +223,10 @@ async def test_local_provider_complete_sends_correct_model(monkeypatch):
 @pytest.mark.asyncio
 @respx.mock
 async def test_local_provider_raises_on_http_error(monkeypatch):
-    monkeypatch.delenv("LOCAL_LLM_URL", raising=False)
+    monkeypatch.setenv("LOCAL_LLM_URL", _TEST_LOCAL_URL)
     monkeypatch.delenv("LOCAL_LLM_MODEL", raising=False)
 
-    respx.post("http://20.150.215.227/v1/chat/completions").mock(
+    respx.post(f"{_TEST_LOCAL_URL}/v1/chat/completions").mock(
         return_value=httpx.Response(500, text="Internal Server Error")
     )
 

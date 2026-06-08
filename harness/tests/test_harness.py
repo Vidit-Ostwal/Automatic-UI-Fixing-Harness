@@ -67,7 +67,10 @@ def _fake_goals(n=3) -> list[dict]:
     ]
 
 
-from run_harness import HarnessConfig, _env_int, _count_severities, _print_run_summary
+from harness.config import env_int, load_env
+from run_harness import HarnessConfig, _count_severities, _print_run_summary
+
+load_env()
 
 
 def test_harness_config_defaults():
@@ -106,7 +109,7 @@ def test_harness_config_run_id_is_unique():
 
 def test_env_int_falls_back_on_bad_value(monkeypatch):
     monkeypatch.setenv("DEPTH_N", "not-a-number")
-    assert _env_int("DEPTH_N", 3) == 3
+    assert env_int("DEPTH_N") == 3
 
 
 def test_count_severities_from_claims_and_bfs(tmp_path):

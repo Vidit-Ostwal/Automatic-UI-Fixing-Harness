@@ -11,8 +11,11 @@ import webbrowser
 from functools import partial
 from pathlib import Path
 
+from harness.config import env_int, load_env
 from harness.reporter.collector import HarnessReport, load_report
 from harness.reporter.render import render_html
+
+load_env()
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +34,7 @@ def _free_port(preferred: int = 8765) -> int:
 def open_report(
     output_dir: Path,
     *,
-    port: int = 8765,
+    port: int | None = None,
     open_browser: bool = True,
     block: bool = True,
 ) -> tuple[HarnessReport, Path, int]:
@@ -44,7 +47,7 @@ def open_report(
     report = load_report(output_dir)
     html_path = render_html(report, output_dir)
 
-    port = _free_port(port)
+    port = _free_port(port if port is not None else env_int("REPORT_PORT"))
     handler = partial(
         http.server.SimpleHTTPRequestHandler,
         directory=str(output_dir),

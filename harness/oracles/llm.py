@@ -13,15 +13,9 @@ Domain-specific prompts live alongside their consumers:
   executor/prompts.py  — action resolution and fill retry
   verifier/prompts.py  — per-step verification
 
-Environment variables
----------------------
-LLM_PROVIDER        "anthropic" | "openai" | "local"  (optional, auto-detected)
-ANTHROPIC_API_KEY   required when provider = anthropic
-OPENAI_API_KEY      required when provider = openai
-ANTHROPIC_MODEL     override default anthropic model  (optional)
-OPENAI_MODEL        override default openai model      (optional)
-LOCAL_LLM_URL       override local endpoint base URL   (default: http://20.150.215.227)
-LOCAL_LLM_MODEL     override local model name          (default: Qwen/Qwen3.5-9B)
+Configuration
+-------------
+LLM settings are loaded from .env via harness.config — see .env.example.
 """
 
 import base64
@@ -29,20 +23,22 @@ import os
 
 import httpx
 
+from harness.config import env_str, load_env
+
+load_env()
+
 
 # ---------------------------------------------------------------------------
 # Provider implementations
 # ---------------------------------------------------------------------------
 
 class _AnthropicProvider:
-    DEFAULT_MODEL = "claude-sonnet-4-6"
-
     def __init__(self):
         import anthropic
         self._client = anthropic.AsyncAnthropic(
             api_key=os.environ["ANTHROPIC_API_KEY"]
         )
-        self._model = os.environ.get("ANTHROPIC_MODEL", self.DEFAULT_MODEL)
+        self._model = env_str("ANTHROPIC_MODEL")
 
     async def complete(self, system: str, messages: list[dict], max_tokens: int = 512) -> str:
         response = await self._client.messages.create(
@@ -66,12 +62,10 @@ class _AnthropicProvider:
 
 
 class _OpenAIProvider:
-    DEFAULT_MODEL = "gpt-4o"
-
     def __init__(self):
         from openai import AsyncOpenAI
         self._client = AsyncOpenAI(api_key=os.environ["OPENAI_API_KEY"])
-        self._model = os.environ.get("OPENAI_MODEL", self.DEFAULT_MODEL)
+        self._model = env_str("OPENAI_MODEL")
 
     async def complete(self, system: str, messages: list[dict], max_tokens: int = 512) -> str:
         full = [{"role": "system", "content": system}] + messages
@@ -98,13 +92,14 @@ class _LocalProvider:
     Requires no API key.  Supports both vision (image_url) and text-only calls.
     """
 
-    DEFAULT_URL   = "http://20.150.215.227"
-    DEFAULT_MODEL = "Qwen/Qwen3.5-9B"
-
     def __init__(self):
-        base = os.environ.get("LOCAL_LLM_URL", self.DEFAULT_URL).rstrip("/")
+        base = env_str("LOCAL_LLM_URL").rstrip("/")
+        if not base:
+            raise EnvironmentError(
+                "LOCAL_LLM_URL is not set — add it to .env (see .env.example)"
+            )
         self._endpoint = f"{base}/v1/chat/completions"
-        self._model    = os.environ.get("LOCAL_LLM_MODEL", self.DEFAULT_MODEL)
+        self._model    = env_str("LOCAL_LLM_MODEL")
         self._client   = httpx.AsyncClient(timeout=120.0)
 
     async def complete(self, system: str, messages: list[dict], max_tokens: int = 512) -> str:
@@ -142,7 +137,7 @@ def _build_provider():
       2. openai     (explicit or OPENAI_API_KEY present)
       3. local      (explicit LLM_PROVIDER=local, or last-resort fallback)
     """
-    explicit = os.environ.get("LLM_PROVIDER", "").lower()
+    explicit = env_str("LLM_PROVIDER").lower()
 
     if explicit == "anthropic" or (not explicit and "ANTHROPIC_API_KEY" in os.environ):
         return _AnthropicProvider()
