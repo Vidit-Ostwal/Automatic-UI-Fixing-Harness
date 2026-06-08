@@ -456,21 +456,19 @@ run_harness.py
 
 ## What's next
 
-This harness is a working prototype, not a finished exploration engine. The current design makes deliberate trade-offs that limit coverage, reliability, and speed. Below are the main gaps and concrete directions for improvement.
+This harness is a working prototype, not a finished exploration engine. The current design makes deliberate trade-offs that limit coverage, reliability, and speed. The gaps below are grounded in the actual code — not just design intent.
 
 ### 1. BFS explorer — the biggest bottleneck
 
-Phase 1 runs entirely inside **one Docker instance and one browser session**. Every action is tried sequentially on shared server state. That creates several hard problems:
+Phase 1 runs entirely inside **one Docker instance and one browser session**. Every action is tried sequentially on shared server state. That creates several compounding problems:
 
 **Sequential, stateful exploration.** Creating a memo, pinning it, or navigating the calendar permanently changes the backend. The explorer cannot return to a pristine "empty account" state — it only moves forward. Later actions are explored on top of earlier side-effects, so trajectories discovered late in the run reflect a polluted world, not an isolated workflow.
 
-**Fragile state restoration.** Before each action, the explorer calls `_restore_node()`: navigate to the parent URL (sometimes with a full reload), then **replay** a chain of prior clicks to reopen popups, dropdowns, or filters. This works for simple cases but breaks on slow or complex UI:
-- Reloads time out or settle before the page is interactive
-- Replay steps fail when elements move, overlays block clicks, or async content hasn't loaded
-- Auth-guard redirects send the browser somewhere other than the target URL
-- Server mutations survive reloads (by design), so "restore" never means "undo"
+**Reload failures are swallowed silently.** Before each action, `_restore_node()` reloads the page. The reload call sits inside a bare `except Exception: pass` block (`bfs_explorer.py:619–621`) and the function returns `True` regardless of whether the reload succeeded. If the page load times out or throws, BFS captures state from the previous (stale) page, records edges from it, and continues — with no log entry indicating anything went wrong. Every screenshot and edge recorded after a silent reload failure is corrupted data.
 
-When restoration fails, the action is skipped entirely — coverage is silently lost.
+**Replay chain failure abandons the entire subtree.** For same-URL state transitions (open dropdown, apply filter), BFS stores a replay sequence and re-executes it before each child action (`bfs_explorer.py:572–583`). If any single step in that chain fails — element shifted, animation still running, overlay in the way — the function returns `False` immediately and the entire subtree below that node is abandoned. There is no retry, no partial credit, and no log distinguishing "replay failed" from "action legitimately unreachable".
+
+**`max_actions_per_node` is a silent first-N truncation.** When the LLM identifies more workflows than the cap allows (`bfs_explorer.py:411`), the code takes `all_actions[:max_actions]` — whatever the LLM returned first. There is no priority ranking by importance or novelty. Deep or unusual workflows that appear later in the LLM response are silently dropped.
 
 **Action bleed between siblings.** Even with per-action reloads, sibling actions at the same node compete on the same mutated server. Trying "archive memo" after "create memo" is fine; trying "create account" again at the same URL path is deduplicated and never retried.
 
@@ -487,44 +485,58 @@ Parent state (URL + replay chain + screenshot)
     └─ ...
 ```
 
-Each fork gets a **fresh container** (clean DB, clean session), replays only the parent's path to reach the starting UI, executes one action, captures the child state, and tears down. Sibling actions no longer interfere. Slow or failed restores on one branch do not block others. This is essentially a **parallel tree expansion** model rather than in-place BFS — closer to how fuzzers and model-checkers branch execution.
+Each fork gets a **fresh container** (clean DB, clean session), replays only the parent's path to reach the starting UI, executes one action, captures the child state, and tears down. Sibling actions no longer interfere. Silent reload failures on one branch cannot corrupt another. This is essentially a **parallel tree expansion** model rather than in-place BFS — closer to how fuzzers and model-checkers branch execution.
 
-Trade-off: more Docker churn and LLM calls, but much higher fidelity and parallelism. `MAX_PARALLEL` already exists for executors; the same pattern could apply to exploration.
+Trade-off: more Docker churn and LLM calls, but much higher fidelity and parallelism. `MAX_PARALLEL` already exists for executors; the same pattern applies directly to exploration.
 
 ### 2. Exploration coverage caps
 
 | Limit | Default | Effect |
 |---|---|---|
 | `DEPTH_N` | 3 | Deep workflows (multi-page settings, long forms) are never reached |
-| `max_actions_per_node` | 8 | LLM may identify 15+ workflows; the rest are dropped |
-| `visited_url_actions` | per URL path | Each action name is tried once per URL+replay context — valid retries in different data states are skipped |
-| State hash | structural skeleton | Two pages with the same DOM shape but different data (e.g. 1 memo vs 50 memos) may hash identically and collapse |
+| `max_actions_per_node` | 8 | LLM may identify 15+ workflows; excess are dropped (first-N, no ranking) |
+| `visited_url_actions` | per (URL path, replay fingerprint) | Each action name is tried once per context — valid retries in different data states are skipped |
+| State hash | structural skeleton + interactive fingerprint | Two pages with the same DOM shape and controls but different data (e.g. different memo content) hash identically and collapse |
 
-Raising depth and action caps helps marginally but worsens the sequential-state problem above. Forked exploration is the structural fix.
+The state hash (`state_hasher.py`) strips all text content — memo body, counts, labels — and only captures element roles, tag types, aria state attributes, and selector+role pairs for interactive controls. Pages that differ purely in data (not in which controls are present) are treated as the same state. Data-dependent bugs such as wrong counts or truncated content at N items are invisible to BFS deduplication.
+
+Raising depth and action caps helps marginally but worsens the sequential-state and silent-failure problems above. Forked exploration is the structural fix.
 
 ### 3. Planner → executor disconnect
 
-BFS discovers trajectories with concrete selectors and step sequences. Phase 2 converts them to plain English. Phase 3 **throws away the selectors** and asks the LLM to re-resolve each instruction against a fresh page.
+This is the sharpest correctness gap in the pipeline. BFS discovers trajectories with concrete selectors, step sequences, and a known starting URL. Phase 2 converts them to plain English. Phase 3 throws away everything except the instructions.
 
-This means:
-- Executor behavior can diverge from what the planner actually explored
-- Flaky LLM resolution produces false failures (executor partial runs like `T-001` are common)
-- The verifier judges a different path than the one BFS proved reachable
+**The executor always starts at the app root.** `GoalExecutor.run()` navigates to `docker.url` — the container root — for every goal (`goal_executor.py:123`). The starting URL of the BFS trajectory is not stored in `trajectories_goal.json` and is never read by the executor. A trajectory that BFS discovered starting at `/settings/profile` will be executed by an agent that begins at `/` with no awareness that it needs to navigate there first. If the goal writer did not include a navigation step (and it often won't, because BFS started at that URL directly), the first instruction fails immediately.
 
-**Improvement:** hybrid execution — use BFS-recorded selectors as a deterministic fallback when the LLM's resolution disagrees, or skip goal translation entirely for replay-based executors on stable workflows.
+**No selector fallback exists.** `resolve_instruction()` (`executor/prompts.py:56–71`) is the only resolution path. On any failure — LLM timeout, JSON parse error, empty response — it returns `None` via a bare `except Exception: return None`. The executor records the step as failed with the message "LLM could not resolve instruction to any UI steps" and moves on. The BFS-discovered selectors that would have worked are never consulted; there is no fallback chain.
+
+**The goal writer schema has no `start_url` field.** Looking at the output of both the LLM path and `_heuristic_goal()` in `goal_writer.py`, neither produces a `start_url`. The `trajectories_goal.json` schema is `{id, description, goal, instructions, success_criteria}`. There is nowhere in the executor pipeline to know "this trajectory should begin at a specific URL" even if the executor wanted to use it.
+
+**Verifier judges a path the planner never proved reachable.** Because the executor re-resolves instructions from a different starting point with different selectors, the steps it actually takes can differ substantially from what BFS explored. The verifier's findings are grounded in the executor's path, not the BFS-proven one.
+
+**Improvement — hybrid execution with a `start_url` and selector fallback:**
+
+1. Add `start_url` to `trajectories_goal.json` (extracted from the first step's URL in `trajectories.json`). The executor navigates there before executing any instruction.
+2. Pass the BFS-recorded selector for each instruction step as an optional hint alongside the plain-English instruction. The executor tries the hint selector first; falls back to LLM resolution only if the selector is stale or missing.
+3. Alternatively, add a direct replay mode: for stable workflows, skip goal translation entirely and replay BFS steps deterministically.
 
 ### 4. LLM cost, latency, and non-determinism
 
-The LLM is invoked in four places: action identification, goal writing, instruction resolution, and per-step verification. A full run with 20 trajectories × 3 instructions can mean hundreds of vision calls. Results vary between runs (hence `--rollout`), which makes CI gating noisy.
+The LLM is invoked in four places: action identification (BFS), goal writing, instruction resolution (executor), and per-step verification. A full run with 20 trajectories × 3 instructions can mean hundreds of vision calls. Results vary between runs (hence `--rollout`), which makes CI gating noisy.
 
 **Improvement:** cache LLM responses keyed by (page hash, prompt), use smaller models for resolution vs verification, and add a deterministic replay mode for regression runs.
 
 ### 5. Verification and reporting gaps
 
-- **Verifier is a single sequential consumer** — it processes step messages from all executors through one queue handler; it does not limit throughput today but could under higher parallelism.
-- **No auto-fix** — the harness finds bugs but does not patch code or suggest CSS/DOM fixes.
-- **No visual regression baselines** — geometry checks exist in the browser layer but are not wired into the verifier pipeline as first-class oracles.
-- **Report blocks on Ctrl+C** — convenient for local review, awkward for headless CI (needs a `--no-serve` or generate-only mode).
+**Single sequential verifier consumer.** `_run_verifier_consumer()` (`run_harness.py:246–287`) is one asyncio task that awaits each `verify_step()` call — which itself awaits a full LLM vision call — before pulling the next message from the queue. With `MAX_PARALLEL=4` executors publishing steps concurrently, messages accumulate in the queue while the verifier is mid-LLM-call. The queue has no `maxsize` so executors are never blocked, but the verifier task lags behind proportionally to parallelism. Under higher parallelism, the final `await verifier_task` becomes the wall-clock bottleneck even after all executors have finished.
+
+**Verifier history is screenshot-only.** History appended after each step stores only `screenshot_after` and `url_after` (`verifier/agent.py:148–154`). Data mutations that produce no visual change — a field silently set to wrong value, a count stored incorrectly — are invisible to the verifier across steps.
+
+**No auto-fix** — the harness finds bugs but does not patch code or suggest CSS/DOM fixes.
+
+**No visual regression baselines** — geometry checks exist in the browser layer but are not wired into the verifier pipeline as first-class oracles.
+
+**Report blocks on Ctrl+C** — convenient for local review, awkward for headless CI (needs a `--no-serve` or generate-only mode).
 
 ### 6. App and environment coupling
 
@@ -536,12 +548,14 @@ The LLM is invoked in four places: action identification, goal writing, instruct
 
 ### Suggested roadmap (priority order)
 
-1. **Forked BFS** — independent Docker per parent action; biggest reliability win.
-2. **Selector-aware executors** — replay BFS steps when possible, LLM only when stuck.
-3. **Exploration parallelism** — bound by `MAX_PARALLEL`, same as executors.
-4. **CI mode** — generate `report.html` without starting a server or opening a browser.
-5. **App descriptor** — decouple from Memos-specific assumptions.
-6. **LLM response caching** — cut cost and variance on repeated runs.
+1. **Forked BFS** — independent Docker per parent action; eliminates silent state corruption and enables parallelism.
+2. **`start_url` in goal schema** — single-line fix that stops the executor from starting at the wrong page.
+3. **Selector-aware executors** — pass BFS selectors as hints; LLM resolution only as fallback.
+4. **Fix silent reload swallow** — `_url_restore()` should propagate reload failures rather than returning `True` unconditionally.
+5. **Parallel verifier consumers** — one consumer per (test_case_id, run_id) instead of one global consumer.
+6. **CI mode** — generate `report.html` without starting a server or opening a browser.
+7. **App descriptor** — decouple from Memos-specific assumptions.
+8. **LLM response caching** — cut cost and variance on repeated runs.
 
 ---
 
