@@ -504,21 +504,18 @@ Raising depth and action caps helps marginally but worsens the sequential-state 
 
 ### 3. Planner → executor disconnect
 
-This is the sharpest correctness gap in the pipeline. BFS discovers trajectories with concrete selectors, step sequences, and a known starting URL. Phase 2 converts them to plain English. Phase 3 throws away everything except the instructions.
-
-**The executor always starts at the app root.** `GoalExecutor.run()` navigates to `docker.url` — the container root — for every goal (`goal_executor.py:123`). The starting URL of the BFS trajectory is not stored in `trajectories_goal.json` and is never read by the executor. A trajectory that BFS discovered starting at `/settings/profile` will be executed by an agent that begins at `/` with no awareness that it needs to navigate there first. If the goal writer did not include a navigation step (and it often won't, because BFS started at that URL directly), the first instruction fails immediately.
+This is the sharpest correctness gap in the pipeline. BFS discovers trajectories with concrete selectors and step sequences. Phase 2 converts them to plain English. Phase 3 throws away the selectors entirely — the executor and BFS both start at `docker.url`, so the starting point is consistent, but the concrete resolution path is not.
 
 **No selector fallback exists.** `resolve_instruction()` (`executor/prompts.py:56–71`) is the only resolution path. On any failure — LLM timeout, JSON parse error, empty response — it returns `None` via a bare `except Exception: return None`. The executor records the step as failed with the message "LLM could not resolve instruction to any UI steps" and moves on. The BFS-discovered selectors that would have worked are never consulted; there is no fallback chain.
 
-**The goal writer schema has no `start_url` field.** Looking at the output of both the LLM path and `_heuristic_goal()` in `goal_writer.py`, neither produces a `start_url`. The `trajectories_goal.json` schema is `{id, description, goal, instructions, success_criteria}`. There is nowhere in the executor pipeline to know "this trajectory should begin at a specific URL" even if the executor wanted to use it.
+**LLM re-resolution can pick a different element.** BFS proved that `button[aria-label="Save"]` is the correct target for a given step. The goal writer converts that to "Click the Save button". At execution time, the LLM sees the current page and may resolve this to a different selector — especially if the page has multiple save-like controls or the element list has changed slightly. There is no check that the resolved selector matches what BFS found.
 
-**Verifier judges a path the planner never proved reachable.** Because the executor re-resolves instructions from a different starting point with different selectors, the steps it actually takes can differ substantially from what BFS explored. The verifier's findings are grounded in the executor's path, not the BFS-proven one.
+**Verifier judges a path the planner never proved reachable.** Because the executor re-resolves instructions with potentially different selectors, the steps it actually takes can diverge from what BFS explored. The verifier's findings are grounded in the executor's path, not the BFS-proven one.
 
-**Improvement — hybrid execution with a `start_url` and selector fallback:**
+**Improvement — hybrid execution with a selector fallback:**
 
-1. Add `start_url` to `trajectories_goal.json` (extracted from the first step's URL in `trajectories.json`). The executor navigates there before executing any instruction.
-2. Pass the BFS-recorded selector for each instruction step as an optional hint alongside the plain-English instruction. The executor tries the hint selector first; falls back to LLM resolution only if the selector is stale or missing.
-3. Alternatively, add a direct replay mode: for stable workflows, skip goal translation entirely and replay BFS steps deterministically.
+1. Pass the BFS-recorded selector for each instruction step as an optional hint alongside the plain-English instruction. The executor tries the hint selector first; falls back to LLM resolution only if the selector is stale or missing.
+2. Alternatively, add a direct replay mode: for stable workflows, skip goal translation entirely and replay BFS steps deterministically.
 
 ### 4. LLM cost, latency, and non-determinism
 
@@ -530,7 +527,7 @@ The LLM is invoked in four places: action identification (BFS), goal writing, in
 
 **Single sequential verifier consumer.** `_run_verifier_consumer()` (`run_harness.py:246–287`) is one asyncio task that awaits each `verify_step()` call — which itself awaits a full LLM vision call — before pulling the next message from the queue. With `MAX_PARALLEL=4` executors publishing steps concurrently, messages accumulate in the queue while the verifier is mid-LLM-call. The queue has no `maxsize` so executors are never blocked, but the verifier task lags behind proportionally to parallelism. Under higher parallelism, the final `await verifier_task` becomes the wall-clock bottleneck even after all executors have finished.
 
-**Verifier history is screenshot-only.** History appended after each step stores only `screenshot_after` and `url_after` (`verifier/agent.py:148–154`). Data mutations that produce no visual change — a field silently set to wrong value, a count stored incorrectly — are invisible to the verifier across steps.
+**Verifier history is screenshot-only.** History appended after each step stores only `screenshot_after` and `url_after` (`verifier/agent.py:148–154`). Data mutations that produce no visual change — a field silently set to the wrong value, a count stored incorrectly — are invisible to the verifier across steps.
 
 **No auto-fix** — the harness finds bugs but does not patch code or suggest CSS/DOM fixes.
 
@@ -545,17 +542,6 @@ The LLM is invoked in four places: action identification (BFS), goal writing, in
 - The Docker image tarball is not in the repo; setup is manual.
 
 **Improvement:** an `app.yaml` descriptor (image, health path, seed URL, auth flow) so the harness can target arbitrary local apps without forked prompts.
-
-### Suggested roadmap (priority order)
-
-1. **Forked BFS** — independent Docker per parent action; eliminates silent state corruption and enables parallelism.
-2. **`start_url` in goal schema** — single-line fix that stops the executor from starting at the wrong page.
-3. **Selector-aware executors** — pass BFS selectors as hints; LLM resolution only as fallback.
-4. **Fix silent reload swallow** — `_url_restore()` should propagate reload failures rather than returning `True` unconditionally.
-5. **Parallel verifier consumers** — one consumer per (test_case_id, run_id) instead of one global consumer.
-6. **CI mode** — generate `report.html` without starting a server or opening a browser.
-7. **App descriptor** — decouple from Memos-specific assumptions.
-8. **LLM response caching** — cut cost and variance on repeated runs.
 
 ---
 
