@@ -42,19 +42,49 @@ _REPETITIVE_SUFFIX_RE = re.compile(
     r"|_\d{1,2}(st|nd|rd|th)|_\d+)+$"
 )
 
+# Action names that START with these verb stems are genuine user workflows,
+# not option-picker values. Names lacking any of these prefixes are treated
+# as bare option labels when they appear in groups of 3+.
+_WORKFLOW_VERBS = frozenset({
+    "create", "edit", "delete", "update", "open", "close", "toggle",
+    "submit", "search", "filter", "sort", "navigate", "go", "click",
+    "select", "change", "show", "hide", "add", "remove", "save",
+    "cancel", "confirm", "sign", "log", "register", "upload", "download",
+    "expand", "collapse", "pin", "unpin", "archive", "restore", "view",
+    "send", "copy", "share", "export", "import", "reset", "clear",
+})
+
 
 def _semantic_stem(name: str) -> str:
     return _REPETITIVE_SUFFIX_RE.sub("", name)
 
 
+def _is_option_like(name: str) -> bool:
+    """True when a name looks like an enumerated option value rather than a workflow.
+
+    An action is option-like when its first underscore-delimited component is
+    NOT a recognised workflow verb — e.g. "light", "paper", "dark", "catal",
+    "deutsch", "e_tina" are all option values, whereas "create_memo",
+    "select_language", "change_theme" are genuine workflows.
+    """
+    first = name.split("_")[0]
+    return first not in _WORKFLOW_VERBS
+
+
 def _collapse_repetitive(actions: list["SemanticAction"]) -> list["SemanticAction"]:
     """
     Keep only the first action per semantic stem.
-    Actions like select_date_june_1st_2026 … select_date_june_30th_2026
-    all reduce to the stem 'select_date' — only the first survives.
+
+    Two collapse passes:
+    1. Suffix stripping: "select_date_june_1st" → stem "select_date"
+    2. Option-picker collapse: if 3+ surviving actions look like bare option
+       labels (no workflow-verb prefix), they are almost certainly an
+       enumerated picker list (theme, language, timezone, country…).
+       Keep only the first; drop the rest.
     """
+    # Pass 1 — suffix-based stem collapse.
     seen_stems: set[str] = set()
-    result: list["SemanticAction"] = []
+    pass1: list["SemanticAction"] = []
     dropped = 0
     for action in actions:
         stem = _semantic_stem(action.name)
@@ -62,10 +92,23 @@ def _collapse_repetitive(actions: list["SemanticAction"]) -> list["SemanticActio
             dropped += 1
             continue
         seen_stems.add(stem)
-        result.append(action)
+        pass1.append(action)
+
+    # Pass 2 — option-picker collapse.
+    option_like = [a for a in pass1 if _is_option_like(a.name)]
+    if len(option_like) >= 3:
+        kept: set[str] = {option_like[0].name}
+        pass2: list["SemanticAction"] = []
+        for action in pass1:
+            if _is_option_like(action.name) and action.name not in kept:
+                dropped += 1
+            else:
+                pass2.append(action)
+        pass1 = pass2
+
     if dropped:
-        _log.info("AI:  collapsed %d repetitive action(s) (same semantic stem)", dropped)
-    return result
+        _log.info("AI:  collapsed %d repetitive action(s) (option enumeration)", dropped)
+    return pass1
 
 if TYPE_CHECKING:
     from harness.oracles.llm import LLMOracle

@@ -41,6 +41,7 @@ services:
   memos-buggy:
     image: {image}
     container_name: {container_name}
+    network_mode: bridge
     ports:
       - "{host_port}:{container_port}"
     environment:

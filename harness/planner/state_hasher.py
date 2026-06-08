@@ -13,8 +13,7 @@ the visible text differs.
 import hashlib
 import json
 import re
-
-from harness.utils.url import normalise_url
+from urllib.parse import urlparse
 
 
 def extract_structural_skeleton(node: dict, depth: int = 0) -> dict:
@@ -75,11 +74,15 @@ def state_hash(
     Return a stable hex digest for a (URL, a11y_tree) pair.
     Used by the BFS explorer to detect already-visited states.
 
+    Only the URL *path* is used (scheme and host are stripped) so that the
+    same page on two different Docker containers — which run on different
+    ports — produces the same hash.
+
     When interactive_elements is provided, their fingerprint is mixed in so
     control-level changes (new buttons, toggled disabled state) can diverge
     even if the structural skeleton is identical.
     """
-    path = normalise_url(url)
+    path = urlparse(url).path.rstrip("/") or "/"
     skeleton = extract_structural_skeleton(a11y_tree)
     # json.dumps with sort_keys gives a deterministic string for any dict.
     payload = f"{path}:{json.dumps(skeleton, sort_keys=True)}"

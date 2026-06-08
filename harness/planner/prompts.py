@@ -26,6 +26,13 @@ For EACH NEW workflow, provide the COMPLETE sequence of interactions needed to
 accomplish one user intention — not just the final click, but every preceding
 fill/select step too.
 
+Before returning your list, explicitly reason (internally) through these questions:
+1. Does each proposed workflow cover a MEANINGFULLY DIFFERENT user intent from every other?
+   (e.g. "create memo" and "create memo with tag" are duplicates — keep only one)
+2. Does any workflow's steps overlap with another's? If so, merge or drop one.
+3. Are all proposed workflows distinct from the already-explored list? Drop any that match.
+4. Would a human tester learn something NEW about the app from each workflow? If not, cut it.
+
 Rules:
 - Identify SEPARATE workflows for each distinct form or intent on the page.
   A search bar and a create-memo form are two different workflows, not one.
@@ -36,11 +43,21 @@ Rules:
 - Do NOT include the same element in two different workflows.
 - SKIP workflows that are purely navigational duplicates of other workflows.
 - SKIP any workflow whose name matches one already in the explored memory.
+- SKIP workflows whose effect is semantically equivalent to an already-explored one
+  (e.g. "change_language_to_french" when "change_language" was already tried).
 - CRITICAL — do NOT enumerate repetitive instances of the same control type. \
   Calendar dates, list items, table rows, pagination numbers, and any set of \
   controls that differ only by a date/number/ordinal are ONE workflow — pick a \
   single representative (e.g. one date, one item, one page number). \
   Exploring every June date adds no new coverage.
+- CRITICAL — option pickers (language selector, theme selector, timezone selector, \
+  country picker, dropdown with many choices): output EXACTLY ONE workflow that \
+  selects the first non-default option. Name it "select_<category>" (e.g. \
+  "select_language", "select_theme", "select_timezone"). \
+  Do NOT produce separate workflows for each option value. \
+  "select_language_german" and "select_language_french" are NOT two different \
+  test scenarios — language-picker behaviour is the same regardless of which \
+  language you pick. ONE representative selection is sufficient.
 
 For each input field, reason about an appropriate test value from its label,
 placeholder, type attribute, and the surrounding UI context. Do NOT use generic

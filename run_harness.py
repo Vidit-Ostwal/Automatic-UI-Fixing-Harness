@@ -76,18 +76,22 @@ def _env_int(name: str, default: int) -> int:
 
 class HarnessConfig:
     def __init__(self, args: argparse.Namespace):
-        self.depth_n          = args.depth          or _env_int("DEPTH_N", 3)
-        self.max_trajectories = args.max_trajectories or _env_int("MAX_TRAJECTORIES", 20)
-        self.max_parallel     = _env_int("MAX_PARALLEL", 4)
-        self.output_dir       = Path(args.output or os.environ.get("OUTPUT_DIR", "output"))
-        self.planner_only     = args.planner_only
-        self.skip_planner     = args.skip_planner
-        self.goals_only       = args.goals_only
-        self.run_goals        = args.run_goals
-        self.report           = args.report
-        self.no_llm           = args.no_llm
-        self.verbose_bfs      = args.verbose_bfs
-        self.run_id           = uuid.uuid4().hex[:12]
+        self.depth_n              = args.depth          or _env_int("DEPTH_N", 3)
+        self.max_trajectories     = args.max_trajectories or _env_int("MAX_TRAJECTORIES", 20)
+        self.max_parallel         = _env_int("MAX_PARALLEL", 4)
+        self.max_parallel_explore = min(
+            _env_int("MAX_PARALLEL_EXPLORATION", 9), 16
+        )
+        self.output_dir           = Path(args.output or os.environ.get("OUTPUT_DIR", "output"))
+        self.planner_only         = args.planner_only
+        self.skip_planner         = args.skip_planner
+        self.goals_only           = args.goals_only
+        self.run_goals            = args.run_goals
+        self.report               = args.report
+        self.no_llm               = args.no_llm
+        self.verbose_bfs          = args.verbose_bfs
+        self.use_advanced_planner = args.planner != "legacy"
+        self.run_id               = uuid.uuid4().hex[:12]
 
 
 # ---------------------------------------------------------------------------
@@ -152,24 +156,35 @@ def _save_trajectory_screenshots(
 
 async def run_planner(config: HarnessConfig, llm_oracle) -> tuple[list[dict], list[Finding]]:
     """
-    Spin up one Docker instance, BFS-explore the app, return serialised
-    trajectories and any crashes/findings discovered during exploration.
-    Also writes trajectories.json to the output dir.
+    Phase 1: BFS exploration.
+
+    Uses the advanced parallel planner by default (multiple Docker instances).
+    Pass --planner legacy to use the original single-threaded BFSExplorer.
     """
-    logger.info("=== PHASE 1: PLANNER (depth=%d) ===", config.depth_n)
-
-    async with DockerInstance.start() as docker:
-        logger.info("Planner instance ready at %s", docker.url)
-
-        async with BrowserSession.create() as session:
-            explorer = BFSExplorer(
-                session=session,
-                llm_oracle=llm_oracle,
-                max_depth=config.depth_n,
-                max_actions_per_node=8,
-                verbose=config.verbose_bfs,
-            )
-            result = await explorer.explore(docker.url)
+    if config.use_advanced_planner:
+        logger.info(
+            "=== PHASE 1: ADVANCED PLANNER (depth=%d  parallel=%d) ===",
+            config.depth_n, config.max_parallel_explore,
+        )
+        from harness.advanced_planner import advanced_explore
+        result = await advanced_explore(
+            llm_oracle=llm_oracle,
+            max_depth=config.depth_n,
+            max_parallel=config.max_parallel_explore,
+        )
+    else:
+        logger.info("=== PHASE 1: LEGACY PLANNER (depth=%d) ===", config.depth_n)
+        async with DockerInstance.start() as docker:
+            logger.info("Planner instance ready at %s", docker.url)
+            async with BrowserSession.create() as session:
+                explorer = BFSExplorer(
+                    session=session,
+                    llm_oracle=llm_oracle,
+                    max_depth=config.depth_n,
+                    max_actions_per_node=8,
+                    verbose=config.verbose_bfs,
+                )
+                result = await explorer.explore(docker.url)
 
     logger.info(
         "Planner done: %d states discovered, %d edges, %d exploration findings",
@@ -461,6 +476,8 @@ def _parse_args() -> argparse.Namespace:
                    help="Disable LLM oracle (deterministic checks only)")
     p.add_argument("--verbose-bfs",  action="store_true",
                    help="Emit step-level BFS debug logs (also: BFS_VERBOSE=1)")
+    p.add_argument("--planner",      choices=["advanced", "legacy"], default="advanced",
+                   help="Planner to use: 'advanced' (parallel, default) or 'legacy' (single-threaded)")
     p.add_argument("--depth",        type=int, default=None,
                    help="BFS depth override (env: DEPTH_N)")
     p.add_argument("--max-trajectories", type=int, default=None,
