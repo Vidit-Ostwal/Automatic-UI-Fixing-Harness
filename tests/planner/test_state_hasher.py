@@ -7,6 +7,7 @@ All tests are pure unit tests — no browser required.
 import pytest
 from planner.state_hasher import (
     extract_structural_skeleton,
+    interactive_fingerprint,
     normalise_url,
     state_hash,
 )
@@ -191,3 +192,22 @@ def test_state_attribute_changes_hash():
     h1 = state_hash("http://localhost:5230/", collapsed)
     h2 = state_hash("http://localhost:5230/", expanded)
     assert h1 != h2
+
+
+def test_interactive_fingerprint_changes_hash():
+    """New interactive controls change the hash even when skeleton is identical."""
+    elements_before = [{"role": "button", "selector": '[aria-label="New memo"]'}]
+    elements_after = elements_before + [
+        {"role": "button", "selector": '[aria-label="Pin"]'},
+    ]
+    h1 = state_hash("http://localhost:5230/", TREE_A, elements_before)
+    h2 = state_hash("http://localhost:5230/", TREE_A, elements_after)
+    assert h1 != h2
+
+
+def test_interactive_fingerprint_is_deterministic():
+    elements = [
+        {"role": "button", "selector": "#b"},
+        {"role": "button", "selector": "#a"},
+    ]
+    assert interactive_fingerprint(elements) == interactive_fingerprint(list(reversed(elements)))

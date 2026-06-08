@@ -130,18 +130,25 @@ class _MockAuthFailure:
 # steps_from_trajectory
 # ---------------------------------------------------------------------------
 
+def _click_step(selector):
+    return {"type": "click", "selector": selector, "value": ""}
+
+def _fill_step(selector, value):
+    return {"type": "fill", "selector": selector, "value": value}
+
+
 def test_steps_from_trajectory_basic():
     traj = {
         "id": "T-001",
         "steps": [
-            {"action": "create_memo", "selector": "#new", "from_hash": "A", "to_hash": "B"},
-            {"action": "pin_memo",    "selector": "#pin", "from_hash": "B", "to_hash": "C"},
+            {"action": "create_memo", "steps": [_click_step("#new")],  "from_hash": "A", "to_hash": "B"},
+            {"action": "pin_memo",    "steps": [_click_step("#pin")],  "from_hash": "B", "to_hash": "C"},
         ]
     }
     steps = steps_from_trajectory(traj)
     assert len(steps) == 2
     assert steps[0].action == "create_memo"
-    assert steps[0].selector == "#new"
+    assert steps[0].steps[0]["selector"] == "#new"
     assert steps[1].action == "pin_memo"
 
 
@@ -149,17 +156,31 @@ def test_steps_from_trajectory_empty():
     assert steps_from_trajectory({"steps": []}) == []
 
 
-def test_steps_from_trajectory_missing_selector():
-    traj = {"steps": [{"action": "create_memo", "from_hash": "A", "to_hash": "B"}]}
+def test_steps_from_trajectory_old_selector_compat():
+    """Old trajectories.json with 'selector' key should still work."""
+    traj = {"steps": [{"action": "create_memo", "selector": "#new", "from_hash": "A", "to_hash": "B"}]}
     steps = steps_from_trajectory(traj)
-    assert steps[0].selector == ""
+    assert steps[0].steps[0]["type"] == "click"
+    assert steps[0].steps[0]["selector"] == "#new"
 
 
 def test_steps_from_trajectory_preserves_hashes():
-    traj = {"steps": [{"action": "x", "selector": "", "from_hash": "AAA", "to_hash": "BBB"}]}
+    traj = {"steps": [{"action": "x", "steps": [], "from_hash": "AAA", "to_hash": "BBB"}]}
     steps = steps_from_trajectory(traj)
     assert steps[0].from_hash == "AAA"
     assert steps[0].to_hash == "BBB"
+
+
+def test_steps_from_trajectory_multi_step():
+    traj = {"steps": [{"action": "sign_up", "steps": [
+        _fill_step("input[name='username']", "harness_tester"),
+        _fill_step("input[type='password']", "Harness@2024!"),
+        _click_step("button[type='submit']"),
+    ], "from_hash": "A", "to_hash": "B"}]}
+    steps = steps_from_trajectory(traj)
+    assert len(steps[0].steps) == 3
+    assert steps[0].steps[0]["type"] == "fill"
+    assert steps[0].steps[-1]["type"] == "click"
 
 
 # ---------------------------------------------------------------------------
@@ -224,7 +245,7 @@ async def test_runner_auth_success_proceeds_to_steps():
     try:
         visual = _MockVisualOracle()
         runner = _make_runner(
-            steps=[TrajectoryStep("create_memo", "#new")],
+            steps=[TrajectoryStep("\1", steps=[{"type": "click", "selector": "\2", "value": ""}])],
             visual=visual,
         )
         await runner.run()
@@ -246,7 +267,7 @@ async def test_runner_collects_visual_findings():
         visual_finding = _finding("Overflow detected", Severity.LOW)
         visual = _MockVisualOracle(findings=[visual_finding])
         runner = _make_runner(
-            steps=[TrajectoryStep("view_page", "#irrelevant")],
+            steps=[TrajectoryStep("\1", steps=[{"type": "click", "selector": "\2", "value": ""}])],
             visual=visual,
         )
         collector = await runner.run()
@@ -268,7 +289,7 @@ async def test_runner_collects_diff_findings():
     try:
         diff_finding = _finding("No change after pin", Severity.HIGH)
         runner = _make_runner(
-            steps=[TrajectoryStep("pin_memo", "#pin")],
+            steps=[TrajectoryStep("\1", steps=[{"type": "click", "selector": "\2", "value": ""}])],
             diff=_MockDiffOracle(finding=diff_finding),
         )
         collector = await runner.run()
@@ -289,7 +310,7 @@ async def test_runner_collects_crash_findings():
     try:
         crash = _finding("JS crash", Severity.CRITICAL)
         runner = _make_runner(
-            steps=[TrajectoryStep("submit", "#submit")],
+            steps=[TrajectoryStep("\1", steps=[{"type": "click", "selector": "\2", "value": ""}])],
             logic=_MockLogicOracle(crash=crash),
         )
         collector = await runner.run()
@@ -316,7 +337,7 @@ async def test_runner_missing_selector_adds_finding():
 
     try:
         runner = _make_runner(
-            steps=[TrajectoryStep("pin_memo", "#nonexistent")],
+            steps=[TrajectoryStep("\1", steps=[{"type": "click", "selector": "\2", "value": ""}])],
             session=_FailSession(),
         )
         collector = await runner.run()
@@ -361,7 +382,7 @@ async def test_runner_trajectory_id_stamped_on_findings():
     try:
         visual_finding = _finding("Overflow")
         runner = _make_runner(
-            steps=[TrajectoryStep("view", "#x")],
+            steps=[TrajectoryStep("\1", steps=[{"type": "click", "selector": "\2", "value": ""}])],
             visual=_MockVisualOracle(findings=[visual_finding]),
             traj_id="T-042",
         )

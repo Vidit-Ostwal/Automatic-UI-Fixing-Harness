@@ -108,7 +108,7 @@ class BrowserSession:
     # ------------------------------------------------------------------
 
     async def navigate(self, url: str) -> None:
-        await self._page.goto(url, wait_until="domcontentloaded")
+        await self._page.goto(url, wait_until="load")
         await self._wait_stable()
 
     async def _wait_stable(self) -> None:
@@ -162,6 +162,9 @@ class BrowserSession:
         await self._wait_stable()
 
     async def fill(self, selector: str, value: str) -> None:
+        # Click first so React registers focus before we set the value.
+        # page.fill() bypasses synthetic events on controlled inputs without this.
+        await self._page.click(selector, timeout=SELECTOR_TIMEOUT_MS)
         await self._page.fill(selector, value, timeout=SELECTOR_TIMEOUT_MS)
 
     async def press(self, selector: str, key: str) -> None:
@@ -198,11 +201,24 @@ class BrowserSession:
         """
         Return all interactive elements on the page with selector, role, label.
         Used by the planner's action identifier.
+
+        Discovery uses multiple passes:
+          1. Known CSS selectors (native controls + common ARIA roles)
+          2. Any element with an interactive WAI-ARIA role
+          3. Focusable custom controls (tabindex + aria-label / onclick)
         """
         return await self._page.evaluate("""() => {
-            const selectors = [
+            const INTERACTIVE_ROLES = new Set([
+                'button', 'link', 'menuitem', 'tab', 'checkbox', 'switch',
+                'combobox', 'option', 'radio', 'menuitemcheckbox',
+                'menuitemradio', 'treeitem', 'searchbox', 'textbox',
+                'slider', 'spinbutton', 'listitem', 'gridcell', 'columnheader',
+            ]);
+
+            const CSS_SELECTORS = [
                 'button:not([disabled])',
                 'a[href]',
+                'a[role="button"]',
                 'input:not([disabled])',
                 'select:not([disabled])',
                 'textarea:not([disabled])',
@@ -212,42 +228,203 @@ class BrowserSession:
                 '[role="tab"]',
                 '[role="checkbox"]',
                 '[role="switch"]',
+                '[role="combobox"]',
+                '[role="option"]',
+                '[role="radio"]',
+                '[role="menuitemcheckbox"]',
+                '[role="menuitemradio"]',
+                '[role="treeitem"]',
+                '[role="listitem"][tabindex]',
+                '[role="searchbox"]',
+                '[role="textbox"]',
+                '[role="gridcell"][tabindex]',
+                '[role="columnheader"][tabindex]',
+                'nav a[href]',
+                'aside a[href]',
+                '[aria-haspopup="menu"]:not([disabled])',
+                '[aria-haspopup="dialog"]:not([disabled])',
+                '[data-slot$="-trigger"]',
+                'summary',
                 '[onclick]',
             ];
-            const seen = new Set();
-            const results = [];
-            for (const sel of selectors) {
-                for (const el of document.querySelectorAll(sel)) {
-                    if (seen.has(el)) continue;
-                    seen.add(el);
-                    const rect = el.getBoundingClientRect();
-                    if (rect.width === 0 || rect.height === 0) continue;
-                    results.push({
-                        tag: el.tagName.toLowerCase(),
-                        role: el.getAttribute('role') || el.tagName.toLowerCase(),
-                        label: (
-                            el.getAttribute('aria-label') ||
-                            el.getAttribute('placeholder') ||
-                            el.innerText?.trim().slice(0, 80) ||
-                            el.getAttribute('title') ||
-                            ''
-                        ),
-                        selector: buildSelector(el),
-                        type: el.getAttribute('type') || '',
-                        visible: rect.top >= 0 && rect.bottom <= window.innerHeight,
-                    });
+
+            function effectiveRole(el) {
+                const explicit = el.getAttribute('role');
+                if (explicit) return explicit;
+                const tag = el.tagName.toLowerCase();
+                const slot = el.getAttribute('data-slot') || '';
+                if (slot.includes('trigger') || el.getAttribute('aria-haspopup')) {
+                    return 'button';
                 }
+                return tag;
             }
+
+            function isDisabled(el) {
+                if (el.disabled) return true;
+                if (el.getAttribute('aria-disabled') === 'true') return true;
+                return false;
+            }
+
+            function isHidden(el) {
+                const rect = el.getBoundingClientRect();
+                if (rect.width === 0 || rect.height === 0) return true;
+                if (el.closest('[aria-hidden="true"]')) return true;
+                const style = window.getComputedStyle(el);
+                if (style.visibility === 'hidden' || style.display === 'none') return true;
+                if (style.pointerEvents === 'none') return true;
+                return false;
+            }
+
+            function getLabel(el) {
+                const aria = el.getAttribute('aria-label');
+                if (aria) return aria.trim().slice(0, 80);
+
+                const labelledBy = el.getAttribute('aria-labelledby');
+                if (labelledBy) {
+                    const text = labelledBy.split(/\\s+/)
+                        .map(id => document.getElementById(id)?.innerText?.trim())
+                        .filter(Boolean)
+                        .join(' ');
+                    if (text) return text.slice(0, 80);
+                }
+
+                const placeholder = el.getAttribute('placeholder');
+                if (placeholder) return placeholder;
+
+                const title = el.getAttribute('title');
+                if (title) return title.trim().slice(0, 80);
+
+                const text = el.innerText?.trim();
+                if (text) return text.slice(0, 80);
+
+                const img = el.querySelector('img[alt]');
+                if (img?.alt) return img.alt.slice(0, 80);
+
+                const svgTitle = el.querySelector('svg title');
+                if (svgTitle?.textContent) return svgTitle.textContent.trim().slice(0, 80);
+
+                // Icon-only controls (common in sidebars): lucide-earth → "earth"
+                const svgIcon = el.querySelector('svg[class*="lucide-"]');
+                if (svgIcon) {
+                    const iconClass = Array.from(svgIcon.classList)
+                        .find(c => c.startsWith('lucide-') && c !== 'lucide');
+                    if (iconClass) {
+                        return iconClass.replace('lucide-', '').replace(/-/g, ' ');
+                    }
+                }
+
+                // Stable ids: header-explore → "explore" (skip volatile radix-* ids)
+                if (el.id && !el.id.startsWith('radix-')) {
+                    return el.id.replace(/^header-/, '').replace(/[-_]/g, ' ').slice(0, 80);
+                }
+
+                const slot = el.getAttribute('data-slot');
+                if (slot) {
+                    return slot.replace(/-/g, ' ').slice(0, 80);
+                }
+
+                if (el.id) {
+                    return el.id.replace(/[-_]/g, ' ').slice(0, 80);
+                }
+
+                // Links with no visible text: /about → "about"
+                if (el.tagName === 'A') {
+                    const href = el.getAttribute('href');
+                    if (href) {
+                        const segment = href.split('/').filter(Boolean).pop() || href;
+                        return segment.replace(/[-_]/g, ' ').slice(0, 80);
+                    }
+                }
+
+                return '';
+            }
+
             function buildSelector(el) {
                 if (el.id) return '#' + CSS.escape(el.id);
                 if (el.getAttribute('data-testid'))
                     return `[data-testid="${el.getAttribute('data-testid')}"]`;
+                const slot = el.getAttribute('data-slot');
+                if (slot && slot.includes('trigger')) {
+                    const label = el.getAttribute('aria-label');
+                    if (label) {
+                        return `[data-slot="${slot}"][aria-label="${CSS.escape(label)}"]`;
+                    }
+                    const text = el.innerText?.trim().slice(0, 30);
+                    if (text) {
+                        return `[data-slot="${slot}"]:has-text("${text}")`;
+                    }
+                }
                 if (el.getAttribute('aria-label'))
-                    return `[aria-label="${el.getAttribute('aria-label')}"]`;
+                    return `[aria-label="${CSS.escape(el.getAttribute('aria-label'))}"]`;
+                const placeholder = el.getAttribute('placeholder');
+                if (placeholder) return `[placeholder="${placeholder}"]`;
+                const name = el.getAttribute('name');
+                if (name) return `${el.tagName.toLowerCase()}[name="${name}"]`;
+                const type = el.getAttribute('type');
+                const isGenericButtonType = el.tagName.toLowerCase() === 'button' && type === 'button';
+                if (type && type !== 'text' && type !== 'submit' && !isGenericButtonType)
+                    return `${el.tagName.toLowerCase()}[type="${type}"]`;
+                const role = el.getAttribute('role');
+                if (role && role !== el.tagName.toLowerCase()) {
+                    const text = el.innerText?.trim().slice(0, 30);
+                    if (text) return `[role="${role}"]:has-text("${text}")`;
+                    return `[role="${role}"]`;
+                }
                 const text = el.innerText?.trim().slice(0, 30);
                 if (text) return `${el.tagName.toLowerCase()}:has-text("${text}")`;
                 return el.tagName.toLowerCase();
             }
+
+            function isCustomFocusable(el) {
+                const tabIndex = el.getAttribute('tabindex');
+                if (tabIndex === null || tabIndex === '-1') return false;
+                if (el.getAttribute('role')) return true;
+                if (el.getAttribute('onclick')) return true;
+                if (el.getAttribute('aria-label')) return true;
+                if (el.innerText?.trim()) return true;
+                return el.querySelector('img[alt], svg title') !== null;
+            }
+
+            const seen = new Set();
+            const results = [];
+
+            function addElement(el) {
+                if (seen.has(el)) return;
+                if (isDisabled(el) || isHidden(el)) return;
+                seen.add(el);
+                const rect = el.getBoundingClientRect();
+                results.push({
+                    tag: el.tagName.toLowerCase(),
+                    role: effectiveRole(el),
+                    label: getLabel(el),
+                    selector: buildSelector(el),
+                    type: el.getAttribute('type') || '',
+                    id: el.id || '',
+                    href: el.getAttribute('href') || '',
+                    data_slot: el.getAttribute('data-slot') || '',
+                    visible: rect.top >= 0 && rect.bottom <= window.innerHeight,
+                });
+            }
+
+            for (const sel of CSS_SELECTORS) {
+                for (const el of document.querySelectorAll(sel)) {
+                    addElement(el);
+                }
+            }
+
+            for (const el of document.querySelectorAll('[role]')) {
+                const role = el.getAttribute('role');
+                if (role && INTERACTIVE_ROLES.has(role)) {
+                    addElement(el);
+                }
+            }
+
+            for (const el of document.querySelectorAll('[tabindex]:not([tabindex="-1"])')) {
+                if (isCustomFocusable(el)) {
+                    addElement(el);
+                }
+            }
+
             return results;
         }""")
 
@@ -345,13 +522,23 @@ class BrowserSession:
                     (el.tagName !== 'DIV' && el.tagName !== 'SPAN'
                         ? el.innerText?.trim().slice(0, 80) : '') || ''
                 );
-                const children = [];
+                const node = { role, name, tag: el.tagName.toLowerCase(),
+                               id: el.id || undefined, children: [] };
+                const expanded = el.getAttribute('aria-expanded');
+                if (expanded !== null) node.expanded = expanded === 'true';
+                const checked = el.getAttribute('aria-checked');
+                if (checked !== null) node.checked = checked === 'true';
+                const selected = el.getAttribute('aria-selected');
+                if (selected !== null) node.selected = selected === 'true';
+                if (el.disabled || el.getAttribute('aria-disabled') === 'true') {
+                    node.disabled = true;
+                }
+                if (el.required) node.required = true;
                 for (const child of el.children) {
                     const subtree = nodeToTree(child, depth + 1);
-                    if (subtree) children.push(subtree);
+                    if (subtree) node.children.push(subtree);
                 }
-                return { role, name, tag: el.tagName.toLowerCase(),
-                         id: el.id || undefined, children };
+                return node;
             }
             return nodeToTree(document.body || document.documentElement, 0) || {};
         }""")

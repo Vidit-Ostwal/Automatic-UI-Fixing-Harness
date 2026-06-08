@@ -48,6 +48,23 @@ def extract_structural_skeleton(node: dict, depth: int = 0) -> dict:
     return skeleton
 
 
+def interactive_fingerprint(elements: list[dict]) -> str:
+    """
+    Stable digest of which interactive controls are present on the page.
+
+    Captures selector + role pairs so a new button or enabled/disabled control
+    can produce a different state hash even when the a11y skeleton is unchanged.
+    """
+    if not elements:
+        return ""
+    parts = sorted(
+        f"{e.get('role', '')}::{e.get('selector', '')}"
+        for e in elements
+        if e.get("selector")
+    )
+    return hashlib.md5("|".join(parts).encode()).hexdigest()
+
+
 def normalise_url(url: str) -> str:
     """
     Keep scheme + host + path. Drop query params and fragments.
@@ -57,13 +74,23 @@ def normalise_url(url: str) -> str:
     return f"{parsed.scheme}://{parsed.netloc}{parsed.path}".rstrip("/")
 
 
-def state_hash(url: str, a11y_tree: dict) -> str:
+def state_hash(
+    url: str,
+    a11y_tree: dict,
+    interactive_elements: list[dict] | None = None,
+) -> str:
     """
     Return a stable hex digest for a (URL, a11y_tree) pair.
     Used by the BFS explorer to detect already-visited states.
+
+    When interactive_elements is provided, their fingerprint is mixed in so
+    control-level changes (new buttons, toggled disabled state) can diverge
+    even if the structural skeleton is identical.
     """
     path = normalise_url(url)
     skeleton = extract_structural_skeleton(a11y_tree)
     # json.dumps with sort_keys gives a deterministic string for any dict.
     payload = f"{path}:{json.dumps(skeleton, sort_keys=True)}"
+    if interactive_elements is not None:
+        payload += f":{interactive_fingerprint(interactive_elements)}"
     return hashlib.md5(payload.encode()).hexdigest()

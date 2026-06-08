@@ -44,6 +44,7 @@ def _make_args(**kwargs) -> argparse.Namespace:
         planner_only=False,
         skip_planner=False,
         no_llm=False,
+        verbose_bfs=False,
     )
     defaults.update(kwargs)
     return argparse.Namespace(**defaults)
@@ -177,7 +178,7 @@ async def test_run_planner_writes_trajectories_json(tmp_path):
 
         mock_extract.return_value = []
 
-        result = await run_planner(cfg, llm_oracle=None)
+        result, bfs_collector = await run_planner(cfg, llm_oracle=None)
 
     traj_file = tmp_path / "trajectories.json"
     assert traj_file.exists(), "trajectories.json should be written"
@@ -209,11 +210,11 @@ async def test_run_planner_returns_empty_list_when_no_trajectories(tmp_path):
 
         explorer_inst = MagicMock()
         explorer_inst.explore = AsyncMock(return_value=MagicMock(
-            nodes={}, graph={}, root_hash="h1"
+            nodes={}, graph={}, root_hash="h1", findings=[]
         ))
         MockExplorer.return_value = explorer_inst
 
-        result = await run_planner(cfg, llm_oracle=None)
+        result, bfs_collector = await run_planner(cfg, llm_oracle=None)
 
     assert result == []
 
@@ -231,7 +232,7 @@ async def test_run_executors_caps_at_max_trajectories(tmp_path):
     trajectories = _fake_traj(5)
     called_ids = []
 
-    async def fake_one(traj, config, llm_oracle, sem):
+    async def fake_one(traj, llm_oracle, sem):
         called_ids.append(traj["id"])
         return FindingCollector(trajectory_id=traj["id"])
 
@@ -247,7 +248,7 @@ async def test_run_executors_returns_one_collector_per_trajectory(tmp_path):
     cfg = HarnessConfig(_make_args(max_trajectories=3, output=str(tmp_path)))
     trajectories = _fake_traj(3)
 
-    async def fake_one(traj, config, llm_oracle, sem):
+    async def fake_one(traj, llm_oracle, sem):
         return FindingCollector(trajectory_id=traj["id"])
 
     with patch("run_harness.run_one_trajectory", side_effect=fake_one):
@@ -280,7 +281,7 @@ async def test_run_one_trajectory_catches_exceptions(tmp_path):
         docker_cm.__aexit__ = AsyncMock(return_value=False)
         MockDocker.start.return_value = docker_cm
 
-        collector = await run_one_trajectory(traj, cfg, llm_oracle=None, semaphore=sem)
+        collector = await run_one_trajectory(traj, llm_oracle=None, semaphore=sem)
 
     assert isinstance(collector, FindingCollector)
     assert len(collector) == 0
@@ -307,7 +308,7 @@ async def test_run_one_trajectory_success_returns_collector(tmp_path):
         runner_inst.run = AsyncMock(return_value=expected_collector)
         MockRunner.return_value = runner_inst
 
-        collector = await run_one_trajectory(traj, cfg, llm_oracle=None, semaphore=sem)
+        collector = await run_one_trajectory(traj, llm_oracle=None, semaphore=sem)
 
     assert collector is expected_collector
 
@@ -383,7 +384,7 @@ async def test_main_returns_0_on_clean_run(tmp_path, monkeypatch):
         patch("run_harness._parse_args", return_value=_make_args(
             no_llm=True, output=str(tmp_path)
         )),
-        patch("run_harness.run_planner", new=AsyncMock(return_value=_fake_traj(1))),
+        patch("run_harness.run_planner", new=AsyncMock(return_value=(_fake_traj(1), FindingCollector()))),
         patch("run_harness.run_executors", new=AsyncMock(return_value=[FindingCollector()])),
         patch("run_harness.render_json", return_value=tmp_path / "report.json"),
         patch("run_harness.render_html", return_value=tmp_path / "report.html"),
@@ -404,7 +405,7 @@ async def test_main_returns_1_on_critical_finding(tmp_path, monkeypatch):
         patch("run_harness._parse_args", return_value=_make_args(
             no_llm=True, output=str(tmp_path)
         )),
-        patch("run_harness.run_planner", new=AsyncMock(return_value=_fake_traj(1))),
+        patch("run_harness.run_planner", new=AsyncMock(return_value=(_fake_traj(1), FindingCollector()))),
         patch("run_harness.run_executors", new=AsyncMock(return_value=[c])),
         patch("run_harness.render_json", return_value=tmp_path / "report.json"),
         patch("run_harness.render_html", return_value=tmp_path / "report.html"),
@@ -452,7 +453,7 @@ async def test_main_no_llm_flag_disables_llm_oracle(tmp_path, monkeypatch):
         patch("run_harness._parse_args", return_value=_make_args(
             no_llm=True, output=str(tmp_path)
         )),
-        patch("run_harness.run_planner", new=AsyncMock(return_value=[])),
+        patch("run_harness.run_planner", new=AsyncMock(return_value=([], FindingCollector()))),
         patch("run_harness.run_executors", new=AsyncMock(return_value=[])) as mock_exec,
         patch("run_harness.render_json", return_value=tmp_path / "report.json"),
         patch("run_harness.render_html", return_value=tmp_path / "report.html"),

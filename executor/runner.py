@@ -21,7 +21,6 @@ from dataclasses import dataclass, field
 from typing import Optional
 
 from browser.session import BrowserSession
-from executor.workflows.auth import signup
 from models import BugType, DetectedBy, Finding, Severity
 from oracles.diff import DiffOracle
 from oracles.logic import LogicOracle
@@ -37,7 +36,7 @@ VIEWPORTS = [(375, 812), (768, 1024), (1280, 800)]
 @dataclass
 class TrajectoryStep:
     action: str
-    selector: str
+    steps: list[dict]   # [{"type": "fill"|"click"|"press"|"select", "selector": str, "value": str}]
     from_hash: str = ""
     to_hash: str = ""
     description: str = ""
@@ -102,25 +101,15 @@ class TrajectoryRunner:
     # ------------------------------------------------------------------
 
     async def _run_with_session(self, session: BrowserSession) -> None:
-        # Step 1 — sign up.
-        auth = await signup(session, self._config.app_url)
-        if not auth.success:
-            self._collector.add(Finding(
-                id=f"AUTH-{self._config.trajectory_id}",
-                title="Sign-up workflow failed",
-                bug_type=BugType.LOGIC,
-                severity=Severity.CRITICAL,
-                steps=["Navigate to app", "Fill sign-up form"],
-                detected_by=DetectedBy.HEURISTIC,
-                reasoning=auth.error or "Still on auth page after submit.",
-            ))
-            return
+        # Navigate to the app — the trajectory steps handle everything from here.
+        await session.navigate(self._config.app_url)
+        await session._wait_stable()
 
-        # Step 2 — execute trajectory steps.
+        # Execute trajectory steps.
         for step in self._steps:
             await self._execute_step(session, step)
 
-        # Step 3 — multi-viewport visual regression.
+        # Multi-viewport visual regression.
         await self._run_viewport_checks(session)
 
     async def _execute_step(
@@ -168,31 +157,28 @@ class TrajectoryRunner:
         self, session: BrowserSession, step: TrajectoryStep, context: str
     ) -> bool:
         """
-        Attempt the action. Falls back to LLM element resolution if the
-        primary selector fails.  Returns True if the click succeeded.
-        """
-        # Primary: use the selector from the BFS graph.
-        if step.selector:
-            try:
-                await session.click(step.selector)
-                return True
-            except Exception:
-                logger.debug("Runner: selector failed for %s: %s", step.action, step.selector)
+        Execute all steps of the workflow in sequence.
 
-        # Fallback: ask LLM to find the right element.
+        If any step fails, falls back to LLM to resolve the action.
+        Reports a finding if the action cannot be completed at all.
+        """
+        # Primary: execute the multi-step workflow from the BFS graph.
+        if step.steps:
+            if await self._execute_steps(session, step.steps):
+                return True
+            logger.debug("Runner: workflow steps failed for %s", step.action)
+
+        # Fallback: ask LLM to find the right element to click.
         if self._llm:
-            state = await session.capture_state()
+            state    = await session.capture_state()
             elements = await session.get_interactive_elements()
             try:
-                resolution = await self._llm_resolve_action(
-                    session, step, state, elements
-                )
-                if resolution:
+                if await self._llm_resolve_action(session, step, state, elements):
                     return True
             except Exception as e:
                 logger.debug("Runner: LLM resolution failed for %s: %s", step.action, e)
 
-        # Report missing element as a finding.
+        # Report as a finding — element/workflow missing or inaccessible.
         self._collector.add(Finding(
             id=f"MISS-{step.action[:8]}",
             title=f"UI element not found for action: '{step.action}'",
@@ -201,16 +187,39 @@ class TrajectoryRunner:
             steps=[context],
             detected_by=DetectedBy.HEURISTIC,
             reasoning=(
-                f"Could not locate selector '{step.selector}' for action "
-                f"'{step.action}'. The element may be missing or inaccessible."
+                f"Could not execute workflow '{step.action}' "
+                f"({len(step.steps)} step(s)). "
+                f"Elements may be missing or inaccessible."
             ),
         ))
         return False
 
+    async def _execute_steps(
+        self, session: BrowserSession, steps: list[dict]
+    ) -> bool:
+        """Execute a sequence of interaction steps. Returns False on first failure."""
+        for s in steps:
+            try:
+                t   = s.get("type", "click")
+                sel = s.get("selector", "")
+                val = s.get("value", "")
+                if t == "fill":
+                    await session.fill(sel, val)
+                elif t == "click":
+                    await session.click(sel)
+                elif t == "press":
+                    await session.press(sel, val)
+                elif t == "select":
+                    await session.fill(sel, val)
+            except Exception as e:
+                logger.debug("Runner: step %s/%s failed: %s", t, sel, e)
+                return False
+        return True
+
     async def _llm_resolve_action(
         self, session, step, state, elements
     ) -> bool:
-        """Use LLMOracle to identify and click the correct element for an action."""
+        """Fall back to LLMOracle to find a single element to click for this action."""
         selector = await self._llm.resolve_action(
             state.screenshot, elements, step.action
         )
@@ -240,13 +249,17 @@ class TrajectoryRunner:
 
 def steps_from_trajectory(trajectory: dict) -> list[TrajectoryStep]:
     """Convert a trajectory dict (from trajectory_extractor) to TrajectoryStep list."""
-    return [
-        TrajectoryStep(
+    result = []
+    for s in trajectory.get("steps", []):
+        raw_steps = s.get("steps", [])
+        # Backwards compat: old trajectories store a single selector string.
+        if not raw_steps and s.get("selector"):
+            raw_steps = [{"type": "click", "selector": s["selector"], "value": ""}]
+        result.append(TrajectoryStep(
             action=s["action"],
-            selector=s.get("selector", ""),
+            steps=raw_steps,
             from_hash=s.get("from_hash", ""),
             to_hash=s.get("to_hash", ""),
             description=s.get("description", ""),
-        )
-        for s in trajectory.get("steps", [])
-    ]
+        ))
+    return result

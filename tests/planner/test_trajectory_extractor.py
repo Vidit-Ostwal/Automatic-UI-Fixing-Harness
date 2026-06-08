@@ -110,8 +110,23 @@ def test_cyclic_graph_no_infinite_loop():
 
 def test_self_loop_graph_terminates():
     trajs = extract_trajectories(SELF_LOOP_GRAPH, "root")
-    # root→root is a cycle — the node is a leaf from root's perspective.
-    assert isinstance(trajs, list)
+    assert len(trajs) == 1
+    assert trajs[0].steps[0]["action"] == "refresh"
+    assert trajs[0].steps[0]["from_hash"] == trajs[0].steps[0]["to_hash"]
+
+
+def test_same_hash_mutation_included_in_trajectory():
+    """Actions that stay on the same hash (not re-queued) still become steps."""
+    graph = {
+        "root": [
+            {"action": "create_memo", "selector": "#new", "to_hash": "root", "queued": False},
+        ],
+    }
+    trajs = extract_trajectories(graph, "root")
+    assert len(trajs) == 1
+    assert trajs[0].steps[0]["action"] == "create_memo"
+    assert trajs[0].steps[0]["to_hash"] == "root"
+    assert trajs[0].steps[0]["queued"] is False
 
 
 def test_empty_graph_no_trajectories():
@@ -148,7 +163,7 @@ def test_trajectory_steps_have_required_fields():
             assert "action" in step
             assert "from_hash" in step
             assert "to_hash" in step
-            assert "selector" in step
+            assert "steps" in step
 
 
 def test_trajectories_to_json_serialisable():

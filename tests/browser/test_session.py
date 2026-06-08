@@ -38,6 +38,15 @@ async def make_session(html: str, viewport_width=1280, viewport_height=800):
     pass  # not used directly — each test opens its own session
 
 
+HTML_WITH_ARIA_STATE = """
+<html>
+  <body>
+    <button id="menu" aria-expanded="false" aria-controls="panel">Menu</button>
+    <div id="panel" hidden></div>
+  </body>
+</html>
+"""
+
 HTML_SIMPLE = """
 <html>
   <body>
@@ -103,6 +112,50 @@ HTML_MULTI_INTERACTIVE = """
 </html>
 """
 
+HTML_MEMOS_SIDEBAR = """
+<html>
+  <body>
+    <div class="bg-sidebar">
+      <a id="header-memos" href="/"><svg class="lucide lucide-library" aria-hidden="true"></svg></a>
+      <a id="header-explore" href="/explore-all"><svg class="lucide lucide-earth" aria-hidden="true"></svg></a>
+      <a id="header-inbox" aria-label="Inbox" href="/inbox"><svg class="lucide lucide-bell" aria-hidden="true"></svg></a>
+      <div class="cursor-pointer" id="radix-user" aria-haspopup="menu"
+           aria-expanded="false" data-slot="dropdown-menu-trigger">
+        <svg class="lucide lucide-user-round" aria-hidden="true"></svg>
+      </div>
+    </div>
+    <button disabled="">Save</button>
+  </body>
+</html>
+"""
+
+HTML_SIDEBAR_ICONS = """
+<html>
+  <body>
+    <nav class="bg-sidebar">
+      <a id="header-explore" href="/explore-all">
+        <div><svg class="lucide lucide-earth" aria-hidden="true"></svg></div>
+      </a>
+      <a id="header-about" href="/about">
+        <div><svg class="lucide lucide-info" aria-hidden="true"></svg></div>
+      </a>
+    </nav>
+  </body>
+</html>
+"""
+
+HTML_CUSTOM_CONTROLS = """
+<html>
+  <body>
+    <div role="button" aria-label="New memo" tabindex="0"></div>
+    <div role="combobox" aria-label="Language" tabindex="0">English</div>
+    <div tabindex="0" aria-label="Settings icon"><svg><title>Settings</title></svg></div>
+    <div role="button" aria-disabled="true" aria-label="Hidden action">Disabled</div>
+    <details><summary>Advanced</summary><p>More</p></details>
+  </body>
+</html>
+"""
+
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -144,6 +197,27 @@ async def test_a11y_tree_has_expected_structure():
     roles = _collect_roles(state.a11y_tree)
     assert "button" in roles, f"Expected 'button' role in tree, got: {roles}"
     assert "heading" in roles, f"Expected 'heading' role in tree, got: {roles}"
+
+
+@pytest.mark.asyncio
+async def test_a11y_tree_includes_aria_state():
+    """capture_state() preserves expanded/checked/disabled on a11y nodes."""
+    async with BrowserSession.create() as session:
+        await session.page.set_content(HTML_WITH_ARIA_STATE)
+        state = await session.capture_state()
+
+    def find_button(node):
+        if node.get("role") == "button":
+            return node
+        for child in node.get("children", []):
+            found = find_button(child)
+            if found:
+                return found
+        return None
+
+    btn = find_button(state.a11y_tree)
+    assert btn is not None
+    assert btn.get("expanded") is False
 
 
 @pytest.mark.asyncio
@@ -209,6 +283,56 @@ async def test_interactive_elements_have_required_fields():
         assert "role" in el
         assert "label" in el
         assert "selector" in el
+
+
+@pytest.mark.asyncio
+async def test_interactive_elements_finds_custom_controls():
+    """get_interactive_elements() finds ARIA buttons, comboboxes, tabindex icons, summary."""
+    async with BrowserSession.create() as session:
+        await session.page.set_content(HTML_CUSTOM_CONTROLS)
+        elements = await session.get_interactive_elements()
+
+    labels = {e["label"] for e in elements}
+    roles = {e["role"] for e in elements}
+    assert "New memo" in labels
+    assert "Language" in labels
+    assert "Settings" in labels
+    assert "combobox" in roles
+    assert "summary" in {e["tag"] for e in elements}
+    assert "Hidden action" not in labels
+    assert not any(e["label"] == "Disabled" for e in elements)
+
+
+@pytest.mark.asyncio
+async def test_interactive_elements_label_icon_sidebar_from_id_or_lucide():
+    async with BrowserSession.create() as session:
+        await session.page.set_content(HTML_SIDEBAR_ICONS)
+        elements = await session.get_interactive_elements()
+
+    by_id = {e.get("id"): e for e in elements if e.get("id")}
+    assert "header-explore" in by_id
+    assert by_id["header-explore"]["label"] in ("earth", "explore all", "explore-all")
+    assert by_id["header-about"]["label"] in ("info", "about")
+    assert by_id["header-explore"]["selector"] == "#header-explore"
+
+
+@pytest.mark.asyncio
+async def test_interactive_elements_memos_authenticated_sidebar():
+    async with BrowserSession.create() as session:
+        await session.page.set_content(HTML_MEMOS_SIDEBAR)
+        elements = await session.get_interactive_elements()
+
+    labels = {e.get("label") for e in elements}
+    roles = {e.get("role") for e in elements}
+    assert "library" in labels or "memos" in labels
+    assert "earth" in labels or "explore all" in labels
+    assert "Inbox" in labels
+    assert "user round" in labels or "dropdown menu trigger" in labels
+    assert "button" in roles
+    user_menu = next(e for e in elements if e.get("data_slot") == "dropdown-menu-trigger")
+    assert user_menu["role"] == "button"
+    assert user_menu["selector"] == "#radix-user"
+    assert not any(e.get("label") == "Save" for e in elements)
 
 
 @pytest.mark.asyncio
