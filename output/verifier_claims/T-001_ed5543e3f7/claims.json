@@ -1,0 +1,27 @@
+{
+  "test_case_id": "T-001",
+  "run_id": "ed5543e3f7",
+  "goal": "Verify that a user can successfully register as a Site Host, create a standard memo, and create a second memo that includes a hashtag tag.",
+  "description": "create_account \u2192 create_new_memo \u2192 create_memo_with_tag",
+  "total_steps_verified": 3,
+  "total_findings": 1,
+  "findings": [
+    {
+      "id": "V-T-001-001",
+      "step_index": 2,
+      "instruction": "In the same text area, type 'Meeting notes for #team-sync' and click the 'Save' button again.",
+      "bug_type": "logic",
+      "severity": "high",
+      "title": "Second memo with hashtag was not created due to incorrect element targeting",
+      "description": "The test step intended to type 'Meeting notes for #team-sync' into the text input area, but the automation script incorrectly targeted a button element instead of the input field. As a result, the text was never entered, and the second memo was not created. This prevents verification of hashtag rendering and tag sidebar updates.",
+      "evidence": "The error log shows 'Element is not an <input>, <textarea>, <select> or [contenteditable]' when attempting to fill a button. The AFTER screenshot shows no new memo in the feed, and the text input area remains empty with placeholder 'Any thoughts...'.",
+      "reproduction_steps": [
+        "Navigate to the main dashboard after logging in.",
+        "Attempt to type 'Meeting notes for #team-sync' into the text area using an incorrect selector that targets a button instead of the input field.",
+        "Observe that the text is not entered and no new memo appears in the feed."
+      ],
+      "screenshot_before": "executor_runs/T-001_ed5543e3f7/step_02_before.png",
+      "screenshot_after": "executor_runs/T-001_ed5543e3f7/step_02_after.png"
+    }
+  ]
+}

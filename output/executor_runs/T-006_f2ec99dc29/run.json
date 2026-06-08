@@ -1,0 +1,91 @@
+{
+  "test_case_id": "T-006",
+  "run_id": "f2ec99dc29",
+  "goal": "Verify that a user can successfully create a new Site Host account and subsequently access the application settings menu.",
+  "description": "create_account \u2192 open_settings_menu",
+  "instructions": [
+    "On the 'Create your account' page, enter 'alice' into the 'Username' field.",
+    "Enter 'SecureP@ss123!' into the 'Password' field.",
+    "Click the blue 'Sign up' button to submit the registration form.",
+    "Once logged into the main dashboard, click the settings icon (gear symbol) located in the top-right corner of the screen to open the settings menu."
+  ],
+  "success_criteria": [
+    "The user is successfully redirected from the registration page to the main application dashboard.",
+    "The settings dropdown menu is visible and displays options such as 'Shown time' and 'Order'.",
+    "The main content area displays existing data (e.g., 'Meeting notes for Q3 planning') indicating a successful login.",
+    "No error messages are displayed during the account creation or menu navigation process."
+  ],
+  "steps": [
+    {
+      "step_index": 0,
+      "instruction": "On the 'Create your account' page, enter 'alice' into the 'Username' field.",
+      "resolved_steps": [
+        {
+          "type": "fill",
+          "selector": "[placeholder=\"Username\"]",
+          "value": "alice"
+        }
+      ],
+      "screenshot_before": "executor_runs/T-006_f2ec99dc29/step_00_before.png",
+      "screenshot_after": "executor_runs/T-006_f2ec99dc29/step_00_after.png",
+      "url_before": "http://localhost:50179/auth/signup",
+      "url_after": "http://localhost:50179/auth/signup",
+      "success": true,
+      "error": ""
+    },
+    {
+      "step_index": 1,
+      "instruction": "Enter 'SecureP@ss123!' into the 'Password' field.",
+      "resolved_steps": [
+        {
+          "type": "fill",
+          "selector": "[placeholder=\"Password\"]",
+          "value": "SecureP@ss123!"
+        }
+      ],
+      "screenshot_before": "executor_runs/T-006_f2ec99dc29/step_01_before.png",
+      "screenshot_after": "executor_runs/T-006_f2ec99dc29/step_01_after.png",
+      "url_before": "http://localhost:50179/auth/signup",
+      "url_after": "http://localhost:50179/auth/signup",
+      "success": true,
+      "error": ""
+    },
+    {
+      "step_index": 2,
+      "instruction": "Click the blue 'Sign up' button to submit the registration form.",
+      "resolved_steps": [
+        {
+          "type": "click",
+          "selector": "button:has-text(\"Sign up\")"
+        }
+      ],
+      "screenshot_before": "executor_runs/T-006_f2ec99dc29/step_02_before.png",
+      "screenshot_after": "executor_runs/T-006_f2ec99dc29/step_02_after.png",
+      "url_before": "http://localhost:50179/auth/signup",
+      "url_after": "http://localhost:50179/",
+      "success": true,
+      "error": ""
+    },
+    {
+      "step_index": 3,
+      "instruction": "Once logged into the main dashboard, click the settings icon (gear symbol) located in the top-right corner of the screen to open the settings menu.",
+      "resolved_steps": [
+        {
+          "type": "click",
+          "selector": "button"
+        }
+      ],
+      "screenshot_before": "executor_runs/T-006_f2ec99dc29/step_03_before.png",
+      "screenshot_after": "executor_runs/T-006_f2ec99dc29/step_03_after.png",
+      "url_before": "http://localhost:50179/",
+      "url_after": "http://localhost:50179/",
+      "success": true,
+      "error": ""
+    }
+  ],
+  "steps_executed": 4,
+  "steps_succeeded": 4,
+  "final_state": "success",
+  "completed": true,
+  "error": null
+}

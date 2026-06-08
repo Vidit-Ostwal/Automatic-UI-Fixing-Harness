@@ -1,0 +1,9 @@
+{
+  "test_case_id": "T-002",
+  "run_id": "42caeb0868",
+  "goal": "Verify that a user can create a new Site Host account and subsequently create a memo with private visibility settings.",
+  "description": "create_account \u2192 change_memo_privacy",
+  "total_steps_verified": 7,
+  "total_findings": 0,
+  "findings": []
+}

@@ -29,9 +29,6 @@ htmlcov/
 .ruff_cache/
 .pytype/
 
-# Harness output
-output/
-
 # Environment / secrets
 .env
 .env.*

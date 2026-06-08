@@ -1,0 +1,45 @@
+{
+  "test_case_id": "T-007",
+  "run_id": "276b70189b",
+  "goal": "Verify that a user can successfully create a new Site Host account and navigate to the June 2026 calendar view.",
+  "description": "create_account \u2192 june",
+  "total_steps_verified": 4,
+  "total_findings": 2,
+  "findings": [
+    {
+      "id": "V-T-007-001",
+      "step_index": 2,
+      "instruction": "Click the blue 'Sign up' button to submit the registration.",
+      "bug_type": "visual",
+      "severity": "high",
+      "title": "Calendar and sidebar content is severely faded and unreadable",
+      "description": "After successful registration and navigation to the dashboard, the main content area (calendar grid, shortcuts, tags) and the left sidebar icons are rendered with extremely low opacity. This makes the text and icons nearly invisible, rendering the UI unusable.",
+      "evidence": "In the AFTER screenshot, the text 'June 2026', the calendar numbers, and the sidebar icons are visible but extremely faint compared to the 'No data found' message and the input box at the bottom. This indicates a CSS or rendering issue affecting the main layout.",
+      "reproduction_steps": [
+        "Navigate to the signup page.",
+        "Enter a username and password.",
+        "Click the 'Sign up' button.",
+        "Observe the resulting dashboard page."
+      ],
+      "screenshot_before": "executor_runs/T-007_276b70189b/step_02_before.png",
+      "screenshot_after": "executor_runs/T-007_276b70189b/step_02_after.png"
+    },
+    {
+      "id": "V-T-007-002",
+      "step_index": 2,
+      "instruction": "Click the blue 'Sign up' button to submit the registration.",
+      "bug_type": "logic",
+      "severity": "medium",
+      "title": "Expected default content 'Meeting notes for Q3 planning' is missing",
+      "description": "The success criteria state that the main content area should display existing entries such as 'Meeting notes for Q3 planning'. However, the dashboard shows an empty state with the message 'No data found.'",
+      "evidence": "The AFTER screenshot clearly shows the text 'No data found.' in the center of the main content area, where the expected meeting notes should be displayed.",
+      "reproduction_steps": [
+        "Complete the user registration process.",
+        "Upon reaching the dashboard, check the main content area for the expected default entry.",
+        "Note that the area is empty and displays 'No data found.' instead."
+      ],
+      "screenshot_before": "executor_runs/T-007_276b70189b/step_02_before.png",
+      "screenshot_after": "executor_runs/T-007_276b70189b/step_02_after.png"
+    }
+  ]
+}

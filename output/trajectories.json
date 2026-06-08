@@ -1,0 +1,1897 @@
+[
+  {
+    "id": "T-001",
+    "description": "create_account \u2192 create_new_memo \u2192 create_memo_with_tag",
+    "steps": [
+      {
+        "action": "create_account",
+        "description": "Fill out the username and password fields and submit to create a new account as the Site Host.",
+        "steps": [
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Username\"]",
+            "value": "alice"
+          },
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Password\"]",
+            "value": "SecureP@ss123!"
+          },
+          {
+            "type": "click",
+            "selector": "button:has-text(\"Sign up\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "7201e190c00cfa7a816b02694de7e6e8",
+        "to_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "queued": true,
+        "screenshot_before": "screenshots/T-001/00_start.png",
+        "screenshot_after": "screenshots/T-001/01_create_account.png"
+      },
+      {
+        "action": "create_new_memo",
+        "description": "Create a new memo by typing a thought and saving it.",
+        "steps": [
+          {
+            "type": "fill",
+            "selector": "textarea",
+            "value": "Remember to review the project timeline tomorrow morning."
+          },
+          {
+            "type": "click",
+            "selector": "button:has-text(\"Save\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "to_hash": "27d901455dd30e9ac1472c5d8870c438",
+        "queued": true,
+        "screenshot_before": "screenshots/T-001/01_create_account.png",
+        "screenshot_after": "screenshots/T-001/02_create_new_memo.png"
+      },
+      {
+        "action": "create_memo_with_tag",
+        "description": "Create a new memo that includes a hashtag to test the tagging feature.",
+        "steps": [
+          {
+            "type": "fill",
+            "selector": "textarea[placeholder=\"Any thoughts...\"]",
+            "value": "Meeting notes for #team-sync"
+          },
+          {
+            "type": "click",
+            "selector": "button:has-text(\"Save\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "27d901455dd30e9ac1472c5d8870c438",
+        "to_hash": "212a1b45cc69356dc74e54af0898ca57",
+        "queued": true,
+        "screenshot_before": "screenshots/T-001/02_create_new_memo.png",
+        "screenshot_after": "screenshots/T-001/03_create_memo_with_tag.png"
+      }
+    ],
+    "leaf_hash": "212a1b45cc69356dc74e54af0898ca57",
+    "screenshots_folder": "screenshots/T-001",
+    "screenshots": [
+      "screenshots/T-001/00_start.png",
+      "screenshots/T-001/01_create_account.png",
+      "screenshots/T-001/02_create_new_memo.png",
+      "screenshots/T-001/03_create_memo_with_tag.png"
+    ]
+  },
+  {
+    "id": "T-002",
+    "description": "create_account \u2192 create_new_memo \u2192 navigate_to_july_2026",
+    "steps": [
+      {
+        "action": "create_account",
+        "description": "Fill out the username and password fields and submit to create a new account as the Site Host.",
+        "steps": [
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Username\"]",
+            "value": "alice"
+          },
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Password\"]",
+            "value": "SecureP@ss123!"
+          },
+          {
+            "type": "click",
+            "selector": "button:has-text(\"Sign up\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "7201e190c00cfa7a816b02694de7e6e8",
+        "to_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "queued": true,
+        "screenshot_before": "screenshots/T-002/00_start.png",
+        "screenshot_after": "screenshots/T-002/01_create_account.png"
+      },
+      {
+        "action": "create_new_memo",
+        "description": "Create a new memo by typing a thought and saving it.",
+        "steps": [
+          {
+            "type": "fill",
+            "selector": "textarea",
+            "value": "Remember to review the project timeline tomorrow morning."
+          },
+          {
+            "type": "click",
+            "selector": "button:has-text(\"Save\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "to_hash": "27d901455dd30e9ac1472c5d8870c438",
+        "queued": true,
+        "screenshot_before": "screenshots/T-002/01_create_account.png",
+        "screenshot_after": "screenshots/T-002/02_create_new_memo.png"
+      },
+      {
+        "action": "navigate_to_july_2026",
+        "description": "Navigate the calendar forward to view July 2026.",
+        "steps": [
+          {
+            "type": "click",
+            "selector": "[aria-label=\"Next month\"]",
+            "value": ""
+          }
+        ],
+        "from_hash": "27d901455dd30e9ac1472c5d8870c438",
+        "to_hash": "d941c37f504ed1c223c3a75ed0378e40",
+        "queued": true,
+        "screenshot_before": "screenshots/T-002/02_create_new_memo.png",
+        "screenshot_after": "screenshots/T-002/03_navigate_to_july_2026.png"
+      }
+    ],
+    "leaf_hash": "d941c37f504ed1c223c3a75ed0378e40",
+    "screenshots_folder": "screenshots/T-002",
+    "screenshots": [
+      "screenshots/T-002/00_start.png",
+      "screenshots/T-002/01_create_account.png",
+      "screenshots/T-002/02_create_new_memo.png",
+      "screenshots/T-002/03_navigate_to_july_2026.png"
+    ]
+  },
+  {
+    "id": "T-003",
+    "description": "create_account \u2192 create_new_memo \u2192 open_settings_menu",
+    "steps": [
+      {
+        "action": "create_account",
+        "description": "Fill out the username and password fields and submit to create a new account as the Site Host.",
+        "steps": [
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Username\"]",
+            "value": "alice"
+          },
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Password\"]",
+            "value": "SecureP@ss123!"
+          },
+          {
+            "type": "click",
+            "selector": "button:has-text(\"Sign up\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "7201e190c00cfa7a816b02694de7e6e8",
+        "to_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "queued": true,
+        "screenshot_before": "screenshots/T-003/00_start.png",
+        "screenshot_after": "screenshots/T-003/01_create_account.png"
+      },
+      {
+        "action": "create_new_memo",
+        "description": "Create a new memo by typing a thought and saving it.",
+        "steps": [
+          {
+            "type": "fill",
+            "selector": "textarea",
+            "value": "Remember to review the project timeline tomorrow morning."
+          },
+          {
+            "type": "click",
+            "selector": "button:has-text(\"Save\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "to_hash": "27d901455dd30e9ac1472c5d8870c438",
+        "queued": true,
+        "screenshot_before": "screenshots/T-003/01_create_account.png",
+        "screenshot_after": "screenshots/T-003/02_create_new_memo.png"
+      },
+      {
+        "action": "open_settings_menu",
+        "description": "Open the settings menu from the sidebar.",
+        "steps": [
+          {
+            "type": "click",
+            "selector": "button",
+            "value": ""
+          }
+        ],
+        "from_hash": "27d901455dd30e9ac1472c5d8870c438",
+        "to_hash": "61ecbfe9935d9175ba9770b6c92b40b3",
+        "queued": true,
+        "screenshot_before": "screenshots/T-003/02_create_new_memo.png",
+        "screenshot_after": "screenshots/T-003/03_open_settings_menu.png"
+      }
+    ],
+    "leaf_hash": "61ecbfe9935d9175ba9770b6c92b40b3",
+    "screenshots_folder": "screenshots/T-003",
+    "screenshots": [
+      "screenshots/T-003/00_start.png",
+      "screenshots/T-003/01_create_account.png",
+      "screenshots/T-003/02_create_new_memo.png",
+      "screenshots/T-003/03_open_settings_menu.png"
+    ]
+  },
+  {
+    "id": "T-004",
+    "description": "create_account \u2192 create_new_memo \u2192 june",
+    "steps": [
+      {
+        "action": "create_account",
+        "description": "Fill out the username and password fields and submit to create a new account as the Site Host.",
+        "steps": [
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Username\"]",
+            "value": "alice"
+          },
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Password\"]",
+            "value": "SecureP@ss123!"
+          },
+          {
+            "type": "click",
+            "selector": "button:has-text(\"Sign up\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "7201e190c00cfa7a816b02694de7e6e8",
+        "to_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "queued": true,
+        "screenshot_before": "screenshots/T-004/00_start.png",
+        "screenshot_after": "screenshots/T-004/01_create_account.png"
+      },
+      {
+        "action": "create_new_memo",
+        "description": "Create a new memo by typing a thought and saving it.",
+        "steps": [
+          {
+            "type": "fill",
+            "selector": "textarea",
+            "value": "Remember to review the project timeline tomorrow morning."
+          },
+          {
+            "type": "click",
+            "selector": "button:has-text(\"Save\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "to_hash": "27d901455dd30e9ac1472c5d8870c438",
+        "queued": true,
+        "screenshot_before": "screenshots/T-004/01_create_account.png",
+        "screenshot_after": "screenshots/T-004/02_create_new_memo.png"
+      },
+      {
+        "action": "june",
+        "description": "Click: June 2026",
+        "steps": [
+          {
+            "type": "click",
+            "selector": "button:has-text(\"June 2026\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "27d901455dd30e9ac1472c5d8870c438",
+        "to_hash": "0a82ea09fbdef2977574afc99c268471",
+        "queued": true,
+        "screenshot_before": "screenshots/T-004/02_create_new_memo.png",
+        "screenshot_after": "screenshots/T-004/03_june.png"
+      }
+    ],
+    "leaf_hash": "0a82ea09fbdef2977574afc99c268471",
+    "screenshots_folder": "screenshots/T-004",
+    "screenshots": [
+      "screenshots/T-004/00_start.png",
+      "screenshots/T-004/01_create_account.png",
+      "screenshots/T-004/02_create_new_memo.png",
+      "screenshots/T-004/03_june.png"
+    ]
+  },
+  {
+    "id": "T-005",
+    "description": "create_account \u2192 create_new_memo \u2192 previous_month",
+    "steps": [
+      {
+        "action": "create_account",
+        "description": "Fill out the username and password fields and submit to create a new account as the Site Host.",
+        "steps": [
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Username\"]",
+            "value": "alice"
+          },
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Password\"]",
+            "value": "SecureP@ss123!"
+          },
+          {
+            "type": "click",
+            "selector": "button:has-text(\"Sign up\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "7201e190c00cfa7a816b02694de7e6e8",
+        "to_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "queued": true,
+        "screenshot_before": "screenshots/T-005/00_start.png",
+        "screenshot_after": "screenshots/T-005/01_create_account.png"
+      },
+      {
+        "action": "create_new_memo",
+        "description": "Create a new memo by typing a thought and saving it.",
+        "steps": [
+          {
+            "type": "fill",
+            "selector": "textarea",
+            "value": "Remember to review the project timeline tomorrow morning."
+          },
+          {
+            "type": "click",
+            "selector": "button:has-text(\"Save\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "to_hash": "27d901455dd30e9ac1472c5d8870c438",
+        "queued": true,
+        "screenshot_before": "screenshots/T-005/01_create_account.png",
+        "screenshot_after": "screenshots/T-005/02_create_new_memo.png"
+      },
+      {
+        "action": "previous_month",
+        "description": "Click: Previous month",
+        "steps": [
+          {
+            "type": "click",
+            "selector": "[aria-label=\"Previous\\ month\"]",
+            "value": ""
+          }
+        ],
+        "from_hash": "27d901455dd30e9ac1472c5d8870c438",
+        "to_hash": "990b9d9a3192547dc178888e863287df",
+        "queued": true,
+        "screenshot_before": "screenshots/T-005/02_create_new_memo.png",
+        "screenshot_after": "screenshots/T-005/03_previous_month.png"
+      }
+    ],
+    "leaf_hash": "990b9d9a3192547dc178888e863287df",
+    "screenshots_folder": "screenshots/T-005",
+    "screenshots": [
+      "screenshots/T-005/00_start.png",
+      "screenshots/T-005/01_create_account.png",
+      "screenshots/T-005/02_create_new_memo.png",
+      "screenshots/T-005/03_previous_month.png"
+    ]
+  },
+  {
+    "id": "T-006",
+    "description": "create_account \u2192 change_memo_privacy \u2192 navigate_to_august_2026",
+    "steps": [
+      {
+        "action": "create_account",
+        "description": "Fill out the username and password fields and submit to create a new account as the Site Host.",
+        "steps": [
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Username\"]",
+            "value": "alice"
+          },
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Password\"]",
+            "value": "SecureP@ss123!"
+          },
+          {
+            "type": "click",
+            "selector": "button:has-text(\"Sign up\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "7201e190c00cfa7a816b02694de7e6e8",
+        "to_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "queued": true,
+        "screenshot_before": "screenshots/T-006/00_start.png",
+        "screenshot_after": "screenshots/T-006/01_create_account.png"
+      },
+      {
+        "action": "change_memo_privacy",
+        "description": "Change the privacy setting of a memo before saving.",
+        "steps": [
+          {
+            "type": "fill",
+            "selector": "textarea",
+            "value": "Personal reminder for the weekend."
+          },
+          {
+            "type": "click",
+            "selector": "button:has-text(\"Private\")",
+            "value": ""
+          },
+          {
+            "type": "click",
+            "selector": "button:has-text(\"Save\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "to_hash": "c663c8e432429cb42d5cfdbf0092e98f",
+        "queued": true,
+        "screenshot_before": "screenshots/T-006/01_create_account.png",
+        "screenshot_after": "screenshots/T-006/02_change_memo_privacy.png"
+      },
+      {
+        "action": "navigate_to_august_2026",
+        "description": "Navigate the calendar forward two months from June 2026 to August 2026 by clicking the next month button twice.",
+        "steps": [
+          {
+            "type": "click",
+            "selector": "[aria-label=\"Next\\ month\"]",
+            "value": ""
+          },
+          {
+            "type": "click",
+            "selector": "[aria-label=\"Next\\ month\"]",
+            "value": ""
+          }
+        ],
+        "from_hash": "c663c8e432429cb42d5cfdbf0092e98f",
+        "to_hash": "f29191ec050d4e363f77754676d7b5e6",
+        "queued": true,
+        "screenshot_before": "screenshots/T-006/02_change_memo_privacy.png",
+        "screenshot_after": "screenshots/T-006/03_navigate_to_august_2026.png"
+      }
+    ],
+    "leaf_hash": "f29191ec050d4e363f77754676d7b5e6",
+    "screenshots_folder": "screenshots/T-006",
+    "screenshots": [
+      "screenshots/T-006/00_start.png",
+      "screenshots/T-006/01_create_account.png",
+      "screenshots/T-006/02_change_memo_privacy.png",
+      "screenshots/T-006/03_navigate_to_august_2026.png"
+    ]
+  },
+  {
+    "id": "T-007",
+    "description": "create_account \u2192 change_memo_privacy \u2192 select_date_june_15",
+    "steps": [
+      {
+        "action": "create_account",
+        "description": "Fill out the username and password fields and submit to create a new account as the Site Host.",
+        "steps": [
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Username\"]",
+            "value": "alice"
+          },
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Password\"]",
+            "value": "SecureP@ss123!"
+          },
+          {
+            "type": "click",
+            "selector": "button:has-text(\"Sign up\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "7201e190c00cfa7a816b02694de7e6e8",
+        "to_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "queued": true,
+        "screenshot_before": "screenshots/T-007/00_start.png",
+        "screenshot_after": "screenshots/T-007/01_create_account.png"
+      },
+      {
+        "action": "change_memo_privacy",
+        "description": "Change the privacy setting of a memo before saving.",
+        "steps": [
+          {
+            "type": "fill",
+            "selector": "textarea",
+            "value": "Personal reminder for the weekend."
+          },
+          {
+            "type": "click",
+            "selector": "button:has-text(\"Private\")",
+            "value": ""
+          },
+          {
+            "type": "click",
+            "selector": "button:has-text(\"Save\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "to_hash": "c663c8e432429cb42d5cfdbf0092e98f",
+        "queued": true,
+        "screenshot_before": "screenshots/T-007/01_create_account.png",
+        "screenshot_after": "screenshots/T-007/02_change_memo_privacy.png"
+      },
+      {
+        "action": "select_date_june_15",
+        "description": "Select a specific date (June 15) from the calendar to filter memos for that day.",
+        "steps": [
+          {
+            "type": "click",
+            "selector": "[data-slot=\"tooltip-trigger\"][aria-label=\"\\32 026-06-15\"]",
+            "value": ""
+          }
+        ],
+        "from_hash": "c663c8e432429cb42d5cfdbf0092e98f",
+        "to_hash": "5f600bade244602a66ff32f502bb2249",
+        "queued": true,
+        "screenshot_before": "screenshots/T-007/02_change_memo_privacy.png",
+        "screenshot_after": "screenshots/T-007/03_select_date_june_15.png"
+      }
+    ],
+    "leaf_hash": "5f600bade244602a66ff32f502bb2249",
+    "screenshots_folder": "screenshots/T-007",
+    "screenshots": [
+      "screenshots/T-007/00_start.png",
+      "screenshots/T-007/01_create_account.png",
+      "screenshots/T-007/02_change_memo_privacy.png",
+      "screenshots/T-007/03_select_date_june_15.png"
+    ]
+  },
+  {
+    "id": "T-008",
+    "description": "create_account \u2192 change_memo_privacy \u2192 open_settings",
+    "steps": [
+      {
+        "action": "create_account",
+        "description": "Fill out the username and password fields and submit to create a new account as the Site Host.",
+        "steps": [
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Username\"]",
+            "value": "alice"
+          },
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Password\"]",
+            "value": "SecureP@ss123!"
+          },
+          {
+            "type": "click",
+            "selector": "button:has-text(\"Sign up\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "7201e190c00cfa7a816b02694de7e6e8",
+        "to_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "queued": true,
+        "screenshot_before": "screenshots/T-008/00_start.png",
+        "screenshot_after": "screenshots/T-008/01_create_account.png"
+      },
+      {
+        "action": "change_memo_privacy",
+        "description": "Change the privacy setting of a memo before saving.",
+        "steps": [
+          {
+            "type": "fill",
+            "selector": "textarea",
+            "value": "Personal reminder for the weekend."
+          },
+          {
+            "type": "click",
+            "selector": "button:has-text(\"Private\")",
+            "value": ""
+          },
+          {
+            "type": "click",
+            "selector": "button:has-text(\"Save\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "to_hash": "c663c8e432429cb42d5cfdbf0092e98f",
+        "queued": true,
+        "screenshot_before": "screenshots/T-008/01_create_account.png",
+        "screenshot_after": "screenshots/T-008/02_change_memo_privacy.png"
+      },
+      {
+        "action": "open_settings",
+        "description": "Open the application settings menu by clicking the settings icon.",
+        "steps": [
+          {
+            "type": "click",
+            "selector": "button",
+            "value": ""
+          }
+        ],
+        "from_hash": "c663c8e432429cb42d5cfdbf0092e98f",
+        "to_hash": "73608da576e2515299252e6d12277939",
+        "queued": true,
+        "screenshot_before": "screenshots/T-008/02_change_memo_privacy.png",
+        "screenshot_after": "screenshots/T-008/03_open_settings.png"
+      }
+    ],
+    "leaf_hash": "73608da576e2515299252e6d12277939",
+    "screenshots_folder": "screenshots/T-008",
+    "screenshots": [
+      "screenshots/T-008/00_start.png",
+      "screenshots/T-008/01_create_account.png",
+      "screenshots/T-008/02_change_memo_privacy.png",
+      "screenshots/T-008/03_open_settings.png"
+    ]
+  },
+  {
+    "id": "T-009",
+    "description": "create_account \u2192 change_memo_privacy \u2192 june",
+    "steps": [
+      {
+        "action": "create_account",
+        "description": "Fill out the username and password fields and submit to create a new account as the Site Host.",
+        "steps": [
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Username\"]",
+            "value": "alice"
+          },
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Password\"]",
+            "value": "SecureP@ss123!"
+          },
+          {
+            "type": "click",
+            "selector": "button:has-text(\"Sign up\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "7201e190c00cfa7a816b02694de7e6e8",
+        "to_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "queued": true,
+        "screenshot_before": "screenshots/T-009/00_start.png",
+        "screenshot_after": "screenshots/T-009/01_create_account.png"
+      },
+      {
+        "action": "change_memo_privacy",
+        "description": "Change the privacy setting of a memo before saving.",
+        "steps": [
+          {
+            "type": "fill",
+            "selector": "textarea",
+            "value": "Personal reminder for the weekend."
+          },
+          {
+            "type": "click",
+            "selector": "button:has-text(\"Private\")",
+            "value": ""
+          },
+          {
+            "type": "click",
+            "selector": "button:has-text(\"Save\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "to_hash": "c663c8e432429cb42d5cfdbf0092e98f",
+        "queued": true,
+        "screenshot_before": "screenshots/T-009/01_create_account.png",
+        "screenshot_after": "screenshots/T-009/02_change_memo_privacy.png"
+      },
+      {
+        "action": "june",
+        "description": "Click: June 2026",
+        "steps": [
+          {
+            "type": "click",
+            "selector": "button:has-text(\"June 2026\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "c663c8e432429cb42d5cfdbf0092e98f",
+        "to_hash": "9cc64ff33695a75148643e17f5621466",
+        "queued": true,
+        "screenshot_before": "screenshots/T-009/02_change_memo_privacy.png",
+        "screenshot_after": "screenshots/T-009/03_june.png"
+      }
+    ],
+    "leaf_hash": "9cc64ff33695a75148643e17f5621466",
+    "screenshots_folder": "screenshots/T-009",
+    "screenshots": [
+      "screenshots/T-009/00_start.png",
+      "screenshots/T-009/01_create_account.png",
+      "screenshots/T-009/02_change_memo_privacy.png",
+      "screenshots/T-009/03_june.png"
+    ]
+  },
+  {
+    "id": "T-010",
+    "description": "create_account \u2192 navigate_to_next_month \u2192 create_memo_with_content",
+    "steps": [
+      {
+        "action": "create_account",
+        "description": "Fill out the username and password fields and submit to create a new account as the Site Host.",
+        "steps": [
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Username\"]",
+            "value": "alice"
+          },
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Password\"]",
+            "value": "SecureP@ss123!"
+          },
+          {
+            "type": "click",
+            "selector": "button:has-text(\"Sign up\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "7201e190c00cfa7a816b02694de7e6e8",
+        "to_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "queued": true,
+        "screenshot_before": "screenshots/T-010/00_start.png",
+        "screenshot_after": "screenshots/T-010/01_create_account.png"
+      },
+      {
+        "action": "navigate_to_next_month",
+        "description": "Navigate the calendar to view the next month.",
+        "steps": [
+          {
+            "type": "click",
+            "selector": "[aria-label=\"Next\\ month\"]",
+            "value": ""
+          }
+        ],
+        "from_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "to_hash": "5ee50265bebdad4f92bd98ff03dc5117",
+        "queued": true,
+        "screenshot_before": "screenshots/T-010/01_create_account.png",
+        "screenshot_after": "screenshots/T-010/02_navigate_to_next_month.png"
+      },
+      {
+        "action": "create_memo_with_content",
+        "description": "Create a new memo by typing content into the input field and saving it.",
+        "steps": [
+          {
+            "type": "fill",
+            "selector": "textarea",
+            "value": "Remember to buy groceries on the way home."
+          },
+          {
+            "type": "click",
+            "selector": "button:has-text(\"Save\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "5ee50265bebdad4f92bd98ff03dc5117",
+        "to_hash": "ddc95d694f2f1444e14388e4fadb613b",
+        "queued": true,
+        "screenshot_before": "screenshots/T-010/02_navigate_to_next_month.png",
+        "screenshot_after": "screenshots/T-010/03_create_memo_with_content.png"
+      }
+    ],
+    "leaf_hash": "ddc95d694f2f1444e14388e4fadb613b",
+    "screenshots_folder": "screenshots/T-010",
+    "screenshots": [
+      "screenshots/T-010/00_start.png",
+      "screenshots/T-010/01_create_account.png",
+      "screenshots/T-010/02_navigate_to_next_month.png",
+      "screenshots/T-010/03_create_memo_with_content.png"
+    ]
+  },
+  {
+    "id": "T-011",
+    "description": "create_account \u2192 navigate_to_next_month \u2192 navigate_to_august_2026",
+    "steps": [
+      {
+        "action": "create_account",
+        "description": "Fill out the username and password fields and submit to create a new account as the Site Host.",
+        "steps": [
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Username\"]",
+            "value": "alice"
+          },
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Password\"]",
+            "value": "SecureP@ss123!"
+          },
+          {
+            "type": "click",
+            "selector": "button:has-text(\"Sign up\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "7201e190c00cfa7a816b02694de7e6e8",
+        "to_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "queued": true,
+        "screenshot_before": "screenshots/T-011/00_start.png",
+        "screenshot_after": "screenshots/T-011/01_create_account.png"
+      },
+      {
+        "action": "navigate_to_next_month",
+        "description": "Navigate the calendar to view the next month.",
+        "steps": [
+          {
+            "type": "click",
+            "selector": "[aria-label=\"Next\\ month\"]",
+            "value": ""
+          }
+        ],
+        "from_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "to_hash": "5ee50265bebdad4f92bd98ff03dc5117",
+        "queued": true,
+        "screenshot_before": "screenshots/T-011/01_create_account.png",
+        "screenshot_after": "screenshots/T-011/02_navigate_to_next_month.png"
+      },
+      {
+        "action": "navigate_to_august_2026",
+        "description": "Navigate from July 2026 to August 2026 using the next month button.",
+        "steps": [
+          {
+            "type": "click",
+            "selector": "[aria-label=\"Next\\ month\"]",
+            "value": ""
+          }
+        ],
+        "from_hash": "5ee50265bebdad4f92bd98ff03dc5117",
+        "to_hash": "df2fe5f305bbea4ba953b547448f974f",
+        "queued": true,
+        "screenshot_before": "screenshots/T-011/02_navigate_to_next_month.png",
+        "screenshot_after": "screenshots/T-011/03_navigate_to_august_2026.png"
+      }
+    ],
+    "leaf_hash": "df2fe5f305bbea4ba953b547448f974f",
+    "screenshots_folder": "screenshots/T-011",
+    "screenshots": [
+      "screenshots/T-011/00_start.png",
+      "screenshots/T-011/01_create_account.png",
+      "screenshots/T-011/02_navigate_to_next_month.png",
+      "screenshots/T-011/03_navigate_to_august_2026.png"
+    ]
+  },
+  {
+    "id": "T-012",
+    "description": "create_account \u2192 navigate_to_next_month \u2192 select_specific_date_july_15",
+    "steps": [
+      {
+        "action": "create_account",
+        "description": "Fill out the username and password fields and submit to create a new account as the Site Host.",
+        "steps": [
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Username\"]",
+            "value": "alice"
+          },
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Password\"]",
+            "value": "SecureP@ss123!"
+          },
+          {
+            "type": "click",
+            "selector": "button:has-text(\"Sign up\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "7201e190c00cfa7a816b02694de7e6e8",
+        "to_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "queued": true,
+        "screenshot_before": "screenshots/T-012/00_start.png",
+        "screenshot_after": "screenshots/T-012/01_create_account.png"
+      },
+      {
+        "action": "navigate_to_next_month",
+        "description": "Navigate the calendar to view the next month.",
+        "steps": [
+          {
+            "type": "click",
+            "selector": "[aria-label=\"Next\\ month\"]",
+            "value": ""
+          }
+        ],
+        "from_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "to_hash": "5ee50265bebdad4f92bd98ff03dc5117",
+        "queued": true,
+        "screenshot_before": "screenshots/T-012/01_create_account.png",
+        "screenshot_after": "screenshots/T-012/02_navigate_to_next_month.png"
+      },
+      {
+        "action": "select_specific_date_july_15",
+        "description": "Select a specific date (July 15) from the calendar to filter memos for that day.",
+        "steps": [
+          {
+            "type": "click",
+            "selector": "[data-slot=\"tooltip-trigger\"][aria-label=\"\\32 026-07-15\"]",
+            "value": ""
+          }
+        ],
+        "from_hash": "5ee50265bebdad4f92bd98ff03dc5117",
+        "to_hash": "1c3915b952e46cd180157a230215d2b6",
+        "queued": true,
+        "screenshot_before": "screenshots/T-012/02_navigate_to_next_month.png",
+        "screenshot_after": "screenshots/T-012/03_select_specific_date_july_15.png"
+      }
+    ],
+    "leaf_hash": "1c3915b952e46cd180157a230215d2b6",
+    "screenshots_folder": "screenshots/T-012",
+    "screenshots": [
+      "screenshots/T-012/00_start.png",
+      "screenshots/T-012/01_create_account.png",
+      "screenshots/T-012/02_navigate_to_next_month.png",
+      "screenshots/T-012/03_select_specific_date_july_15.png"
+    ]
+  },
+  {
+    "id": "T-013",
+    "description": "create_account \u2192 navigate_to_next_month \u2192 open_settings_via_button",
+    "steps": [
+      {
+        "action": "create_account",
+        "description": "Fill out the username and password fields and submit to create a new account as the Site Host.",
+        "steps": [
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Username\"]",
+            "value": "alice"
+          },
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Password\"]",
+            "value": "SecureP@ss123!"
+          },
+          {
+            "type": "click",
+            "selector": "button:has-text(\"Sign up\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "7201e190c00cfa7a816b02694de7e6e8",
+        "to_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "queued": true,
+        "screenshot_before": "screenshots/T-013/00_start.png",
+        "screenshot_after": "screenshots/T-013/01_create_account.png"
+      },
+      {
+        "action": "navigate_to_next_month",
+        "description": "Navigate the calendar to view the next month.",
+        "steps": [
+          {
+            "type": "click",
+            "selector": "[aria-label=\"Next\\ month\"]",
+            "value": ""
+          }
+        ],
+        "from_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "to_hash": "5ee50265bebdad4f92bd98ff03dc5117",
+        "queued": true,
+        "screenshot_before": "screenshots/T-013/01_create_account.png",
+        "screenshot_after": "screenshots/T-013/02_navigate_to_next_month.png"
+      },
+      {
+        "action": "open_settings_via_button",
+        "description": "Open the settings menu by clicking the settings button.",
+        "steps": [
+          {
+            "type": "click",
+            "selector": "button",
+            "value": ""
+          }
+        ],
+        "from_hash": "5ee50265bebdad4f92bd98ff03dc5117",
+        "to_hash": "3932e6c01fe544564c495cc1f46e2ffd",
+        "queued": true,
+        "screenshot_before": "screenshots/T-013/02_navigate_to_next_month.png",
+        "screenshot_after": "screenshots/T-013/03_open_settings_via_button.png"
+      }
+    ],
+    "leaf_hash": "3932e6c01fe544564c495cc1f46e2ffd",
+    "screenshots_folder": "screenshots/T-013",
+    "screenshots": [
+      "screenshots/T-013/00_start.png",
+      "screenshots/T-013/01_create_account.png",
+      "screenshots/T-013/02_navigate_to_next_month.png",
+      "screenshots/T-013/03_open_settings_via_button.png"
+    ]
+  },
+  {
+    "id": "T-014",
+    "description": "create_account \u2192 navigate_to_next_month \u2192 july",
+    "steps": [
+      {
+        "action": "create_account",
+        "description": "Fill out the username and password fields and submit to create a new account as the Site Host.",
+        "steps": [
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Username\"]",
+            "value": "alice"
+          },
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Password\"]",
+            "value": "SecureP@ss123!"
+          },
+          {
+            "type": "click",
+            "selector": "button:has-text(\"Sign up\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "7201e190c00cfa7a816b02694de7e6e8",
+        "to_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "queued": true,
+        "screenshot_before": "screenshots/T-014/00_start.png",
+        "screenshot_after": "screenshots/T-014/01_create_account.png"
+      },
+      {
+        "action": "navigate_to_next_month",
+        "description": "Navigate the calendar to view the next month.",
+        "steps": [
+          {
+            "type": "click",
+            "selector": "[aria-label=\"Next\\ month\"]",
+            "value": ""
+          }
+        ],
+        "from_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "to_hash": "5ee50265bebdad4f92bd98ff03dc5117",
+        "queued": true,
+        "screenshot_before": "screenshots/T-014/01_create_account.png",
+        "screenshot_after": "screenshots/T-014/02_navigate_to_next_month.png"
+      },
+      {
+        "action": "july",
+        "description": "Click: July 2026",
+        "steps": [
+          {
+            "type": "click",
+            "selector": "button:has-text(\"July 2026\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "5ee50265bebdad4f92bd98ff03dc5117",
+        "to_hash": "07b71aac69602ab900d5fd18a0a1f91a",
+        "queued": true,
+        "screenshot_before": "screenshots/T-014/02_navigate_to_next_month.png",
+        "screenshot_after": "screenshots/T-014/03_july.png"
+      }
+    ],
+    "leaf_hash": "07b71aac69602ab900d5fd18a0a1f91a",
+    "screenshots_folder": "screenshots/T-014",
+    "screenshots": [
+      "screenshots/T-014/00_start.png",
+      "screenshots/T-014/01_create_account.png",
+      "screenshots/T-014/02_navigate_to_next_month.png",
+      "screenshots/T-014/03_july.png"
+    ]
+  },
+  {
+    "id": "T-015",
+    "description": "create_account \u2192 navigate_to_next_month \u2192 previous_month",
+    "steps": [
+      {
+        "action": "create_account",
+        "description": "Fill out the username and password fields and submit to create a new account as the Site Host.",
+        "steps": [
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Username\"]",
+            "value": "alice"
+          },
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Password\"]",
+            "value": "SecureP@ss123!"
+          },
+          {
+            "type": "click",
+            "selector": "button:has-text(\"Sign up\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "7201e190c00cfa7a816b02694de7e6e8",
+        "to_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "queued": true,
+        "screenshot_before": "screenshots/T-015/00_start.png",
+        "screenshot_after": "screenshots/T-015/01_create_account.png"
+      },
+      {
+        "action": "navigate_to_next_month",
+        "description": "Navigate the calendar to view the next month.",
+        "steps": [
+          {
+            "type": "click",
+            "selector": "[aria-label=\"Next\\ month\"]",
+            "value": ""
+          }
+        ],
+        "from_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "to_hash": "5ee50265bebdad4f92bd98ff03dc5117",
+        "queued": true,
+        "screenshot_before": "screenshots/T-015/01_create_account.png",
+        "screenshot_after": "screenshots/T-015/02_navigate_to_next_month.png"
+      },
+      {
+        "action": "previous_month",
+        "description": "Click: Previous month",
+        "steps": [
+          {
+            "type": "click",
+            "selector": "[aria-label=\"Previous\\ month\"]",
+            "value": ""
+          }
+        ],
+        "from_hash": "5ee50265bebdad4f92bd98ff03dc5117",
+        "to_hash": "f8d63f287dd7b50314ad4cbe9a6887ea",
+        "queued": true,
+        "screenshot_before": "screenshots/T-015/02_navigate_to_next_month.png",
+        "screenshot_after": "screenshots/T-015/03_previous_month.png"
+      }
+    ],
+    "leaf_hash": "f8d63f287dd7b50314ad4cbe9a6887ea",
+    "screenshots_folder": "screenshots/T-015",
+    "screenshots": [
+      "screenshots/T-015/00_start.png",
+      "screenshots/T-015/01_create_account.png",
+      "screenshots/T-015/02_navigate_to_next_month.png",
+      "screenshots/T-015/03_previous_month.png"
+    ]
+  },
+  {
+    "id": "T-016",
+    "description": "create_account \u2192 navigate_to_previous_month \u2192 navigate_to_september_2026",
+    "steps": [
+      {
+        "action": "create_account",
+        "description": "Fill out the username and password fields and submit to create a new account as the Site Host.",
+        "steps": [
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Username\"]",
+            "value": "alice"
+          },
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Password\"]",
+            "value": "SecureP@ss123!"
+          },
+          {
+            "type": "click",
+            "selector": "button:has-text(\"Sign up\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "7201e190c00cfa7a816b02694de7e6e8",
+        "to_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "queued": true,
+        "screenshot_before": "screenshots/T-016/00_start.png",
+        "screenshot_after": "screenshots/T-016/01_create_account.png"
+      },
+      {
+        "action": "navigate_to_previous_month",
+        "description": "Navigate the calendar to view the previous month.",
+        "steps": [
+          {
+            "type": "click",
+            "selector": "[aria-label=\"Previous\\ month\"]",
+            "value": ""
+          }
+        ],
+        "from_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "to_hash": "170f827c00953a35082e27fbcb567701",
+        "queued": true,
+        "screenshot_before": "screenshots/T-016/01_create_account.png",
+        "screenshot_after": "screenshots/T-016/02_navigate_to_previous_month.png"
+      },
+      {
+        "action": "navigate_to_september_2026",
+        "description": "Navigate from the current month (June 2026) to September 2026 by clicking the next month button multiple times.",
+        "steps": [
+          {
+            "type": "click",
+            "selector": "[aria-label=\"Next\\ month\"]",
+            "value": ""
+          },
+          {
+            "type": "click",
+            "selector": "[aria-label=\"Next\\ month\"]",
+            "value": ""
+          },
+          {
+            "type": "click",
+            "selector": "[aria-label=\"Next\\ month\"]",
+            "value": ""
+          }
+        ],
+        "from_hash": "170f827c00953a35082e27fbcb567701",
+        "to_hash": "4478cc62cdcdda6ecb27ff9d796f9565",
+        "queued": true,
+        "screenshot_before": "screenshots/T-016/02_navigate_to_previous_month.png",
+        "screenshot_after": "screenshots/T-016/03_navigate_to_september_2026.png"
+      }
+    ],
+    "leaf_hash": "4478cc62cdcdda6ecb27ff9d796f9565",
+    "screenshots_folder": "screenshots/T-016",
+    "screenshots": [
+      "screenshots/T-016/00_start.png",
+      "screenshots/T-016/01_create_account.png",
+      "screenshots/T-016/02_navigate_to_previous_month.png",
+      "screenshots/T-016/03_navigate_to_september_2026.png"
+    ]
+  },
+  {
+    "id": "T-017",
+    "description": "create_account \u2192 navigate_to_previous_month \u2192 create_memo_with_specific_content",
+    "steps": [
+      {
+        "action": "create_account",
+        "description": "Fill out the username and password fields and submit to create a new account as the Site Host.",
+        "steps": [
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Username\"]",
+            "value": "alice"
+          },
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Password\"]",
+            "value": "SecureP@ss123!"
+          },
+          {
+            "type": "click",
+            "selector": "button:has-text(\"Sign up\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "7201e190c00cfa7a816b02694de7e6e8",
+        "to_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "queued": true,
+        "screenshot_before": "screenshots/T-017/00_start.png",
+        "screenshot_after": "screenshots/T-017/01_create_account.png"
+      },
+      {
+        "action": "navigate_to_previous_month",
+        "description": "Navigate the calendar to view the previous month.",
+        "steps": [
+          {
+            "type": "click",
+            "selector": "[aria-label=\"Previous\\ month\"]",
+            "value": ""
+          }
+        ],
+        "from_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "to_hash": "170f827c00953a35082e27fbcb567701",
+        "queued": true,
+        "screenshot_before": "screenshots/T-017/01_create_account.png",
+        "screenshot_after": "screenshots/T-017/02_navigate_to_previous_month.png"
+      },
+      {
+        "action": "create_memo_with_specific_content",
+        "description": "Create a new memo with specific content about a team meeting.",
+        "steps": [
+          {
+            "type": "fill",
+            "selector": "textarea",
+            "value": "Team meeting at 3 PM to discuss Q3 goals."
+          },
+          {
+            "type": "click",
+            "selector": "button:has-text(\"Save\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "170f827c00953a35082e27fbcb567701",
+        "to_hash": "68b792f024d095f2bd961d5956c23e5c",
+        "queued": true,
+        "screenshot_before": "screenshots/T-017/02_navigate_to_previous_month.png",
+        "screenshot_after": "screenshots/T-017/03_create_memo_with_specific_content.png"
+      }
+    ],
+    "leaf_hash": "68b792f024d095f2bd961d5956c23e5c",
+    "screenshots_folder": "screenshots/T-017",
+    "screenshots": [
+      "screenshots/T-017/00_start.png",
+      "screenshots/T-017/01_create_account.png",
+      "screenshots/T-017/02_navigate_to_previous_month.png",
+      "screenshots/T-017/03_create_memo_with_specific_content.png"
+    ]
+  },
+  {
+    "id": "T-018",
+    "description": "create_account \u2192 navigate_to_previous_month \u2192 settings2",
+    "steps": [
+      {
+        "action": "create_account",
+        "description": "Fill out the username and password fields and submit to create a new account as the Site Host.",
+        "steps": [
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Username\"]",
+            "value": "alice"
+          },
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Password\"]",
+            "value": "SecureP@ss123!"
+          },
+          {
+            "type": "click",
+            "selector": "button:has-text(\"Sign up\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "7201e190c00cfa7a816b02694de7e6e8",
+        "to_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "queued": true,
+        "screenshot_before": "screenshots/T-018/00_start.png",
+        "screenshot_after": "screenshots/T-018/01_create_account.png"
+      },
+      {
+        "action": "navigate_to_previous_month",
+        "description": "Navigate the calendar to view the previous month.",
+        "steps": [
+          {
+            "type": "click",
+            "selector": "[aria-label=\"Previous\\ month\"]",
+            "value": ""
+          }
+        ],
+        "from_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "to_hash": "170f827c00953a35082e27fbcb567701",
+        "queued": true,
+        "screenshot_before": "screenshots/T-018/01_create_account.png",
+        "screenshot_after": "screenshots/T-018/02_navigate_to_previous_month.png"
+      },
+      {
+        "action": "settings2",
+        "description": "Click: settings2",
+        "steps": [
+          {
+            "type": "click",
+            "selector": "button",
+            "value": ""
+          }
+        ],
+        "from_hash": "170f827c00953a35082e27fbcb567701",
+        "to_hash": "5950b23a5ddf1546b8e4899f5a184176",
+        "queued": true,
+        "screenshot_before": "screenshots/T-018/02_navigate_to_previous_month.png",
+        "screenshot_after": "screenshots/T-018/03_settings2.png"
+      }
+    ],
+    "leaf_hash": "5950b23a5ddf1546b8e4899f5a184176",
+    "screenshots_folder": "screenshots/T-018",
+    "screenshots": [
+      "screenshots/T-018/00_start.png",
+      "screenshots/T-018/01_create_account.png",
+      "screenshots/T-018/02_navigate_to_previous_month.png",
+      "screenshots/T-018/03_settings2.png"
+    ]
+  },
+  {
+    "id": "T-019",
+    "description": "create_account \u2192 navigate_to_previous_month \u2192 previous_month",
+    "steps": [
+      {
+        "action": "create_account",
+        "description": "Fill out the username and password fields and submit to create a new account as the Site Host.",
+        "steps": [
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Username\"]",
+            "value": "alice"
+          },
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Password\"]",
+            "value": "SecureP@ss123!"
+          },
+          {
+            "type": "click",
+            "selector": "button:has-text(\"Sign up\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "7201e190c00cfa7a816b02694de7e6e8",
+        "to_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "queued": true,
+        "screenshot_before": "screenshots/T-019/00_start.png",
+        "screenshot_after": "screenshots/T-019/01_create_account.png"
+      },
+      {
+        "action": "navigate_to_previous_month",
+        "description": "Navigate the calendar to view the previous month.",
+        "steps": [
+          {
+            "type": "click",
+            "selector": "[aria-label=\"Previous\\ month\"]",
+            "value": ""
+          }
+        ],
+        "from_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "to_hash": "170f827c00953a35082e27fbcb567701",
+        "queued": true,
+        "screenshot_before": "screenshots/T-019/01_create_account.png",
+        "screenshot_after": "screenshots/T-019/02_navigate_to_previous_month.png"
+      },
+      {
+        "action": "previous_month",
+        "description": "Click: Previous month",
+        "steps": [
+          {
+            "type": "click",
+            "selector": "[aria-label=\"Previous\\ month\"]",
+            "value": ""
+          }
+        ],
+        "from_hash": "170f827c00953a35082e27fbcb567701",
+        "to_hash": "934c7992eb1c669f9085f7c3e71c9515",
+        "queued": true,
+        "screenshot_before": "screenshots/T-019/02_navigate_to_previous_month.png",
+        "screenshot_after": "screenshots/T-019/03_previous_month.png"
+      }
+    ],
+    "leaf_hash": "934c7992eb1c669f9085f7c3e71c9515",
+    "screenshots_folder": "screenshots/T-019",
+    "screenshots": [
+      "screenshots/T-019/00_start.png",
+      "screenshots/T-019/01_create_account.png",
+      "screenshots/T-019/02_navigate_to_previous_month.png",
+      "screenshots/T-019/03_previous_month.png"
+    ]
+  },
+  {
+    "id": "T-020",
+    "description": "create_account \u2192 open_settings_menu \u2192 settings2",
+    "steps": [
+      {
+        "action": "create_account",
+        "description": "Fill out the username and password fields and submit to create a new account as the Site Host.",
+        "steps": [
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Username\"]",
+            "value": "alice"
+          },
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Password\"]",
+            "value": "SecureP@ss123!"
+          },
+          {
+            "type": "click",
+            "selector": "button:has-text(\"Sign up\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "7201e190c00cfa7a816b02694de7e6e8",
+        "to_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "queued": true,
+        "screenshot_before": "screenshots/T-020/00_start.png",
+        "screenshot_after": "screenshots/T-020/01_create_account.png"
+      },
+      {
+        "action": "open_settings_menu",
+        "description": "Open the settings menu to access application configuration options.",
+        "steps": [
+          {
+            "type": "click",
+            "selector": "button",
+            "value": ""
+          }
+        ],
+        "from_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "to_hash": "fbe91c2c3e4633f25b1d7066b9d2627d",
+        "queued": true,
+        "screenshot_before": "screenshots/T-020/01_create_account.png",
+        "screenshot_after": "screenshots/T-020/02_open_settings_menu.png"
+      },
+      {
+        "action": "settings2",
+        "description": "Click: settings2",
+        "steps": [
+          {
+            "type": "click",
+            "selector": "button",
+            "value": ""
+          }
+        ],
+        "from_hash": "fbe91c2c3e4633f25b1d7066b9d2627d",
+        "to_hash": "b52833df48f58f9fbc760cd854138483",
+        "queued": true,
+        "screenshot_before": "screenshots/T-020/02_open_settings_menu.png",
+        "screenshot_after": "screenshots/T-020/03_settings2.png"
+      }
+    ],
+    "leaf_hash": "b52833df48f58f9fbc760cd854138483",
+    "screenshots_folder": "screenshots/T-020",
+    "screenshots": [
+      "screenshots/T-020/00_start.png",
+      "screenshots/T-020/01_create_account.png",
+      "screenshots/T-020/02_open_settings_menu.png",
+      "screenshots/T-020/03_settings2.png"
+    ]
+  },
+  {
+    "id": "T-021",
+    "description": "create_account \u2192 open_settings_menu \u2192 ellipsis_vertical",
+    "steps": [
+      {
+        "action": "create_account",
+        "description": "Fill out the username and password fields and submit to create a new account as the Site Host.",
+        "steps": [
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Username\"]",
+            "value": "alice"
+          },
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Password\"]",
+            "value": "SecureP@ss123!"
+          },
+          {
+            "type": "click",
+            "selector": "button:has-text(\"Sign up\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "7201e190c00cfa7a816b02694de7e6e8",
+        "to_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "queued": true,
+        "screenshot_before": "screenshots/T-021/00_start.png",
+        "screenshot_after": "screenshots/T-021/01_create_account.png"
+      },
+      {
+        "action": "open_settings_menu",
+        "description": "Open the settings menu to access application configuration options.",
+        "steps": [
+          {
+            "type": "click",
+            "selector": "button",
+            "value": ""
+          }
+        ],
+        "from_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "to_hash": "fbe91c2c3e4633f25b1d7066b9d2627d",
+        "queued": true,
+        "screenshot_before": "screenshots/T-021/01_create_account.png",
+        "screenshot_after": "screenshots/T-021/02_open_settings_menu.png"
+      },
+      {
+        "action": "ellipsis_vertical",
+        "description": "Click: ellipsis vertical",
+        "steps": [
+          {
+            "type": "click",
+            "selector": "button",
+            "value": ""
+          }
+        ],
+        "from_hash": "fbe91c2c3e4633f25b1d7066b9d2627d",
+        "to_hash": "3e8ddd29298962f732464a10e7dd991c",
+        "queued": true,
+        "screenshot_before": "screenshots/T-021/02_open_settings_menu.png",
+        "screenshot_after": "screenshots/T-021/03_ellipsis_vertical.png"
+      }
+    ],
+    "leaf_hash": "3e8ddd29298962f732464a10e7dd991c",
+    "screenshots_folder": "screenshots/T-021",
+    "screenshots": [
+      "screenshots/T-021/00_start.png",
+      "screenshots/T-021/01_create_account.png",
+      "screenshots/T-021/02_open_settings_menu.png",
+      "screenshots/T-021/03_ellipsis_vertical.png"
+    ]
+  },
+  {
+    "id": "T-022",
+    "description": "create_account \u2192 open_settings_menu \u2192 tooltip_trigger",
+    "steps": [
+      {
+        "action": "create_account",
+        "description": "Fill out the username and password fields and submit to create a new account as the Site Host.",
+        "steps": [
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Username\"]",
+            "value": "alice"
+          },
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Password\"]",
+            "value": "SecureP@ss123!"
+          },
+          {
+            "type": "click",
+            "selector": "button:has-text(\"Sign up\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "7201e190c00cfa7a816b02694de7e6e8",
+        "to_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "queued": true,
+        "screenshot_before": "screenshots/T-022/00_start.png",
+        "screenshot_after": "screenshots/T-022/01_create_account.png"
+      },
+      {
+        "action": "open_settings_menu",
+        "description": "Open the settings menu to access application configuration options.",
+        "steps": [
+          {
+            "type": "click",
+            "selector": "button",
+            "value": ""
+          }
+        ],
+        "from_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "to_hash": "fbe91c2c3e4633f25b1d7066b9d2627d",
+        "queued": true,
+        "screenshot_before": "screenshots/T-022/01_create_account.png",
+        "screenshot_after": "screenshots/T-022/02_open_settings_menu.png"
+      },
+      {
+        "action": "tooltip_trigger",
+        "description": "Click: tooltip trigger",
+        "steps": [
+          {
+            "type": "click",
+            "selector": "button",
+            "value": ""
+          }
+        ],
+        "from_hash": "fbe91c2c3e4633f25b1d7066b9d2627d",
+        "to_hash": "b52833df48f58f9fbc760cd854138483",
+        "queued": false,
+        "screenshot_before": "screenshots/T-022/02_open_settings_menu.png",
+        "screenshot_after": "screenshots/T-022/03_tooltip_trigger.png"
+      }
+    ],
+    "leaf_hash": "b52833df48f58f9fbc760cd854138483",
+    "screenshots_folder": "screenshots/T-022",
+    "screenshots": [
+      "screenshots/T-022/00_start.png",
+      "screenshots/T-022/01_create_account.png",
+      "screenshots/T-022/02_open_settings_menu.png",
+      "screenshots/T-022/03_tooltip_trigger.png"
+    ]
+  },
+  {
+    "id": "T-023",
+    "description": "create_account \u2192 june \u2192 navigate_to_next_year",
+    "steps": [
+      {
+        "action": "create_account",
+        "description": "Fill out the username and password fields and submit to create a new account as the Site Host.",
+        "steps": [
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Username\"]",
+            "value": "alice"
+          },
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Password\"]",
+            "value": "SecureP@ss123!"
+          },
+          {
+            "type": "click",
+            "selector": "button:has-text(\"Sign up\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "7201e190c00cfa7a816b02694de7e6e8",
+        "to_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "queued": true,
+        "screenshot_before": "screenshots/T-023/00_start.png",
+        "screenshot_after": "screenshots/T-023/01_create_account.png"
+      },
+      {
+        "action": "june",
+        "description": "Click: June 2026",
+        "steps": [
+          {
+            "type": "click",
+            "selector": "button:has-text(\"June 2026\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "to_hash": "1be27036589a280f3fe09229ab89615e",
+        "queued": true,
+        "screenshot_before": "screenshots/T-023/01_create_account.png",
+        "screenshot_after": "screenshots/T-023/02_june.png"
+      },
+      {
+        "action": "navigate_to_next_year",
+        "description": "Click the button to navigate the calendar view to the next year (2027).",
+        "steps": [
+          {
+            "type": "click",
+            "selector": "[aria-label=\"Next\\ year\"]",
+            "value": ""
+          }
+        ],
+        "from_hash": "1be27036589a280f3fe09229ab89615e",
+        "to_hash": "9c5c29e3c73805e6142b1b10024b4c35",
+        "queued": true,
+        "screenshot_before": "screenshots/T-023/02_june.png",
+        "screenshot_after": "screenshots/T-023/03_navigate_to_next_year.png"
+      }
+    ],
+    "leaf_hash": "9c5c29e3c73805e6142b1b10024b4c35",
+    "screenshots_folder": "screenshots/T-023",
+    "screenshots": [
+      "screenshots/T-023/00_start.png",
+      "screenshots/T-023/01_create_account.png",
+      "screenshots/T-023/02_june.png",
+      "screenshots/T-023/03_navigate_to_next_year.png"
+    ]
+  },
+  {
+    "id": "T-024",
+    "description": "create_account \u2192 june \u2192 navigate_to_previous_year",
+    "steps": [
+      {
+        "action": "create_account",
+        "description": "Fill out the username and password fields and submit to create a new account as the Site Host.",
+        "steps": [
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Username\"]",
+            "value": "alice"
+          },
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Password\"]",
+            "value": "SecureP@ss123!"
+          },
+          {
+            "type": "click",
+            "selector": "button:has-text(\"Sign up\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "7201e190c00cfa7a816b02694de7e6e8",
+        "to_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "queued": true,
+        "screenshot_before": "screenshots/T-024/00_start.png",
+        "screenshot_after": "screenshots/T-024/01_create_account.png"
+      },
+      {
+        "action": "june",
+        "description": "Click: June 2026",
+        "steps": [
+          {
+            "type": "click",
+            "selector": "button:has-text(\"June 2026\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "to_hash": "1be27036589a280f3fe09229ab89615e",
+        "queued": true,
+        "screenshot_before": "screenshots/T-024/01_create_account.png",
+        "screenshot_after": "screenshots/T-024/02_june.png"
+      },
+      {
+        "action": "navigate_to_previous_year",
+        "description": "Click the button to navigate the calendar view to the previous year (2025).",
+        "steps": [
+          {
+            "type": "click",
+            "selector": "[aria-label=\"Previous\\ year\"]",
+            "value": ""
+          }
+        ],
+        "from_hash": "1be27036589a280f3fe09229ab89615e",
+        "to_hash": "3593cece06bf0420a7b444164ef01397",
+        "queued": true,
+        "screenshot_before": "screenshots/T-024/02_june.png",
+        "screenshot_after": "screenshots/T-024/03_navigate_to_previous_year.png"
+      }
+    ],
+    "leaf_hash": "3593cece06bf0420a7b444164ef01397",
+    "screenshots_folder": "screenshots/T-024",
+    "screenshots": [
+      "screenshots/T-024/00_start.png",
+      "screenshots/T-024/01_create_account.png",
+      "screenshots/T-024/02_june.png",
+      "screenshots/T-024/03_navigate_to_previous_year.png"
+    ]
+  },
+  {
+    "id": "T-025",
+    "description": "create_account \u2192 june \u2192 select_date_january_1_2026",
+    "steps": [
+      {
+        "action": "create_account",
+        "description": "Fill out the username and password fields and submit to create a new account as the Site Host.",
+        "steps": [
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Username\"]",
+            "value": "alice"
+          },
+          {
+            "type": "fill",
+            "selector": "[placeholder=\"Password\"]",
+            "value": "SecureP@ss123!"
+          },
+          {
+            "type": "click",
+            "selector": "button:has-text(\"Sign up\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "7201e190c00cfa7a816b02694de7e6e8",
+        "to_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "queued": true,
+        "screenshot_before": "screenshots/T-025/00_start.png",
+        "screenshot_after": "screenshots/T-025/01_create_account.png"
+      },
+      {
+        "action": "june",
+        "description": "Click: June 2026",
+        "steps": [
+          {
+            "type": "click",
+            "selector": "button:has-text(\"June 2026\")",
+            "value": ""
+          }
+        ],
+        "from_hash": "d417d1baa83861b85a461c04f6fe3706",
+        "to_hash": "1be27036589a280f3fe09229ab89615e",
+        "queued": true,
+        "screenshot_before": "screenshots/T-025/01_create_account.png",
+        "screenshot_after": "screenshots/T-025/02_june.png"
+      },
+      {
+        "action": "select_date_january_1_2026",
+        "description": "Select a specific date in January 2026 to view memos for that day.",
+        "steps": [
+          {
+            "type": "click",
+            "selector": "[aria-label=\"\\32 026-01-01\"]",
+            "value": ""
+          }
+        ],
+        "from_hash": "1be27036589a280f3fe09229ab89615e",
+        "to_hash": "ca226b08c726ed4311c80aa3d8488c63",
+        "queued": true,
+        "screenshot_before": "screenshots/T-025/02_june.png",
+        "screenshot_after": "screenshots/T-025/03_select_date_january_1_2026.png"
+      }
+    ],
+    "leaf_hash": "ca226b08c726ed4311c80aa3d8488c63",
+    "screenshots_folder": "screenshots/T-025",
+    "screenshots": [
+      "screenshots/T-025/00_start.png",
+      "screenshots/T-025/01_create_account.png",
+      "screenshots/T-025/02_june.png",
+      "screenshots/T-025/03_select_date_january_1_2026.png"
+    ]
+  }
+]

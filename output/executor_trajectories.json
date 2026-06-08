@@ -1,0 +1,82 @@
+[
+  {
+    "test_case_id": "T-001",
+    "run_id": "db0b5b721a",
+    "final_state": "success",
+    "completed": true,
+    "steps_executed": 5,
+    "steps_succeeded": 5,
+    "run_dir": "executor_runs/T-001_db0b5b721a",
+    "error": null
+  },
+  {
+    "test_case_id": "T-002",
+    "run_id": "42caeb0868",
+    "final_state": "success",
+    "completed": true,
+    "steps_executed": 7,
+    "steps_succeeded": 7,
+    "run_dir": "executor_runs/T-002_42caeb0868",
+    "error": null
+  },
+  {
+    "test_case_id": "T-003",
+    "run_id": "7bd7837d05",
+    "final_state": "success",
+    "completed": true,
+    "steps_executed": 4,
+    "steps_succeeded": 4,
+    "run_dir": "executor_runs/T-003_7bd7837d05",
+    "error": null
+  },
+  {
+    "test_case_id": "T-004",
+    "run_id": "a484cdbc64",
+    "final_state": "success",
+    "completed": true,
+    "steps_executed": 4,
+    "steps_succeeded": 4,
+    "run_dir": "executor_runs/T-004_a484cdbc64",
+    "error": null
+  },
+  {
+    "test_case_id": "T-005",
+    "run_id": "594920e7df",
+    "final_state": "success",
+    "completed": true,
+    "steps_executed": 5,
+    "steps_succeeded": 5,
+    "run_dir": "executor_runs/T-005_594920e7df",
+    "error": null
+  },
+  {
+    "test_case_id": "T-006",
+    "run_id": "f2ec99dc29",
+    "final_state": "success",
+    "completed": true,
+    "steps_executed": 4,
+    "steps_succeeded": 4,
+    "run_dir": "executor_runs/T-006_f2ec99dc29",
+    "error": null
+  },
+  {
+    "test_case_id": "T-007",
+    "run_id": "276b70189b",
+    "final_state": "success",
+    "completed": true,
+    "steps_executed": 4,
+    "steps_succeeded": 4,
+    "run_dir": "executor_runs/T-007_276b70189b",
+    "error": null
+  },
+  {
+    "test_case_id": "T-008",
+    "run_id": "82da0cd2b5",
+    "final_state": "success",
+    "completed": true,
+    "steps_executed": 5,
+    "steps_succeeded": 5,
+    "run_dir": "executor_runs/T-008_82da0cd2b5",
+    "error": null
+  }
+]

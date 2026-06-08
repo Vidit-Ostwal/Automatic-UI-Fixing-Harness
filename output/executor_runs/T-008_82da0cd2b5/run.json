@@ -1,0 +1,109 @@
+{
+  "test_case_id": "T-008",
+  "run_id": "82da0cd2b5",
+  "goal": "Verify that a user can successfully register as a Site Host and subsequently access the content creation menu by clicking the plus button.",
+  "description": "create_account \u2192 plus",
+  "instructions": [
+    "On the 'Create your account' page, enter 'alice' into the 'Username' field.",
+    "Enter 'SecureP@ss123!' into the 'Password' field.",
+    "Click the blue 'Sign up' button to complete the registration.",
+    "Once logged into the dashboard, locate the text input area labeled 'Any thoughts...' at the bottom of the screen.",
+    "Click the small '+' (plus) icon located inside the text input area to open the content options menu."
+  ],
+  "success_criteria": [
+    "The user is successfully redirected from the registration page to the main dashboard view.",
+    "The dashboard displays the 'Memos' interface with a calendar and sidebar navigation.",
+    "Clicking the '+' icon opens a dropdown menu containing options such as 'Media', 'Record audio', 'File', and 'Link memo'.",
+    "No error messages are displayed during the account creation or menu interaction process."
+  ],
+  "steps": [
+    {
+      "step_index": 0,
+      "instruction": "On the 'Create your account' page, enter 'alice' into the 'Username' field.",
+      "resolved_steps": [
+        {
+          "type": "fill",
+          "selector": "[placeholder=\"Username\"]",
+          "value": "alice"
+        }
+      ],
+      "screenshot_before": "executor_runs/T-008_82da0cd2b5/step_00_before.png",
+      "screenshot_after": "executor_runs/T-008_82da0cd2b5/step_00_after.png",
+      "url_before": "http://localhost:50376/auth/signup",
+      "url_after": "http://localhost:50376/auth/signup",
+      "success": true,
+      "error": ""
+    },
+    {
+      "step_index": 1,
+      "instruction": "Enter 'SecureP@ss123!' into the 'Password' field.",
+      "resolved_steps": [
+        {
+          "type": "fill",
+          "selector": "[placeholder=\"Password\"]",
+          "value": "SecureP@ss123!"
+        }
+      ],
+      "screenshot_before": "executor_runs/T-008_82da0cd2b5/step_01_before.png",
+      "screenshot_after": "executor_runs/T-008_82da0cd2b5/step_01_after.png",
+      "url_before": "http://localhost:50376/auth/signup",
+      "url_after": "http://localhost:50376/auth/signup",
+      "success": true,
+      "error": ""
+    },
+    {
+      "step_index": 2,
+      "instruction": "Click the blue 'Sign up' button to complete the registration.",
+      "resolved_steps": [
+        {
+          "type": "click",
+          "selector": "button:has-text(\"Sign up\")"
+        }
+      ],
+      "screenshot_before": "executor_runs/T-008_82da0cd2b5/step_02_before.png",
+      "screenshot_after": "executor_runs/T-008_82da0cd2b5/step_02_after.png",
+      "url_before": "http://localhost:50376/auth/signup",
+      "url_after": "http://localhost:50376/",
+      "success": true,
+      "error": ""
+    },
+    {
+      "step_index": 3,
+      "instruction": "Once logged into the dashboard, locate the text input area labeled 'Any thoughts...' at the bottom of the screen.",
+      "resolved_steps": [
+        {
+          "type": "fill",
+          "selector": "textarea",
+          "value": ""
+        }
+      ],
+      "screenshot_before": "executor_runs/T-008_82da0cd2b5/step_03_before.png",
+      "screenshot_after": "executor_runs/T-008_82da0cd2b5/step_03_after.png",
+      "url_before": "http://localhost:50376/",
+      "url_after": "http://localhost:50376/",
+      "success": true,
+      "error": ""
+    },
+    {
+      "step_index": 4,
+      "instruction": "Click the small '+' (plus) icon located inside the text input area to open the content options menu.",
+      "resolved_steps": [
+        {
+          "type": "click",
+          "selector": "#radix-_r_53_"
+        }
+      ],
+      "screenshot_before": "executor_runs/T-008_82da0cd2b5/step_04_before.png",
+      "screenshot_after": "executor_runs/T-008_82da0cd2b5/step_04_after.png",
+      "url_before": "http://localhost:50376/",
+      "url_after": "http://localhost:50376/",
+      "success": true,
+      "error": ""
+    }
+  ],
+  "steps_executed": 5,
+  "steps_succeeded": 5,
+  "final_state": "success",
+  "completed": true,
+  "error": null
+}

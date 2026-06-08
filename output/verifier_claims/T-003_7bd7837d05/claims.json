@@ -1,0 +1,9 @@
+{
+  "test_case_id": "T-003",
+  "run_id": "7bd7837d05",
+  "goal": "Verify that a user can successfully create a new Site Host account and then navigate the calendar view to the following month.",
+  "description": "create_account \u2192 navigate_to_next_month",
+  "total_steps_verified": 4,
+  "total_findings": 0,
+  "findings": []
+}

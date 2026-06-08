@@ -1,0 +1,418 @@
+[
+  {
+    "id": "T-001",
+    "description": "create_account \u2192 create_new_memo \u2192 create_memo_with_tag",
+    "goal": "Verify that a user can successfully register as a Site Host, create a standard memo, and create a second memo that includes a hashtag tag.",
+    "instructions": [
+      "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+      "In the main dashboard, type 'Remember to review the project timeline tomorrow morning.' into the text area with the placeholder 'Any thoughts...' and click the 'Save' button.",
+      "In the same text area, type 'Meeting notes for #team-sync' and click the 'Save' button again."
+    ],
+    "success_criteria": [
+      "The user is successfully logged in and navigated to the main dashboard view after account creation.",
+      "The first memo containing the text 'Remember to review the project timeline tomorrow morning.' appears in the feed.",
+      "The second memo containing 'Meeting notes for #team-sync' appears in the feed.",
+      "The hashtag '#team-sync' in the second memo is rendered as a clickable tag element.",
+      "The 'Tags' section in the sidebar updates to display the new '#team-sync' tag."
+    ]
+  },
+  {
+    "id": "T-002",
+    "description": "create_account \u2192 create_new_memo \u2192 navigate_to_july_2026",
+    "goal": "Verify that a user can create a new account, save a memo, and navigate the calendar to view the next month.",
+    "instructions": [
+      "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+      "In the main dashboard, type 'Remember to review the project timeline tomorrow morning.' into the text area labeled 'Any thoughts...' and click the 'Save' button.",
+      "Locate the calendar widget displaying 'June 2026' and click the right-pointing arrow button to navigate to the next month."
+    ],
+    "success_criteria": [
+      "The user is successfully logged in and the dashboard displays the calendar for 'June 2026'.",
+      "The memo 'Remember to review the project timeline tomorrow morning.' appears in the feed below the input area.",
+      "The calendar widget updates to display 'July 2026' after clicking the navigation arrow.",
+      "The previously saved memo remains visible in the feed after navigating to the new month."
+    ]
+  },
+  {
+    "id": "T-003",
+    "description": "create_account \u2192 create_new_memo \u2192 open_settings_menu",
+    "goal": "Verify that a user can create a new account as the Site Host, save a new memo, and successfully open the settings menu from the sidebar.",
+    "instructions": [
+      "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+      "In the main dashboard, type 'Remember to review the project timeline tomorrow morning.' into the text area labeled 'Any thoughts...' and click the 'Save' button.",
+      "Locate the settings icon (gear symbol) in the left sidebar and click it to open the settings menu."
+    ],
+    "success_criteria": [
+      "The user is successfully logged in and redirected to the main dashboard after signing up.",
+      "The new memo containing the text 'Remember to review the project timeline tomorrow morning.' is visible in the feed.",
+      "The settings menu overlay appears, displaying options such as 'Shown time' and 'Order'.",
+      "No error messages are displayed during the account creation or memo saving process."
+    ]
+  },
+  {
+    "id": "T-004",
+    "description": "create_account \u2192 create_new_memo \u2192 june",
+    "goal": "Verify that a user can register as a Site Host, create a new memo, and successfully navigate to the June 2026 calendar view.",
+    "instructions": [
+      "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+      "In the main dashboard, type 'Remember to review the project timeline tomorrow morning.' into the text input box labeled 'Any thoughts...' and click the 'Save' button.",
+      "Click the 'June 2026' button located in the calendar widget to switch the view to the full year calendar."
+    ],
+    "success_criteria": [
+      "The user is successfully logged in and the 'Create your account' form is replaced by the main dashboard interface.",
+      "The memo 'Remember to review the project timeline tomorrow morning.' is visible in the feed below the input area.",
+      "The UI transitions to a full-year calendar view displaying the year '2026' at the top.",
+      "The 'June' month grid within the 2026 calendar is visible and the 8th is highlighted.",
+      "The previously created memo remains visible in the list below the calendar view."
+    ]
+  },
+  {
+    "id": "T-005",
+    "description": "create_account \u2192 create_new_memo \u2192 previous_month",
+    "goal": "Verify that a user can create a new account, save a memo, and navigate the calendar to view the previous month.",
+    "instructions": [
+      "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+      "In the main dashboard, type 'Remember to review the project timeline tomorrow morning.' into the text area labeled 'Any thoughts...' and click the 'Save' button.",
+      "Locate the calendar widget displaying 'June 2026' and click the left-pointing arrow button to navigate to the previous month."
+    ],
+    "success_criteria": [
+      "The user is successfully logged in and the dashboard displays the current month (June 2026) after account creation.",
+      "The memo 'Remember to review the project timeline tomorrow morning.' appears in the feed with a timestamp of 'now'.",
+      "The calendar widget updates to display 'May 2026' after clicking the previous month button.",
+      "The previously saved memo remains visible in the feed after navigating to the previous month."
+    ]
+  },
+  {
+    "id": "T-006",
+    "description": "create_account \u2192 change_memo_privacy \u2192 navigate_to_august_2026",
+    "goal": "Verify that a user can create a new account, save a private memo, and navigate the calendar forward to a future month.",
+    "instructions": [
+      "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+      "In the 'Any thoughts...' input box, type 'Personal reminder for the weekend.', click the 'Private' button to set the visibility, and then click the 'Save' button.",
+      "Locate the calendar widget currently showing 'June 2026' and click the 'Next month' arrow button twice to advance the view to 'August 2026'."
+    ],
+    "success_criteria": [
+      "The user is successfully logged in and the main dashboard displays the calendar view.",
+      "The memo 'Personal reminder for the weekend.' appears in the feed with a timestamp of 'now' and is marked as private.",
+      "The calendar widget header explicitly displays 'August 2026'.",
+      "The previously saved memo remains visible in the feed after navigating to the new month."
+    ]
+  },
+  {
+    "id": "T-007",
+    "description": "create_account \u2192 change_memo_privacy \u2192 select_date_june_15",
+    "goal": "Verify that a user can create a new account, save a private memo, and filter the memo list by selecting a specific date from the calendar.",
+    "instructions": [
+      "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+      "In the main dashboard, type 'Personal reminder for the weekend.' into the text input box labeled 'Any thoughts...', click the 'Private' button to set visibility, and then click the 'Save' button.",
+      "Click on the date '15' within the 'June 2026' calendar widget to filter the view for that specific day."
+    ],
+    "success_criteria": [
+      "The user is successfully logged in and navigated to the main dashboard after account creation.",
+      "The memo 'Personal reminder for the weekend.' is visible in the feed with a timestamp of 'now'.",
+      "The calendar view updates to show the date '15' as selected.",
+      "The input box displays the selected date '2026-06-15' as a filter tag.",
+      "The memo list displays 'No data found' because no memos exist for the filtered date."
+    ]
+  },
+  {
+    "id": "T-008",
+    "description": "create_account \u2192 change_memo_privacy \u2192 open_settings",
+    "goal": "Verify that a user can create a new account, compose a private memo, and access the application settings menu.",
+    "instructions": [
+      "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+      "In the main dashboard, type 'Personal reminder for the weekend.' into the text input area labeled 'Any thoughts...', click the 'Private' button to set visibility, and then click the 'Save' button.",
+      "Click the settings icon (gear symbol) located in the left-hand sidebar to open the settings menu."
+    ],
+    "success_criteria": [
+      "The user is successfully logged in and redirected to the main dashboard after signing up.",
+      "The memo 'Personal reminder for the weekend.' appears in the feed with a timestamp of 'now' and is marked as private.",
+      "The settings menu or configuration options are visible on the screen after clicking the settings icon.",
+      "No error messages are displayed during account creation or memo saving."
+    ]
+  },
+  {
+    "id": "T-009",
+    "description": "create_account \u2192 change_memo_privacy \u2192 june",
+    "goal": "Verify that a user can create a new account, compose a private memo, and navigate to the June 2026 calendar view.",
+    "instructions": [
+      "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+      "In the main dashboard, type 'Personal reminder for the weekend.' into the text input field labeled 'Any thoughts...'.",
+      "Click the 'Private' button to set the memo's visibility, then click the 'Save' button to publish the entry.",
+      "Click the 'June 2026' button in the calendar widget to switch the view to the full year calendar."
+    ],
+    "success_criteria": [
+      "The user is successfully logged in and redirected to the main dashboard after signing up.",
+      "The memo 'Personal reminder for the weekend.' appears in the feed with a timestamp of 'now' and is marked as private.",
+      "The interface transitions to a full-year calendar view for 2026, displaying all months.",
+      "The 'June' month within the 2026 calendar view is highlighted or selected.",
+      "No error messages are displayed during account creation, memo saving, or navigation."
+    ]
+  },
+  {
+    "id": "T-010",
+    "description": "create_account \u2192 navigate_to_next_month \u2192 create_memo_with_content",
+    "goal": "Verify that a user can create a new account, navigate the calendar to the next month, and successfully create and save a new memo with specific content.",
+    "instructions": [
+      "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+      "Once logged in and viewing the calendar (initially showing June 2026), click the 'Next month' arrow button to navigate to July 2026.",
+      "In the memo input area labeled 'Any thoughts...', type the text 'Remember to buy groceries on the way home.' and click the 'Save' button."
+    ],
+    "success_criteria": [
+      "The user is successfully logged in and the main dashboard displays the calendar view.",
+      "The calendar header displays 'July 2026' after the navigation step.",
+      "A new memo card appears at the top of the feed with the timestamp 'now' and the exact text 'Remember to buy groceries on the way home.'",
+      "The input field 'Any thoughts...' is cleared after the memo is saved.",
+      "No error messages are displayed during account creation, navigation, or memo saving."
+    ]
+  },
+  {
+    "id": "T-011",
+    "description": "create_account \u2192 navigate_to_next_month \u2192 navigate_to_august_2026",
+    "goal": "Verify that a user can create a new Site Host account and successfully navigate the calendar view from June 2026 to August 2026.",
+    "instructions": [
+      "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+      "Once the dashboard loads showing the 'June 2026' calendar, click the 'Next month' button (right arrow) to advance the view to July 2026.",
+      "Click the 'Next month' button again to advance the calendar view from July 2026 to August 2026."
+    ],
+    "success_criteria": [
+      "The user is successfully logged in and the 'Create your account' form is no longer visible.",
+      "The calendar header updates to display 'July 2026' after the first navigation action.",
+      "The calendar header updates to display 'August 2026' after the second navigation action.",
+      "The main content area displays a list of existing memos or reminders without any error messages."
+    ]
+  },
+  {
+    "id": "T-012",
+    "description": "create_account \u2192 navigate_to_next_month \u2192 select_specific_date_july_15",
+    "goal": "Verify that a user can create a new account, navigate the calendar to the next month, and select a specific date to filter memos for that day.",
+    "instructions": [
+      "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+      "Once logged in and viewing the calendar (initially showing June 2026), click the 'Next month' arrow button to navigate to July 2026.",
+      "In the July 2026 calendar view, click on the date '15' to select July 15."
+    ],
+    "success_criteria": [
+      "The user is successfully logged in and the main dashboard with the calendar is visible.",
+      "The calendar header displays 'July 2026' after navigating from the previous month.",
+      "The date '15' in the July 2026 calendar is visually highlighted or selected.",
+      "The memo input area displays a timestamp or filter tag indicating '2026-07-15'.",
+      "The main content area displays 'No data found' or shows memos specifically associated with July 15, 2026."
+    ]
+  },
+  {
+    "id": "T-013",
+    "description": "create_account \u2192 navigate_to_next_month \u2192 open_settings_via_button",
+    "goal": "Verify that a user can successfully create a new account, navigate the calendar to the next month, and access the settings menu via the settings button.",
+    "instructions": [
+      "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+      "Once logged in and viewing the calendar (initially showing June 2026), click the 'Next month' button (right arrow) located next to the month title to navigate to July 2026.",
+      "Click the settings button (gear icon) located in the left sidebar to open the settings menu."
+    ],
+    "success_criteria": [
+      "The user is successfully redirected from the sign-up page to the main dashboard after clicking 'Sign up'.",
+      "The calendar view updates to display 'July 2026' after clicking the navigation button.",
+      "The settings menu or panel becomes visible, displaying options such as 'Shown time' and 'Order' dropdowns.",
+      "No error messages are displayed during the account creation or navigation steps."
+    ]
+  },
+  {
+    "id": "T-014",
+    "description": "create_account \u2192 navigate_to_next_month \u2192 july",
+    "goal": "Verify that a user can create a new account as the Site Host and successfully navigate the calendar to view the month of July 2026.",
+    "instructions": [
+      "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+      "Once logged in and viewing the calendar for June 2026, click the 'Next month' button (indicated by a right arrow icon) to advance the calendar view.",
+      "Click on the 'July 2026' button or header within the calendar interface to open the full year view and confirm the selection of July."
+    ],
+    "success_criteria": [
+      "The user is successfully redirected from the sign-up page to the main application dashboard after clicking 'Sign up'.",
+      "The calendar view updates from 'June 2026' to 'July 2026' after clicking the navigation button.",
+      "The full year calendar view for 2026 is displayed, with the 'JUL' (July) section clearly visible.",
+      "The main feed below the calendar displays existing entries (e.g., 'Personal reminder for the weekend') without any error messages."
+    ]
+  },
+  {
+    "id": "T-015",
+    "description": "create_account \u2192 navigate_to_next_month \u2192 previous_month",
+    "goal": "Verify that a user can successfully create a new account as the Site Host and then navigate the calendar view forward to the next month and backward to the previous month.",
+    "instructions": [
+      "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+      "Once logged in and viewing the calendar (initially showing June 2026), click the 'Next month' button (right arrow) located next to the month title.",
+      "After the calendar updates to show July 2026, click the 'Previous month' button (left arrow) to return to the prior month."
+    ],
+    "success_criteria": [
+      "The user is successfully redirected from the sign-up page to the main dashboard view after clicking 'Sign up'.",
+      "The calendar header updates to display 'July 2026' after clicking the 'Next month' button.",
+      "The calendar header updates back to display 'June 2026' after clicking the 'Previous month' button.",
+      "The main content area displays the list of memos or reminders corresponding to the currently selected month."
+    ]
+  },
+  {
+    "id": "T-016",
+    "description": "create_account \u2192 navigate_to_previous_month \u2192 navigate_to_september_2026",
+    "goal": "Verify that a user can create a new Site Host account and successfully navigate the calendar view from the initial month to a future month using the navigation controls.",
+    "instructions": [
+      "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+      "Once logged in and viewing the calendar for 'June 2026', click the 'Previous month' button (left arrow) to navigate to May 2026.",
+      "From the May 2026 view, click the 'Next month' button (right arrow) three consecutive times to advance the calendar to September 2026."
+    ],
+    "success_criteria": [
+      "The user is successfully redirected from the sign-up page to the main dashboard after clicking 'Sign up'.",
+      "The calendar view updates to display 'May 2026' immediately after clicking the previous month button.",
+      "The calendar view displays 'September 2026' after clicking the next month button three times.",
+      "The main content area displays existing memos or the 'No data found' state without errors during navigation."
+    ]
+  },
+  {
+    "id": "T-017",
+    "description": "create_account \u2192 navigate_to_previous_month \u2192 create_memo_with_specific_content",
+    "goal": "Verify that a user can create a new account, navigate the calendar to the previous month, and successfully create a memo with specific content.",
+    "instructions": [
+      "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+      "Once logged in and viewing the calendar (initially showing June 2026), click the 'Previous month' button (left arrow) to navigate to May 2026.",
+      "In the text input area labeled 'Any thoughts...', type the message 'Team meeting at 3 PM to discuss Q3 goals.' and click the 'Save' button."
+    ],
+    "success_criteria": [
+      "The user is successfully redirected from the signup page to the main dashboard after clicking 'Sign up'.",
+      "The calendar view updates to display 'May 2026' after clicking the previous month navigation.",
+      "A new memo entry containing the text 'Team meeting at 3 PM to discuss Q3 goals.' appears at the top of the feed with a timestamp of 'now'.",
+      "The text input field is cleared after the memo is saved.",
+      "No error messages are displayed during account creation or memo saving."
+    ]
+  },
+  {
+    "id": "T-018",
+    "description": "create_account \u2192 navigate_to_previous_month \u2192 settings2",
+    "goal": "Verify that a user can successfully create a new Site Host account, navigate the calendar to the previous month, and access the settings menu to adjust view preferences.",
+    "instructions": [
+      "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+      "Once logged in and viewing the calendar (initially showing June 2026), click the 'Previous month' button (left arrow icon) located next to the month title to navigate to May 2026.",
+      "Click the settings icon (gear symbol) located in the top right corner of the calendar header to open the view configuration menu."
+    ],
+    "success_criteria": [
+      "The user is successfully redirected from the signup page to the main dashboard after clicking 'Sign up'.",
+      "The calendar view updates to display 'May 2026' after clicking the previous month navigation button.",
+      "A dropdown menu appears below the settings icon containing options for 'Shown time' and 'Order'.",
+      "The 'Order' dropdown within the settings menu is set to 'Newest first'."
+    ]
+  },
+  {
+    "id": "T-019",
+    "description": "create_account \u2192 navigate_to_previous_month \u2192 previous_month",
+    "goal": "Verify that a user can successfully create a new account as the Site Host and then navigate the calendar view backward to display previous months.",
+    "instructions": [
+      "On the 'Create your account' page, enter 'alice' into the 'Username' field.",
+      "Enter 'SecureP@ss123!' into the 'Password' field.",
+      "Click the 'Sign up' button to complete the registration.",
+      "Once the dashboard loads showing the calendar for 'June 2026', click the left-pointing arrow button (Previous month) located next to the month title.",
+      "Click the left-pointing arrow button again to navigate to the month prior to the current view."
+    ],
+    "success_criteria": [
+      "The user is successfully redirected from the sign-up page to the main dashboard interface.",
+      "The calendar view initially displays 'June 2026' upon successful login.",
+      "After the first navigation click, the calendar updates to display 'May 2026'.",
+      "After the second navigation click, the calendar updates to display 'April 2026'.",
+      "The feed of notes or reminders remains visible and accessible during the calendar navigation."
+    ]
+  },
+  {
+    "id": "T-020",
+    "description": "create_account \u2192 open_settings_menu \u2192 settings2",
+    "goal": "Verify that a user can successfully create a new Site Host account and navigate to the settings menu to adjust application configuration options.",
+    "instructions": [
+      "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+      "Once logged in and viewing the main dashboard, click the settings icon (gear symbol) located in the left sidebar to open the settings menu.",
+      "In the settings menu, click the 'settings2' button to apply the secondary configuration view."
+    ],
+    "success_criteria": [
+      "The user is successfully redirected from the registration page to the main dashboard after clicking 'Sign up'.",
+      "The settings menu is visible and accessible after clicking the gear icon in the sidebar.",
+      "The application state updates to reflect the 'settings2' configuration (e.g., specific UI elements or data views change as expected).",
+      "No error messages are displayed during the account creation or navigation process.",
+      "The user remains logged in and retains access to the dashboard after the settings interaction."
+    ]
+  },
+  {
+    "id": "T-021",
+    "description": "create_account \u2192 open_settings_menu \u2192 ellipsis_vertical",
+    "goal": "Verify that a user can successfully create a new Site Host account, navigate to the main dashboard, and access the settings menu to reveal additional configuration options.",
+    "instructions": [
+      "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+      "Once logged in and viewing the main dashboard, click the settings icon (gear symbol) located in the top-right corner of the search bar to open the settings menu.",
+      "Click the vertical ellipsis button (three dots) located in the top-right corner of the search bar to reveal additional options."
+    ],
+    "success_criteria": [
+      "The user is successfully redirected from the registration page to the main dashboard after clicking 'Sign up'.",
+      "The settings menu dropdown appears below the search bar, displaying options such as 'Shown time' and 'Order'.",
+      "The vertical ellipsis button is visible and clickable within the search bar area.",
+      "The main content area displays a list of memos or reminders without any error messages."
+    ]
+  },
+  {
+    "id": "T-022",
+    "description": "create_account \u2192 open_settings_menu \u2192 tooltip_trigger",
+    "goal": "Verify that a user can successfully create a new Site Host account, access the main dashboard, and interact with the settings menu to trigger UI updates.",
+    "instructions": [
+      "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+      "Once logged into the dashboard, click the settings icon (gear symbol) located in the left sidebar to open the settings menu.",
+      "Click the settings icon again to toggle the menu and trigger the UI state change."
+    ],
+    "success_criteria": [
+      "The user is successfully redirected from the registration page to the main dashboard view.",
+      "The settings menu appears in the top-right area of the dashboard, displaying options like 'Shown time' and 'Order'.",
+      "Clicking the settings icon again closes the menu and restores the default calendar view.",
+      "The main feed displays existing memo entries (e.g., 'Personal reminder for the weekend') without errors."
+    ]
+  },
+  {
+    "id": "T-023",
+    "description": "create_account \u2192 june \u2192 navigate_to_next_year",
+    "goal": "Verify that a user can create a new account as the Site Host, navigate to the June 2026 calendar view, and successfully advance the calendar to the next year (2027).",
+    "instructions": [
+      "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+      "Once logged in, locate the calendar widget and click the button labeled 'June 2026' to open the monthly view.",
+      "In the calendar view, click the right-pointing arrow button (labeled 'Next year') located in the top-right corner of the calendar header to advance the year.",
+      "Confirm that the calendar view updates to display the year '2027'."
+    ],
+    "success_criteria": [
+      "The user is successfully redirected from the signup page to the main dashboard after clicking 'Sign up'.",
+      "The calendar view initially displays 'June 2026' with the correct dates for that month.",
+      "After clicking the navigation button, the calendar header updates to show '2027'.",
+      "The calendar grid displays the correct months and dates for the year 2027.",
+      "No error messages or loading failures appear during the account creation or calendar navigation steps."
+    ]
+  },
+  {
+    "id": "T-024",
+    "description": "create_account \u2192 june \u2192 navigate_to_previous_year",
+    "goal": "Verify that a user can create a new Site Host account, navigate to the June 2026 calendar view, and successfully switch to the previous year (2025) using the calendar navigation controls.",
+    "instructions": [
+      "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+      "Once logged in, locate the calendar widget and click the button labeled 'June 2026' to open the full-year calendar view for 2026.",
+      "In the top-right corner of the 2026 calendar view, click the left-pointing arrow button (labeled 'Previous year') to navigate to the previous year."
+    ],
+    "success_criteria": [
+      "The user is successfully redirected from the signup page to the main dashboard after clicking 'Sign up'.",
+      "The calendar view displays the full year '2026' with the month of June highlighted or selected.",
+      "After clicking the previous year button, the calendar header updates to display '2025'.",
+      "The calendar grid correctly renders the months and dates for the year 2025.",
+      "No error messages or loading failures appear during the account creation or calendar navigation steps."
+    ]
+  },
+  {
+    "id": "T-025",
+    "description": "create_account \u2192 june \u2192 select_date_january_1_2026",
+    "goal": "Verify that a user can create a new account, navigate to the calendar view, and select a specific date in January 2026 to view associated memos.",
+    "instructions": [
+      "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+      "Once logged in, click the 'June 2026' button in the calendar widget to open the full year view.",
+      "In the year view, locate the 'JAN' calendar grid and click on the date '1' to select January 1, 2026."
+    ],
+    "success_criteria": [
+      "The user is successfully redirected from the signup page to the main dashboard after clicking 'Sign up'.",
+      "The calendar view expands to show all months of 2026 after clicking 'June 2026'.",
+      "The main content area updates to display the list of memos specifically for January 1, 2026.",
+      "The calendar widget in the sidebar updates to show 'January 2026' with the 1st highlighted.",
+      "No error messages are displayed during the account creation or date selection process."
+    ]
+  }
+]

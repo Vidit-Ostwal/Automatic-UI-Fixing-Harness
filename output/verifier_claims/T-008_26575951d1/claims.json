@@ -1,0 +1,9 @@
+{
+  "test_case_id": "T-008",
+  "run_id": "26575951d1",
+  "goal": "Verify that a user can create a new account, compose a private memo, and access the application settings menu.",
+  "description": "create_account \u2192 change_memo_privacy \u2192 open_settings",
+  "total_steps_verified": 3,
+  "total_findings": 0,
+  "findings": []
+}

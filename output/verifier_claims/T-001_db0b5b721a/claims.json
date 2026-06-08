@@ -1,0 +1,9 @@
+{
+  "test_case_id": "T-001",
+  "run_id": "db0b5b721a",
+  "goal": "Verify that a user can successfully register as a Site Host and immediately create a new memo entry.",
+  "description": "create_account \u2192 create_new_memo",
+  "total_steps_verified": 5,
+  "total_findings": 0,
+  "findings": []
+}

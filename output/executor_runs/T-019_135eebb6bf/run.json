@@ -1,0 +1,109 @@
+{
+  "test_case_id": "T-019",
+  "run_id": "135eebb6bf",
+  "goal": "Verify that a user can successfully create a new account as the Site Host and then navigate the calendar view backward to display previous months.",
+  "description": "create_account \u2192 navigate_to_previous_month \u2192 previous_month",
+  "instructions": [
+    "On the 'Create your account' page, enter 'alice' into the 'Username' field.",
+    "Enter 'SecureP@ss123!' into the 'Password' field.",
+    "Click the 'Sign up' button to complete the registration.",
+    "Once the dashboard loads showing the calendar for 'June 2026', click the left-pointing arrow button (Previous month) located next to the month title.",
+    "Click the left-pointing arrow button again to navigate to the month prior to the current view."
+  ],
+  "success_criteria": [
+    "The user is successfully redirected from the sign-up page to the main dashboard interface.",
+    "The calendar view initially displays 'June 2026' upon successful login.",
+    "After the first navigation click, the calendar updates to display 'May 2026'.",
+    "After the second navigation click, the calendar updates to display 'April 2026'.",
+    "The feed of notes or reminders remains visible and accessible during the calendar navigation."
+  ],
+  "steps": [
+    {
+      "step_index": 0,
+      "instruction": "On the 'Create your account' page, enter 'alice' into the 'Username' field.",
+      "resolved_steps": [
+        {
+          "type": "fill",
+          "selector": "[placeholder=\"Username\"]",
+          "value": "alice"
+        }
+      ],
+      "screenshot_before": "executor_runs/T-019_135eebb6bf/step_00_before.png",
+      "screenshot_after": "executor_runs/T-019_135eebb6bf/step_00_after.png",
+      "url_before": "http://localhost:55613/auth/signup",
+      "url_after": "http://localhost:55613/auth/signup",
+      "success": true,
+      "error": ""
+    },
+    {
+      "step_index": 1,
+      "instruction": "Enter 'SecureP@ss123!' into the 'Password' field.",
+      "resolved_steps": [
+        {
+          "type": "fill",
+          "selector": "[placeholder=\"Password\"]",
+          "value": "SecureP@ss123!"
+        }
+      ],
+      "screenshot_before": "executor_runs/T-019_135eebb6bf/step_01_before.png",
+      "screenshot_after": "executor_runs/T-019_135eebb6bf/step_01_after.png",
+      "url_before": "http://localhost:55613/auth/signup",
+      "url_after": "http://localhost:55613/auth/signup",
+      "success": true,
+      "error": ""
+    },
+    {
+      "step_index": 2,
+      "instruction": "Click the 'Sign up' button to complete the registration.",
+      "resolved_steps": [
+        {
+          "type": "click",
+          "selector": "button:has-text(\"Sign up\")"
+        }
+      ],
+      "screenshot_before": "executor_runs/T-019_135eebb6bf/step_02_before.png",
+      "screenshot_after": "executor_runs/T-019_135eebb6bf/step_02_after.png",
+      "url_before": "http://localhost:55613/auth/signup",
+      "url_after": "http://localhost:55613/",
+      "success": true,
+      "error": ""
+    },
+    {
+      "step_index": 3,
+      "instruction": "Once the dashboard loads showing the calendar for 'June 2026', click the left-pointing arrow button (Previous month) located next to the month title.",
+      "resolved_steps": [
+        {
+          "type": "click",
+          "selector": "[aria-label=\"Previous\\ month\"]"
+        }
+      ],
+      "screenshot_before": "executor_runs/T-019_135eebb6bf/step_03_before.png",
+      "screenshot_after": "executor_runs/T-019_135eebb6bf/step_03_after.png",
+      "url_before": "http://localhost:55613/",
+      "url_after": "http://localhost:55613/",
+      "success": true,
+      "error": ""
+    },
+    {
+      "step_index": 4,
+      "instruction": "Click the left-pointing arrow button again to navigate to the month prior to the current view.",
+      "resolved_steps": [
+        {
+          "type": "click",
+          "selector": "[aria-label=\"Previous\\ month\"]"
+        }
+      ],
+      "screenshot_before": "executor_runs/T-019_135eebb6bf/step_04_before.png",
+      "screenshot_after": "executor_runs/T-019_135eebb6bf/step_04_after.png",
+      "url_before": "http://localhost:55613/",
+      "url_after": "http://localhost:55613/",
+      "success": true,
+      "error": ""
+    }
+  ],
+  "steps_executed": 5,
+  "steps_succeeded": 5,
+  "final_state": "success",
+  "completed": true,
+  "error": null
+}

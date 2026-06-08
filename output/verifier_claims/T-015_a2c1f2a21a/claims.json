@@ -1,0 +1,46 @@
+{
+  "test_case_id": "T-015",
+  "run_id": "a2c1f2a21a",
+  "goal": "Verify that a user can successfully create a new account as the Site Host and then navigate the calendar view forward to the next month and backward to the previous month.",
+  "description": "create_account \u2192 navigate_to_next_month \u2192 previous_month",
+  "total_steps_verified": 3,
+  "total_findings": 2,
+  "findings": [
+    {
+      "id": "V-T-015-001",
+      "step_index": 1,
+      "instruction": "Once logged in and viewing the calendar (initially showing June 2026), click the 'Next month' button (right arrow) located next to the month title.",
+      "bug_type": "logic",
+      "severity": "high",
+      "title": "Calendar does not advance to next month when 'Next month' button is clicked",
+      "description": "The instruction was to click the 'Next month' button to advance the calendar from June 2026 to July 2026. However, the calendar header in the 'AFTER' screenshot still displays 'June 2026', indicating the navigation action failed to update the state.",
+      "evidence": "In the 'BEFORE' screenshot, the calendar header reads 'June 2026'. In the 'AFTER' screenshot, despite the click action, the header still reads 'June 2026'. The calendar grid dates also remain unchanged.",
+      "reproduction_steps": [
+        "Log in to the application.",
+        "Navigate to the calendar view showing 'June 2026'.",
+        "Click the 'Next month' button (right arrow) next to the month title.",
+        "Observe that the calendar header remains 'June 2026' instead of updating to 'July 2026'."
+      ],
+      "screenshot_before": "executor_runs/T-015_a2c1f2a21a/step_01_before.png",
+      "screenshot_after": "executor_runs/T-015_a2c1f2a21a/step_01_after.png"
+    },
+    {
+      "id": "V-T-015-002",
+      "step_index": 2,
+      "instruction": "After the calendar updates to show July 2026, click the 'Previous month' button (left arrow) to return to the prior month.",
+      "bug_type": "logic",
+      "severity": "high",
+      "title": "Calendar did not advance to July 2026 after clicking 'Next month' in Step 1",
+      "description": "The test goal requires the calendar to update to 'July 2026' after clicking the 'Next month' button. However, the screenshot from Step 1 (which serves as the 'BEFORE' state for Step 2) still shows 'June 2026'. This indicates the 'Next month' action failed to execute its intended logic, preventing the subsequent 'Previous month' action from being tested correctly.",
+      "evidence": "In the 'BEFORE' screenshot for Step 2 (which is the result of Step 1), the calendar header clearly displays 'June 2026'. The instruction for Step 1 was to click 'Next month', which should have changed the display to 'July 2026'.",
+      "reproduction_steps": [
+        "Log in to the application.",
+        "Observe the calendar showing 'June 2026'.",
+        "Click the 'Next month' button (right arrow).",
+        "Observe that the calendar header still displays 'June 2026' instead of 'July 2026'."
+      ],
+      "screenshot_before": "executor_runs/T-015_a2c1f2a21a/step_02_before.png",
+      "screenshot_after": "executor_runs/T-015_a2c1f2a21a/step_02_after.png"
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "test_case_id": "T-016",
+  "run_id": "a7ea2a2d60",
+  "goal": "Verify that a user can create a new Site Host account and successfully navigate the calendar view from the initial month to a future month using the navigation controls.",
+  "description": "create_account \u2192 navigate_to_previous_month \u2192 navigate_to_september_2026",
+  "instructions": [
+    "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+    "Once logged in and viewing the calendar for 'June 2026', click the 'Previous month' button (left arrow) to navigate to May 2026.",
+    "From the May 2026 view, click the 'Next month' button (right arrow) three consecutive times to advance the calendar to September 2026."
+  ],
+  "success_criteria": [
+    "The user is successfully redirected from the sign-up page to the main dashboard after clicking 'Sign up'.",
+    "The calendar view updates to display 'May 2026' immediately after clicking the previous month button.",
+    "The calendar view displays 'September 2026' after clicking the next month button three times.",
+    "The main content area displays existing memos or the 'No data found' state without errors during navigation."
+  ],
+  "steps": [
+    {
+      "step_index": 0,
+      "instruction": "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+      "resolved_steps": [
+        {
+          "type": "fill",
+          "selector": "[placeholder=\"Username\"]",
+          "value": "alice"
+        },
+        {
+          "type": "fill",
+          "selector": "[placeholder=\"Password\"]",
+          "value": "SecureP@ss123!"
+        },
+        {
+          "type": "click",
+          "selector": "button:has-text(\"Sign up\")"
+        }
+      ],
+      "screenshot_before": "executor_runs/T-016_a7ea2a2d60/step_00_before.png",
+      "screenshot_after": "executor_runs/T-016_a7ea2a2d60/step_00_after.png",
+      "url_before": "http://localhost:55519/auth/signup",
+      "url_after": "http://localhost:55519/",
+      "success": true,
+      "error": ""
+    },
+    {
+      "step_index": 1,
+      "instruction": "Once logged in and viewing the calendar for 'June 2026', click the 'Previous month' button (left arrow) to navigate to May 2026.",
+      "resolved_steps": [
+        {
+          "type": "click",
+          "selector": "[aria-label=\"Previous\\ month\"]"
+        }
+      ],
+      "screenshot_before": "executor_runs/T-016_a7ea2a2d60/step_01_before.png",
+      "screenshot_after": "executor_runs/T-016_a7ea2a2d60/step_01_after.png",
+      "url_before": "http://localhost:55519/",
+      "url_after": "http://localhost:55519/",
+      "success": true,
+      "error": ""
+    },
+    {
+      "step_index": 2,
+      "instruction": "From the May 2026 view, click the 'Next month' button (right arrow) three consecutive times to advance the calendar to September 2026.",
+      "resolved_steps": [
+        {
+          "type": "click",
+          "selector": "[aria-label=\"Next\\ month\"]"
+        },
+        {
+          "type": "click",
+          "selector": "[aria-label=\"Next\\ month\"]"
+        },
+        {
+          "type": "click",
+          "selector": "[aria-label=\"Next\\ month\"]"
+        }
+      ],
+      "screenshot_before": "executor_runs/T-016_a7ea2a2d60/step_02_before.png",
+      "screenshot_after": "executor_runs/T-016_a7ea2a2d60/step_02_after.png",
+      "url_before": "http://localhost:55519/",
+      "url_after": "http://localhost:55519/",
+      "success": true,
+      "error": ""
+    }
+  ],
+  "steps_executed": 3,
+  "steps_succeeded": 3,
+  "final_state": "success",
+  "completed": true,
+  "error": null
+}
