@@ -39,3 +39,7 @@ def test_render_html_writes_report(tmp_path: Path):
     assert "T-007" in html
     assert "executor_runs/T-007_run1/step_02_before.png" in html
     assert "<!DOCTYPE html>" in html
+    assert 'id="prev"' in html
+    assert 'id="next"' in html
+    assert "Conviction" in html
+    assert 'class="run-page' in html

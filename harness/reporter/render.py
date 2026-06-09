@@ -9,7 +9,7 @@ import html
 from datetime import datetime, timezone
 from pathlib import Path
 
-from harness.reporter.collector import HarnessReport, ReportFinding
+from harness.reporter.collector import HarnessReport, ReportFinding, TestRunReport
 
 
 def render_html(report: HarnessReport, output_dir: Path) -> Path:
@@ -20,596 +20,988 @@ def render_html(report: HarnessReport, output_dir: Path) -> Path:
     return out_path
 
 
+# ─── severity helpers ────────────────────────────────────────────────────────
+
+_SEV_ORDER = {"critical": 0, "high": 1, "medium": 2, "low": 3}
+
+
+def _top_severity(run: TestRunReport) -> str | None:
+    if not run.findings:
+        return None
+    return min(run.findings, key=lambda f: _SEV_ORDER.get(f.severity, 4)).severity
+
+
+# ─── page builder ────────────────────────────────────────────────────────────
+
 def _build_page(report: HarnessReport) -> str:
     counts = report.severity_counts
     generated = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-    findings_html = "\n".join(_finding_card(f) for f in report.findings)
-    runs_html = "\n".join(_run_row(r) for r in report.runs)
 
-    if not report.findings:
-        findings_html = """
-        <section class="empty-state" aria-live="polite">
-          <div class="empty-icon" aria-hidden="true">✓</div>
-          <h2>No issues found</h2>
-          <p>All verified test runs completed without reported findings.</p>
-        </section>
-        """
+    if report.runs:
+        pages_html = "\n".join(_run_page(i, run) for i, run in enumerate(report.runs))
+    else:
+        pages_html = """
+        <div class="run-page active" id="empty-run">
+          <div class="empty-state">
+            <div class="empty-glyph">◎</div>
+            <p class="empty-title">No test runs found</p>
+            <p class="empty-body">Run the harness verifier to populate verifier_claims.</p>
+          </div>
+        </div>"""
+
+    total = report.total_runs
+    clean = report.clean_runs
 
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Harness Verification Report</title>
+  <title>Harness Report</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
+    /* ── tokens ─────────────────────────────────── */
     :root {{
-      --bg: #f4f7fb;
-      --surface: #ffffff;
-      --surface-muted: #f8fafc;
-      --border: #e2e8f0;
-      --text: #1e293b;
-      --text-muted: #64748b;
-      --primary: #4f8cff;
-      --primary-soft: #e8f1ff;
-      --critical: #dc2626;
-      --critical-bg: #fef2f2;
-      --high: #ea580c;
-      --high-bg: #fff7ed;
-      --medium: #ca8a04;
-      --medium-bg: #fefce8;
-      --low: #2563eb;
-      --low-bg: #eff6ff;
-      --shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 8px 24px rgba(15, 23, 42, 0.04);
-      --radius: 14px;
-      --radius-sm: 8px;
+      --ink:          #0d1117;
+      --ink-2:        #424a53;
+      --ink-3:        #7d8590;
+      --surface:      #ffffff;
+      --surface-2:    #f6f8fa;
+      --surface-3:    #eaeef2;
+      --border:       #d0d7de;
+      --border-sub:   #e8ecef;
+      --blue:         #0969da;
+      --blue-bg:      #ddf4ff;
+      --red:          #cf222e;
+      --red-bg:       #ffebe9;
+      --orange:       #bc4c00;
+      --orange-bg:    #fff1e5;
+      --amber:        #9a6700;
+      --amber-bg:     #fff8c5;
+      --green:        #1a7f37;
+      --green-bg:     #dafbe1;
+      --frame-bg:     #161b22;
+      --divider-clr:  #30363d;
+      --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+      --sans: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+      --r:   6px;
+      --r-sm: 4px;
     }}
 
+    /* ── reset ──────────────────────────────────── */
     *, *::before, *::after {{ box-sizing: border-box; }}
-    html {{ scroll-behavior: smooth; }}
+    html, body {{ height: 100%; margin: 0; padding: 0; }}
     body {{
-      margin: 0;
-      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      background: linear-gradient(180deg, #f8fbff 0%, var(--bg) 100%);
-      color: var(--text);
-      line-height: 1.55;
-      min-height: 100vh;
+      font-family: var(--sans);
+      background: var(--surface-2);
+      color: var(--ink);
+      font-size: 13px;
+      line-height: 1.5;
+      display: flex;
+      flex-direction: column;
+      height: 100dvh;
+      overflow: hidden;
     }}
 
-    .skip-link {{
-      position: absolute;
-      left: -9999px;
-      top: 0;
-      background: var(--primary);
-      color: white;
-      padding: 8px 16px;
-      z-index: 100;
-      border-radius: var(--radius-sm);
+    /* ── skip nav ───────────────────────────────── */
+    .skip {{
+      position: absolute; left: -9999px; top: 8px;
+      background: var(--ink); color: #fff;
+      padding: 6px 12px; border-radius: var(--r-sm);
+      font-size: 12px; font-weight: 600; z-index: 500;
+      text-decoration: none;
     }}
-    .skip-link:focus {{ left: 16px; top: 16px; }}
+    .skip:focus {{ left: 8px; }}
 
-    header {{
+    /* ── topbar ─────────────────────────────────── */
+    .topbar {{
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 0 20px;
+      height: 44px;
+      background: var(--ink);
+      flex-shrink: 0;
+    }}
+    .topbar-brand {{
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }}
+    .topbar-brand-dot {{
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #3fb950;
+    }}
+    .topbar-sep {{
+      width: 1px; height: 18px;
+      background: rgba(255,255,255,.15);
+      flex-shrink: 0;
+    }}
+    .topbar-stats {{
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+    }}
+    .tstat {{
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      color: rgba(255,255,255,.5);
+      font-family: var(--mono);
+    }}
+    .tstat-v {{
+      color: #e6edf3;
+      font-weight: 500;
+    }}
+    .tstat-v.red   {{ color: #f85149; }}
+    .tstat-v.orange{{ color: #ffa657; }}
+    .tstat-v.amber {{ color: #e3b341; }}
+    .tstat-v.blue  {{ color: #79c0ff; }}
+    .topbar-meta {{
+      margin-left: auto;
+      font-size: 10.5px;
+      color: rgba(255,255,255,.35);
+      font-family: var(--mono);
+      flex-shrink: 0;
+    }}
+
+    /* ── controls bar ───────────────────────────── */
+    .controls {{
+      display: flex;
+      align-items: center;
+      gap: 0;
+      height: 38px;
       background: var(--surface);
       border-bottom: 1px solid var(--border);
-      padding: 28px 24px;
-      box-shadow: var(--shadow);
+      padding: 0 16px;
+      flex-shrink: 0;
     }}
-    .header-inner {{
-      max-width: 1200px;
-      margin: 0 auto;
+    .pager {{
       display: flex;
-      flex-wrap: wrap;
-      gap: 16px 32px;
-      align-items: flex-end;
-      justify-content: space-between;
-    }}
-    .brand h1 {{
-      margin: 0 0 6px;
-      font-size: clamp(1.4rem, 2.5vw, 1.9rem);
-      font-weight: 700;
-      letter-spacing: -0.02em;
-    }}
-    .brand p {{
-      margin: 0;
-      color: var(--text-muted);
-      font-size: 0.95rem;
-    }}
-    .meta {{
-      text-align: right;
-      color: var(--text-muted);
-      font-size: 0.85rem;
-    }}
-
-    main {{
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 24px;
-    }}
-
-    .stats {{
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 12px;
-      margin-bottom: 24px;
-    }}
-    .stat {{
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px 18px;
-      box-shadow: var(--shadow);
-    }}
-    .stat-label {{
-      font-size: 0.78rem;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--text-muted);
-      margin-bottom: 4px;
-    }}
-    .stat-value {{
-      font-size: 1.75rem;
-      font-weight: 700;
-      line-height: 1.1;
-    }}
-    .stat-value.critical {{ color: var(--critical); }}
-    .stat-value.high {{ color: var(--high); }}
-    .stat-value.medium {{ color: var(--medium); }}
-    .stat-value.low {{ color: var(--low); }}
-
-    .toolbar {{
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
       align-items: center;
-      margin-bottom: 20px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 14px 16px;
-      box-shadow: var(--shadow);
+      gap: 8px;
+      flex-shrink: 0;
     }}
-    .toolbar label {{
-      font-size: 0.85rem;
-      color: var(--text-muted);
+    .pager-btn {{
+      display: flex; align-items: center; justify-content: center;
+      width: 26px; height: 26px;
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      background: var(--surface);
+      color: var(--ink-2);
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.1s, border-color 0.1s;
+      line-height: 1;
+    }}
+    .pager-btn:hover:not(:disabled) {{
+      background: var(--surface-2);
+      border-color: var(--ink-3);
+      color: var(--ink);
+    }}
+    .pager-btn:focus-visible {{
+      outline: 2px solid var(--blue);
+      outline-offset: 1px;
+    }}
+    .pager-btn:disabled {{ opacity: 0.3; cursor: not-allowed; }}
+    .pager-label {{
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--ink-2);
+      min-width: 150px;
+      text-align: center;
+      white-space: nowrap;
+    }}
+    .pager-label strong {{
+      color: var(--ink);
       font-weight: 600;
     }}
-    .search {{
-      flex: 1 1 220px;
-      min-width: 180px;
-      padding: 10px 14px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      font-size: 0.95rem;
-      background: var(--surface-muted);
-      color: var(--text);
+    .pager-hint {{
+      font-size: 10px;
+      color: var(--ink-3);
+      margin-left: 4px;
     }}
-    .search:focus {{
-      outline: 2px solid var(--primary);
-      outline-offset: 1px;
-      border-color: var(--primary);
-      background: var(--surface);
+    .controls-divider {{
+      width: 1px; height: 20px;
+      background: var(--border-sub);
+      margin: 0 14px;
+      flex-shrink: 0;
     }}
     .filters {{
       display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
+      align-items: center;
+      gap: 4px;
     }}
     .filter-btn {{
-      border: 1px solid var(--border);
-      background: var(--surface-muted);
-      color: var(--text);
-      padding: 8px 14px;
-      border-radius: 999px;
-      font-size: 0.85rem;
-      font-weight: 600;
+      height: 22px;
+      padding: 0 9px;
+      border: 1px solid transparent;
+      border-radius: 99px;
+      background: transparent;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--ink-2);
       cursor: pointer;
-      transition: background 0.15s, border-color 0.15s, color 0.15s;
+      transition: background 0.1s, border-color 0.1s, color 0.1s;
+      line-height: 1;
     }}
-    .filter-btn:hover {{ background: var(--primary-soft); border-color: #c7d9ff; }}
-    .filter-btn:focus-visible {{
-      outline: 2px solid var(--primary);
-      outline-offset: 2px;
-    }}
+    .filter-btn:hover {{ background: var(--surface-2); color: var(--ink); }}
+    .filter-btn:focus-visible {{ outline: 2px solid var(--blue); outline-offset: 1px; }}
     .filter-btn.active {{
-      background: var(--primary);
-      border-color: var(--primary);
-      color: white;
+      background: var(--surface-2);
+      border-color: var(--border);
+      color: var(--ink);
+      font-weight: 600;
     }}
 
-    .layout {{
-      display: grid;
-      grid-template-columns: 280px 1fr;
-      gap: 20px;
-      align-items: start;
-    }}
-    @media (max-width: 900px) {{
-      .layout {{ grid-template-columns: 1fr; }}
-      .sidebar {{ order: 2; }}
+    /* ── stage ──────────────────────────────────── */
+    .stage {{
+      flex: 1;
+      min-height: 0;
+      position: relative;
     }}
 
-    .sidebar {{
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px;
-      box-shadow: var(--shadow);
-      position: sticky;
-      top: 16px;
-    }}
-    .sidebar h2 {{
-      margin: 0 0 12px;
-      font-size: 0.95rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text-muted);
-    }}
-    .run-list {{
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      max-height: 60vh;
-      overflow-y: auto;
-    }}
-    .run-item {{
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 10px 12px;
-      margin-bottom: 8px;
-      background: var(--surface-muted);
-      font-size: 0.85rem;
-    }}
-    .run-item strong {{ display: block; margin-bottom: 2px; }}
-    .run-item span {{ color: var(--text-muted); }}
-    .run-item.has-issues {{ border-color: #fecaca; background: #fffafa; }}
-
-    .findings {{
-      display: flex;
+    /* ── run page ───────────────────────────────── */
+    .run-page {{
+      display: none;
       flex-direction: column;
-      gap: 16px;
+      position: absolute;
+      inset: 0;
+    }}
+    .run-page.active {{
+      display: flex;
     }}
 
-    .finding {{
+    /* ── run header strip ───────────────────────── */
+    .run-bar {{
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 16px;
+      height: 36px;
       background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
       overflow: hidden;
     }}
-    .finding.hidden {{ display: none; }}
+    .run-id {{
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }}
+    .run-slash {{
+      color: var(--ink-3);
+      font-family: var(--mono);
+      font-size: 11px;
+    }}
+    .run-trajectory {{
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--ink-3);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 1 1 0;
+      min-width: 0;
+    }}
+    .run-goal-text {{
+      font-size: 12px;
+      color: var(--ink-2);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 2 1 0;
+      min-width: 0;
+    }}
+    .run-badge {{
+      flex-shrink: 0;
+    }}
 
-    .finding-header {{
-      padding: 18px 20px 14px;
-      border-bottom: 1px solid var(--border);
+    /* ── compare zone ───────────────────────────── */
+    .compare {{
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1px 1fr;
+      min-height: 0;
+      background: var(--frame-bg);
+    }}
+    @media (max-width: 800px) {{
+      .compare {{ grid-template-columns: 1fr; }}
+      .col-divider {{ display: none; }}
+    }}
+    .col-divider {{
+      background: var(--divider-clr);
+    }}
+    .shot {{
       display: flex;
-      flex-wrap: wrap;
-      gap: 10px 16px;
-      align-items: flex-start;
-      justify-content: space-between;
+      flex-direction: column;
+      min-height: 0;
     }}
-    .finding-title {{
+    .shot-cap {{
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 14px;
+      height: 28px;
+      background: #21262d;
+      border-bottom: 1px solid var(--divider-clr);
+      flex-shrink: 0;
+    }}
+    .shot-cap-label {{
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #8b949e;
+    }}
+    .shot-cap-step {{
+      font-family: var(--mono);
+      font-size: 10px;
+      color: #6e7681;
+    }}
+    .shot-frame {{
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      overflow: auto;
+      background: var(--frame-bg);
+    }}
+    .shot-frame img {{
+      display: block;
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      border-radius: 3px;
+      cursor: zoom-in;
+    }}
+    .shot-frame img[src=""] {{ display: none; }}
+    .shot-none {{
+      font-family: var(--mono);
+      font-size: 11px;
+      color: #484f58;
+      text-align: center;
+    }}
+
+    /* ── clean panel (no findings) ──────────────── */
+    .clean-compare {{
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--frame-bg);
+      min-height: 0;
+    }}
+    .clean-inner {{
+      text-align: center;
+    }}
+    .clean-mark {{
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: rgba(26,127,55,.15);
+      color: #3fb950;
+      font-size: 18px;
+      margin-bottom: 12px;
+    }}
+    .clean-title {{
+      font-size: 13px;
+      font-weight: 600;
+      color: #c9d1d9;
+      margin: 0 0 4px;
+    }}
+    .clean-sub {{
+      font-family: var(--mono);
+      font-size: 11px;
+      color: #6e7681;
+    }}
+
+    /* ── conviction panel ───────────────────────── */
+    .conviction {{
+      flex-shrink: 0;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+    }}
+    .conviction-head {{
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 16px;
+      height: 34px;
+      border-bottom: 1px solid var(--border-sub);
+      flex-shrink: 0;
+    }}
+    .conviction-section-label {{
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--ink-3);
+    }}
+    .finding-tabs {{
+      display: flex;
+      gap: 4px;
+      overflow-x: auto;
+      flex: 1;
+      scrollbar-width: none;
+    }}
+    .finding-tabs::-webkit-scrollbar {{ display: none; }}
+    .finding-tab {{
+      flex-shrink: 0;
+      height: 20px;
+      padding: 0 8px;
+      border: 1px solid transparent;
+      border-radius: 99px;
+      background: transparent;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--ink-2);
+      cursor: pointer;
+      transition: background 0.1s, border-color 0.1s;
+      white-space: nowrap;
+    }}
+    .finding-tab:hover {{ background: var(--surface-2); }}
+    .finding-tab.active {{
+      background: var(--surface-2);
+      border-color: var(--border);
+      color: var(--ink);
+      font-weight: 600;
+    }}
+    .finding-tab:focus-visible {{ outline: 2px solid var(--blue); outline-offset: 1px; }}
+
+    .conviction-body {{
+      padding: 10px 16px;
+      overflow-y: auto;
+      max-height: 210px;
+    }}
+    .finding-detail {{ display: none; }}
+    .finding-detail.active {{ display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px 20px; }}
+
+    @media (max-width: 900px) {{
+      .finding-detail.active {{ grid-template-columns: 1fr 1fr; }}
+    }}
+    @media (max-width: 560px) {{
+      .finding-detail.active {{ grid-template-columns: 1fr; }}
+    }}
+
+    .fd-field strong {{
+      display: block;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--ink-3);
+      margin-bottom: 3px;
+    }}
+    .fd-field p, .fd-field ol {{
       margin: 0;
-      font-size: 1.1rem;
-      font-weight: 700;
-      flex: 1 1 240px;
+      font-size: 12px;
+      color: var(--ink-2);
+      line-height: 1.55;
     }}
-    .badges {{ display: flex; flex-wrap: wrap; gap: 8px; }}
+    .fd-field ol {{
+      padding-left: 1.1rem;
+    }}
+    .fd-field ol li {{ margin-bottom: 2px; }}
+    .fd-title {{
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      grid-column: 1 / -1;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-sub);
+      margin-bottom: 2px;
+    }}
+    .fd-title-text {{
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink);
+      flex: 1;
+      line-height: 1.4;
+    }}
+
+    /* ── clean conviction ───────────────────────── */
+    .clean-conviction {{
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: 10px 20px;
+    }}
+
+    /* ── badges ─────────────────────────────────── */
     .badge {{
       display: inline-flex;
       align-items: center;
-      padding: 4px 10px;
-      border-radius: 999px;
-      font-size: 0.75rem;
+      height: 18px;
+      padding: 0 7px;
+      border-radius: 99px;
+      font-size: 10px;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.04em;
+      flex-shrink: 0;
     }}
-    .badge.severity-critical {{ background: var(--critical-bg); color: var(--critical); }}
-    .badge.severity-high {{ background: var(--high-bg); color: var(--high); }}
-    .badge.severity-medium {{ background: var(--medium-bg); color: var(--medium); }}
-    .badge.severity-low {{ background: var(--low-bg); color: var(--low); }}
-    .badge.type {{ background: var(--primary-soft); color: #1d4ed8; }}
+    .badge-critical {{ background: var(--red-bg);    color: var(--red);    }}
+    .badge-high     {{ background: var(--orange-bg); color: var(--orange); }}
+    .badge-medium   {{ background: var(--amber-bg);  color: var(--amber);  }}
+    .badge-low      {{ background: var(--blue-bg);   color: var(--blue);   }}
+    .badge-clean    {{ background: var(--green-bg);  color: var(--green);  }}
+    .badge-type     {{ background: var(--surface-3); color: var(--ink-2);  }}
 
-    .finding-body {{ padding: 16px 20px 20px; }}
-    .meta-grid {{
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 10px 16px;
-      margin-bottom: 16px;
-      font-size: 0.88rem;
+    /* ── filter-empty ───────────────────────────── */
+    .filter-empty {{
+      display: none;
+      position: absolute;
+      inset: 0;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 8px;
+      background: var(--surface-2);
+      font-size: 13px;
+      color: var(--ink-3);
     }}
-    .meta-item strong {{
-      display: block;
-      color: var(--text-muted);
-      font-size: 0.72rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 2px;
-    }}
+    .filter-empty.visible {{ display: flex; }}
+    .filter-empty strong {{ color: var(--ink-2); font-weight: 600; }}
 
-    .prose {{
-      margin-bottom: 14px;
-      color: var(--text);
-      font-size: 0.95rem;
+    /* ── lightbox ───────────────────────────────── */
+    .lightbox {{
+      position: fixed; inset: 0;
+      background: rgba(1,4,9,.88);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 400;
+      cursor: zoom-out;
     }}
-    .prose h3 {{
-      margin: 0 0 6px;
-      font-size: 0.78rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text-muted);
+    .lightbox.open {{ display: flex; }}
+    .lightbox img {{
+      max-width: min(96vw, 1400px);
+      max-height: 92vh;
+      object-fit: contain;
+      border-radius: var(--r-sm);
+      box-shadow: 0 24px 64px rgba(0,0,0,.6);
     }}
-    .prose p {{ margin: 0; }}
+    .lightbox-close {{
+      position: absolute;
+      top: 16px; right: 20px;
+      background: none; border: none;
+      color: rgba(255,255,255,.6);
+      font-size: 22px;
+      cursor: pointer;
+      line-height: 1;
+      padding: 4px;
+    }}
+    .lightbox-close:hover {{ color: #fff; }}
 
-    .steps {{
-      margin: 0;
-      padding-left: 1.2rem;
-      font-size: 0.92rem;
-    }}
-    .steps li {{ margin-bottom: 4px; }}
-
-    .screenshots {{
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-top: 16px;
-    }}
-    @media (max-width: 640px) {{
-      .screenshots {{ grid-template-columns: 1fr; }}
-    }}
-    .shot {{
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      overflow: hidden;
-      background: var(--surface-muted);
-    }}
-    .shot figcaption {{
-      padding: 8px 10px;
-      font-size: 0.78rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      border-bottom: 1px solid var(--border);
-      background: var(--surface);
-    }}
-    .shot img {{
-      display: block;
-      width: 100%;
-      height: auto;
-      background: #e2e8f0;
-    }}
-
+    /* ── empty state ────────────────────────────── */
     .empty-state {{
-      text-align: center;
-      padding: 48px 24px;
-      background: var(--surface);
-      border: 1px dashed var(--border);
-      border-radius: var(--radius);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--surface-2);
     }}
-    .empty-icon {{
-      width: 56px;
-      height: 56px;
-      margin: 0 auto 12px;
-      border-radius: 50%;
-      background: #ecfdf5;
-      color: #059669;
-      font-size: 1.6rem;
-      line-height: 56px;
+    .empty-glyph {{
+      font-size: 28px;
+      color: var(--ink-3);
+      margin-bottom: 4px;
     }}
-    .empty-state h2 {{ margin: 0 0 8px; }}
-    .empty-state p {{ margin: 0; color: var(--text-muted); }}
-
-    footer {{
-      max-width: 1200px;
-      margin: 32px auto 0;
-      padding: 0 24px 32px;
-      color: var(--text-muted);
-      font-size: 0.82rem;
-      text-align: center;
+    .empty-title {{
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink-2);
+      margin: 0;
+    }}
+    .empty-body {{
+      font-size: 12px;
+      color: var(--ink-3);
+      margin: 0;
     }}
   </style>
 </head>
 <body>
-  <a class="skip-link" href="#findings">Skip to findings</a>
+  <a class="skip" href="#stage">Skip to run</a>
 
-  <header>
-    <div class="header-inner">
-      <div class="brand">
-        <h1>Harness Verification Report</h1>
-        <p>Findings from verifier claims across all test runs</p>
-      </div>
-      <div class="meta">
-        <div>{html.escape(report.output_dir)}</div>
-        <div>Generated {generated}</div>
-      </div>
+  <!-- ── topbar ──────────────────────────────────── -->
+  <header class="topbar" role="banner">
+    <div class="topbar-brand">
+      <div class="topbar-brand-dot"></div>
+      Harness Report
     </div>
+    <div class="topbar-sep"></div>
+    <div class="topbar-stats" role="list" aria-label="Summary">
+      <div class="tstat" role="listitem"><span class="tstat-v">{total}</span> runs</div>
+      <div class="tstat" role="listitem"><span class="tstat-v">{clean}</span> clean</div>
+      <div class="tstat" role="listitem"><span class="tstat-v">{report.total_findings}</span> findings</div>
+      <div class="tstat" role="listitem"><span class="tstat-v red">{counts["critical"]}</span> critical</div>
+      <div class="tstat" role="listitem"><span class="tstat-v orange">{counts["high"]}</span> high</div>
+      <div class="tstat" role="listitem"><span class="tstat-v amber">{counts["medium"]}</span> med</div>
+      <div class="tstat" role="listitem"><span class="tstat-v blue">{counts["low"]}</span> low</div>
+    </div>
+    <div class="topbar-meta">{generated}</div>
   </header>
 
-  <main>
-    <section class="stats" aria-label="Summary statistics">
-      <div class="stat">
-        <div class="stat-label">Test runs</div>
-        <div class="stat-value">{report.total_runs}</div>
+  <!-- ── controls bar ────────────────────────────── -->
+  <div class="controls" role="toolbar" aria-label="Navigation and filters">
+    <nav class="pager" aria-label="Run navigation">
+      <button class="pager-btn" id="prev" type="button" aria-label="Previous run">&#8592;</button>
+      <div class="pager-label" id="pager-status" aria-live="polite" aria-atomic="true">
+        <strong>—</strong> <span class="pager-hint">&#8592; &#8594; keys</span>
       </div>
-      <div class="stat">
-        <div class="stat-label">Clean runs</div>
-        <div class="stat-value">{report.clean_runs}</div>
-      </div>
-      <div class="stat">
-        <div class="stat-label">Total findings</div>
-        <div class="stat-value">{report.total_findings}</div>
-      </div>
-      <div class="stat">
-        <div class="stat-label">Critical</div>
-        <div class="stat-value critical">{counts["critical"]}</div>
-      </div>
-      <div class="stat">
-        <div class="stat-label">High</div>
-        <div class="stat-value high">{counts["high"]}</div>
-      </div>
-      <div class="stat">
-        <div class="stat-label">Medium</div>
-        <div class="stat-value medium">{counts["medium"]}</div>
-      </div>
-      <div class="stat">
-        <div class="stat-label">Low</div>
-        <div class="stat-value low">{counts["low"]}</div>
-      </div>
-    </section>
-
-    <div class="toolbar" role="search">
-      <label for="search">Search</label>
-      <input id="search" class="search" type="search"
-             placeholder="Search by title, test case, goal…"
-             aria-label="Search findings">
-      <div class="filters" role="group" aria-label="Filter by severity">
-        <button class="filter-btn active" data-filter="all" type="button">All</button>
-        <button class="filter-btn" data-filter="critical" type="button">Critical</button>
-        <button class="filter-btn" data-filter="high" type="button">High</button>
-        <button class="filter-btn" data-filter="medium" type="button">Medium</button>
-        <button class="filter-btn" data-filter="low" type="button">Low</button>
-      </div>
+      <button class="pager-btn" id="next" type="button" aria-label="Next run">&#8594;</button>
+    </nav>
+    <div class="controls-divider"></div>
+    <div class="filters" role="group" aria-label="Filter by status">
+      <button class="filter-btn active" data-filter="all"      type="button">All</button>
+      <button class="filter-btn"        data-filter="issues"   type="button">Issues</button>
+      <button class="filter-btn"        data-filter="clean"    type="button">Clean</button>
+      <button class="filter-btn"        data-filter="critical" type="button">Critical</button>
+      <button class="filter-btn"        data-filter="high"     type="button">High</button>
+      <button class="filter-btn"        data-filter="medium"   type="button">Medium</button>
+      <button class="filter-btn"        data-filter="low"      type="button">Low</button>
     </div>
+  </div>
 
-    <div class="layout">
-      <aside class="sidebar" aria-label="Test runs">
-        <h2>Test runs ({report.total_runs})</h2>
-        <ul class="run-list">
-          {runs_html}
-        </ul>
-      </aside>
-
-      <section id="findings" class="findings" aria-label="Findings">
-        {findings_html}
-      </section>
+  <!-- ── stage ───────────────────────────────────── -->
+  <main class="stage" id="stage">
+    <div class="filter-empty" id="filter-empty" role="status">
+      <strong>No runs match this filter</strong>
+      <span>Select a different filter to continue.</span>
     </div>
+    {pages_html}
   </main>
 
-  <footer>
-    Automatic UI Fixing Harness · Verifier report viewer
-  </footer>
+  <!-- ── lightbox ────────────────────────────────── -->
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Enlarged screenshot">
+    <button class="lightbox-close" id="lightbox-close" aria-label="Close">&#215;</button>
+    <img src="" alt="" id="lightbox-img">
+  </div>
 
   <script>
-    const cards = Array.from(document.querySelectorAll(".finding"));
-    const search = document.getElementById("search");
-    const buttons = Array.from(document.querySelectorAll(".filter-btn"));
-    let activeFilter = "all";
+  (function () {{
+    const pages = Array.from(document.querySelectorAll(".run-page"));
+    const prevBtn   = document.getElementById("prev");
+    const nextBtn   = document.getElementById("next");
+    const statusEl  = document.getElementById("pager-status");
+    const emptyEl   = document.getElementById("filter-empty");
+    const lightbox  = document.getElementById("lightbox");
+    const lbImg     = document.getElementById("lightbox-img");
+    const lbClose   = document.getElementById("lightbox-close");
+    const filterBtns= Array.from(document.querySelectorAll(".filter-btn"));
 
-    function applyFilters() {{
-      const q = (search.value || "").trim().toLowerCase();
-      cards.forEach(card => {{
-        const sev = card.dataset.severity || "";
-        const text = (card.dataset.search || "").toLowerCase();
-        const sevMatch = activeFilter === "all" || sev === activeFilter;
-        const textMatch = !q || text.includes(q);
-        card.classList.toggle("hidden", !(sevMatch && textMatch));
-      }});
+    let activeFilter = "all";
+    let visible = [];
+    let cur = 0;
+    let syncing = false;
+
+    function matchFilter(p) {{
+      const hasIssues  = p.dataset.hasIssues === "true";
+      const severities = (p.dataset.severities || "").split(",").filter(Boolean);
+      if (activeFilter === "all")    return true;
+      if (activeFilter === "issues") return hasIssues;
+      if (activeFilter === "clean")  return !hasIssues;
+      return severities.includes(activeFilter);
     }}
 
-    search.addEventListener("input", applyFilters);
-    buttons.forEach(btn => {{
-      btn.addEventListener("click", () => {{
-        buttons.forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        activeFilter = btn.dataset.filter;
-        applyFilters();
+    function refresh() {{
+      visible = pages.filter(p => {{
+        const ok = matchFilter(p);
+        p.style.display = "none";
+        return ok;
       }});
+      cur = Math.min(cur, Math.max(0, visible.length - 1));
+      show(cur);
+    }}
+
+    function show(i) {{
+      pages.forEach(p => {{ p.style.display = "none"; p.classList.remove("active"); }});
+      if (!visible.length) {{
+        emptyEl.classList.add("visible");
+        statusEl.innerHTML = "<strong>—</strong>";
+        prevBtn.disabled = nextBtn.disabled = true;
+        return;
+      }}
+      emptyEl.classList.remove("visible");
+      cur = Math.max(0, Math.min(i, visible.length - 1));
+      const p = visible[cur];
+      p.style.display = "flex";
+      p.classList.add("active");
+
+      const id = p.dataset.label || ("Run " + (cur + 1));
+      statusEl.innerHTML =
+        "<strong>" + id + "</strong>" +
+        " <span style='color:var(--ink-3)'>" + (cur+1) + "/" + visible.length + "</span>" +
+        " <span class='pager-hint'>&#8592; &#8594;</span>";
+      prevBtn.disabled = cur === 0;
+      nextBtn.disabled = cur === visible.length - 1;
+
+      const detail = p.querySelector(".finding-detail.active") || p.querySelector(".finding-detail");
+      if (detail) loadScreenshots(p, detail);
+      bindScroll(p);
+    }}
+
+    function loadScreenshots(page, detail) {{
+      const bPath = detail.dataset.before || "";
+      const aPath = detail.dataset.after  || "";
+      const bImg  = page.querySelector(".shot-before .shot-frame img");
+      const aImg  = page.querySelector(".shot-after  .shot-frame img");
+      const bNone = page.querySelector(".shot-before .shot-none");
+      const aNone = page.querySelector(".shot-after  .shot-none");
+      if (bImg) {{ bImg.src = bPath; bImg.style.display = bPath ? "" : "none"; }}
+      if (aImg) {{ aImg.src = aPath; aImg.style.display = aPath ? "" : "none"; }}
+      if (bNone) bNone.style.display = bPath ? "none" : "";
+      if (aNone) aNone.style.display = aPath ? "none" : "";
+    }}
+
+    function bindScroll(page) {{
+      const bf = page.querySelector(".shot-before .shot-frame");
+      const af = page.querySelector(".shot-after  .shot-frame");
+      if (!bf || !af) return;
+      const sync = (src, tgt) => {{
+        if (syncing) return;
+        syncing = true;
+        const r = src.scrollTop / Math.max(1, src.scrollHeight - src.clientHeight);
+        tgt.scrollTop = r * (tgt.scrollHeight - tgt.clientHeight);
+        syncing = false;
+      }};
+      bf.onscroll = () => sync(bf, af);
+      af.onscroll = () => sync(af, bf);
+    }}
+
+    prevBtn.addEventListener("click", () => show(cur - 1));
+    nextBtn.addEventListener("click", () => show(cur + 1));
+
+    document.addEventListener("keydown", e => {{
+      if (lightbox.classList.contains("open")) {{
+        if (e.key === "Escape") closeLightbox();
+        return;
+      }}
+      if (e.target.closest("button.finding-tab, input, select, textarea")) return;
+      if (e.key === "ArrowLeft")  {{ e.preventDefault(); show(cur - 1); }}
+      if (e.key === "ArrowRight") {{ e.preventDefault(); show(cur + 1); }}
     }});
+
+    filterBtns.forEach(btn => btn.addEventListener("click", () => {{
+      filterBtns.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      activeFilter = btn.dataset.filter;
+      cur = 0;
+      refresh();
+    }}));
+
+    document.querySelectorAll(".finding-tab").forEach(tab => tab.addEventListener("click", () => {{
+      const page = tab.closest(".run-page");
+      const idx  = tab.dataset.idx;
+      page.querySelectorAll(".finding-tab").forEach(t => {{ t.classList.remove("active"); t.setAttribute("aria-pressed","false"); }});
+      page.querySelectorAll(".finding-detail").forEach(d => d.classList.remove("active"));
+      tab.classList.add("active"); tab.setAttribute("aria-pressed","true");
+      const detail = page.querySelector(".finding-detail[data-idx='" + idx + "']");
+      if (detail) {{ detail.classList.add("active"); loadScreenshots(page, detail); }}
+    }}));
+
+    document.querySelectorAll(".shot-frame img").forEach(img => img.addEventListener("click", () => {{
+      if (!img.src || img.src.endsWith("//")) return;
+      lbImg.src = img.src; lbImg.alt = img.alt;
+      lightbox.classList.add("open");
+    }}));
+
+    function closeLightbox() {{
+      lightbox.classList.remove("open");
+      lbImg.src = "";
+    }}
+    lightbox.addEventListener("click", e => {{ if (e.target === lightbox) closeLightbox(); }});
+    lbClose.addEventListener("click", closeLightbox);
+
+    refresh();
+  }})();
   </script>
 </body>
 </html>"""
 
 
-def _run_row(run) -> str:
-    issue_class = "has-issues" if run.total_findings > 0 else ""
-    findings_label = (
-        f"{run.total_findings} finding(s)"
-        if run.total_findings
-        else "Clean"
+# ─── run page ─────────────────────────────────────────────────────────────────
+
+def _run_page(index: int, run: TestRunReport) -> str:
+    has_issues = run.total_findings > 0
+    severities = ",".join(sorted({f.severity for f in run.findings}))
+    label = html.escape(run.test_case_id)
+
+    status_badge = _status_badge(run)
+    compare_section = _compare_section(run)
+    conviction_section = _conviction_section(run)
+
+    return f"""
+    <div class="run-page"
+         data-index="{index}"
+         data-label="{label}"
+         data-has-issues="{"true" if has_issues else "false"}"
+         data-severities="{html.escape(severities)}">
+      <div class="run-bar">
+        <span class="run-id">{html.escape(run.test_case_id)}</span>
+        <span class="run-slash">/</span>
+        <span class="run-trajectory">{html.escape(run.description)}</span>
+        <span class="run-goal-text" title="{html.escape(run.goal)}">{html.escape(run.goal)}</span>
+        <span class="run-badge">{status_badge}</span>
+      </div>
+      {compare_section}
+      {conviction_section}
+    </div>"""
+
+
+def _status_badge(run: TestRunReport) -> str:
+    top = _top_severity(run)
+    if top is None:
+        return '<span class="badge badge-clean">clean</span>'
+    n = len(run.findings)
+    extra = f" +{n - 1}" if n > 1 else ""
+    return f'<span class="badge badge-{html.escape(top)}">{html.escape(top)}{html.escape(extra)}</span>'
+
+
+# ─── compare ──────────────────────────────────────────────────────────────────
+
+def _compare_section(run: TestRunReport) -> str:
+    if not run.findings:
+        return f"""
+      <div class="clean-compare">
+        <div class="clean-inner">
+          <div class="clean-mark">&#10003;</div>
+          <p class="clean-title">No findings</p>
+          <p class="clean-sub">{run.total_steps_verified} steps verified — all clear</p>
+        </div>
+      </div>"""
+
+    f0 = run.findings[0]
+    before_src = html.escape(f0.screenshot_before) if f0.screenshot_before else ""
+    after_src  = html.escape(f0.screenshot_after)  if f0.screenshot_after  else ""
+    step_label = f"step {f0.step_index}"
+
+    before_img  = f'<img src="{before_src}" alt="Before screenshot" loading="lazy">' if before_src else ""
+    after_img   = f'<img src="{after_src}"  alt="After screenshot"  loading="lazy">' if after_src  else ""
+    before_none = "" if before_src else '<p class="shot-none">No screenshot</p>'
+    after_none  = "" if after_src  else '<p class="shot-none">No screenshot</p>'
+
+    return f"""
+      <div class="compare">
+        <figure class="shot shot-before">
+          <div class="shot-cap">
+            <span class="shot-cap-label">Before</span>
+            <span class="shot-cap-step">{html.escape(step_label)}</span>
+          </div>
+          <div class="shot-frame">{before_img}{before_none}</div>
+        </figure>
+        <div class="col-divider" aria-hidden="true"></div>
+        <figure class="shot shot-after">
+          <div class="shot-cap">
+            <span class="shot-cap-label">After</span>
+            <span class="shot-cap-step">{html.escape(step_label)}</span>
+          </div>
+          <div class="shot-frame">{after_img}{after_none}</div>
+        </figure>
+      </div>"""
+
+
+# ─── conviction ───────────────────────────────────────────────────────────────
+
+def _conviction_section(run: TestRunReport) -> str:
+    if not run.findings:
+        return f"""
+      <div class="conviction">
+        <div class="conviction-head">
+          <span class="conviction-section-label">Conviction</span>
+        </div>
+        <div class="conviction-body">
+          <div class="clean-conviction">
+            <div class="fd-field"><strong>Result</strong><p>No defects reported.</p></div>
+            <div class="fd-field"><strong>Coverage</strong><p>{run.total_steps_verified} steps verified</p></div>
+            <div class="fd-field"><strong>Trajectory</strong><p>{html.escape(run.description)}</p></div>
+            <div class="fd-field"><strong>Run ID</strong><p style="font-family:var(--mono);font-size:11px">{html.escape(run.run_id)}</p></div>
+          </div>
+        </div>
+      </div>"""
+
+    tabs_html = ""
+    details_html = ""
+    for i, f in enumerate(run.findings):
+        active = " active" if i == 0 else ""
+        pressed = "true" if i == 0 else "false"
+        short = html.escape(f.title[:52])
+        tabs_html += (
+            f'<button class="finding-tab{active}" type="button" '
+            f'data-idx="{i}" aria-pressed="{pressed}">{short}</button>'
+        )
+        details_html += _finding_detail(i, f, active)
+
+    tabs_section = (
+        f'<div class="finding-tabs" role="group" aria-label="Findings">{tabs_html}</div>'
+        if len(run.findings) > 1 else ""
+    )
+
+    return f"""
+      <div class="conviction">
+        <div class="conviction-head">
+          <span class="conviction-section-label">Conviction</span>
+          {tabs_section}
+        </div>
+        <div class="conviction-body">
+          {details_html}
+        </div>
+      </div>"""
+
+
+def _finding_detail(index: int, f: ReportFinding, active_class: str) -> str:
+    steps_html = (
+        "\n".join(f"<li>{html.escape(s)}</li>" for s in f.reproduction_steps)
+        or "<li>No reproduction steps recorded.</li>"
     )
     return f"""
-          <li class="run-item {issue_class}">
-            <strong>{html.escape(run.test_case_id)}</strong>
-            <span>{html.escape(run.description or run.goal[:60])}</span><br>
-            <span>{run.total_steps_verified} steps · {html.escape(findings_label)}</span>
-          </li>"""
-
-
-def _finding_card(f: ReportFinding) -> str:
-    search_blob = " ".join([
-        f.id, f.test_case_id, f.run_id, f.title, f.goal,
-        f.trajectory, f.instruction, f.description, f.evidence,
-        f.bug_type, f.severity,
-    ])
-    steps_html = "\n".join(
-        f"<li>{html.escape(s)}</li>" for s in f.reproduction_steps
-    ) or "<li>No reproduction steps recorded</li>"
-
-    before = _shot(f.screenshot_before, "Before")
-    after = _shot(f.screenshot_after, "After")
-
-    return f"""
-        <article class="finding" id="{html.escape(f.id)}"
-                 data-severity="{html.escape(f.severity)}"
-                 data-search="{html.escape(search_blob)}">
-          <div class="finding-header">
-            <h2 class="finding-title">{html.escape(f.title)}</h2>
-            <div class="badges">
-              <span class="badge severity-{html.escape(f.severity)}">{html.escape(f.severity)}</span>
-              <span class="badge type">{html.escape(f.bug_type)}</span>
+          <div class="finding-detail{active_class}"
+               data-idx="{index}"
+               data-before="{html.escape(f.screenshot_before)}"
+               data-after="{html.escape(f.screenshot_after)}">
+            <div class="fd-title">
+              <span class="fd-title-text">{html.escape(f.title)}</span>
+              <span class="badge badge-{html.escape(f.severity)}">{html.escape(f.severity)}</span>
+              <span class="badge badge-type">{html.escape(f.bug_type)}</span>
             </div>
-          </div>
-          <div class="finding-body">
-            <div class="meta-grid">
-              <div class="meta-item">
-                <strong>Test case</strong>
-                {html.escape(f.test_case_id)} / {html.escape(f.run_id)}
-              </div>
-              <div class="meta-item">
-                <strong>Step</strong>
-                {f.step_index}
-              </div>
-              <div class="meta-item">
-                <strong>Trajectory</strong>
-                {html.escape(f.trajectory)}
-              </div>
-              <div class="meta-item">
-                <strong>Instruction</strong>
-                {html.escape(f.instruction)}
-              </div>
+            <div class="fd-field">
+              <strong>Step {f.step_index}</strong>
+              <p>{html.escape(f.instruction)}</p>
             </div>
-            <div class="prose">
-              <h3>Goal</h3>
-              <p>{html.escape(f.goal)}</p>
-            </div>
-            <div class="prose">
-              <h3>Description</h3>
+            <div class="fd-field">
+              <strong>Description</strong>
               <p>{html.escape(f.description)}</p>
             </div>
-            <div class="prose">
-              <h3>Evidence</h3>
+            <div class="fd-field">
+              <strong>Evidence</strong>
               <p>{html.escape(f.evidence)}</p>
             </div>
-            <div class="prose">
-              <h3>Reproduction steps</h3>
-              <ol class="steps">{steps_html}</ol>
+            <div class="fd-field">
+              <strong>Reproduction</strong>
+              <ol>{steps_html}</ol>
             </div>
-            <div class="screenshots">
-              {before}
-              {after}
-            </div>
-          </div>
-        </article>"""
-
-
-def _shot(path: str, label: str) -> str:
-    if not path:
-        return f"""
-              <figure class="shot">
-                <figcaption>{html.escape(label)}</figcaption>
-                <p style="padding:16px;color:#64748b;margin:0;">No screenshot available</p>
-              </figure>"""
-    src = html.escape(path)
-    alt = html.escape(f"{label} screenshot")
-    return f"""
-              <figure class="shot">
-                <figcaption>{html.escape(label)}</figcaption>
-                <img src="{src}" alt="{alt}" loading="lazy">
-              </figure>"""
+          </div>"""
