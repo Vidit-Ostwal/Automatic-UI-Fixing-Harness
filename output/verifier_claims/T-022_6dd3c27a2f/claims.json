@@ -1,0 +1,9 @@
+{
+  "test_case_id": "T-022",
+  "run_id": "6dd3c27a2f",
+  "goal": "Verify that a user can successfully create a new Site Host account, access the main dashboard, and interact with the settings menu to trigger UI updates.",
+  "description": "create_account \u2192 open_settings_menu \u2192 tooltip_trigger",
+  "total_steps_verified": 3,
+  "total_findings": 0,
+  "findings": []
+}

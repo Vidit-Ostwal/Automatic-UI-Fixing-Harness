@@ -1,0 +1,29 @@
+{
+  "test_case_id": "T-004",
+  "run_id": "c9e5a30097",
+  "goal": "Verify that a user can register as a Site Host, create a new memo, and successfully navigate to the June 2026 calendar view.",
+  "description": "create_account \u2192 create_new_memo \u2192 june",
+  "total_steps_verified": 3,
+  "total_findings": 1,
+  "findings": [
+    {
+      "id": "V-T-004-001",
+      "step_index": 2,
+      "instruction": "Click the 'June 2026' button located in the calendar widget to switch the view to the full year calendar.",
+      "bug_type": "logic",
+      "severity": "high",
+      "title": "Memo created in previous step is not visible in the feed",
+      "description": "The test goal requires that the memo 'Remember to review the project timeline tomorrow morning.' be visible in the feed. However, the feed area consistently displays 'No data found.' even after the memo creation step (Step 1) and the subsequent calendar view transition (Step 2). This indicates that either the memo was not saved or the application is failing to display saved memos.",
+      "evidence": "In the AFTER screenshot of Step 2, the area below the 'Any thoughts...' input box clearly shows a penguin icon with the text 'No data found.' The expected memo content is missing from the feed.",
+      "reproduction_steps": [
+        "1. Register and log in as a user.",
+        "2. Navigate to the main dashboard.",
+        "3. Enter a memo text into the 'Any thoughts...' input box and click 'Save'.",
+        "4. Observe the feed area below the input box.",
+        "5. Note that the feed displays 'No data found.' instead of the created memo."
+      ],
+      "screenshot_before": "executor_runs/T-004_c9e5a30097/step_02_before.png",
+      "screenshot_after": "executor_runs/T-004_c9e5a30097/step_02_after.png"
+    }
+  ]
+}

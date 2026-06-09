@@ -1,9 +1,0 @@
-{
-  "test_case_id": "T-006",
-  "run_id": "a3619b6c73",
-  "goal": "Verify that a user can create a new account, save a private memo, and navigate the calendar forward to a future month.",
-  "description": "create_account \u2192 change_memo_privacy \u2192 navigate_to_august_2026",
-  "total_steps_verified": 3,
-  "total_findings": 0,
-  "findings": []
-}

@@ -1,0 +1,29 @@
+{
+  "test_case_id": "T-025",
+  "run_id": "a25005fe37",
+  "goal": "Verify that a user can create a new account, navigate to the calendar view, and select a specific date in January 2026 to view associated memos.",
+  "description": "create_account \u2192 june \u2192 select_date_january_1_2026",
+  "total_steps_verified": 3,
+  "total_findings": 1,
+  "findings": [
+    {
+      "id": "V-T-025-001",
+      "step_index": 2,
+      "instruction": "In the year view, locate the 'JAN' calendar grid and click on the date '1' to select January 1, 2026.",
+      "bug_type": "logic",
+      "severity": "high",
+      "title": "Year view modal from Step 1 did not persist, preventing date selection",
+      "description": "Step 1 successfully opened the full year 2026 view. However, in the current step (Step 2), the application state has reverted to the single-month view (June 2026) instead of maintaining the year view. This state regression prevents the user from selecting a date in January 2026 as required by the test goal. The application failed to maintain the expected UI state between steps.",
+      "evidence": "The 'BEFORE' screenshot for Step 2 shows the single-month calendar for 'June 2026' in the sidebar, whereas the 'AFTER' screenshot from Step 1 clearly showed the full year grid. The automation error message confirms this: 'The current page displays the calendar for June 2026, not the year view...'",
+      "reproduction_steps": [
+        "1. Log in to the application.",
+        "2. Click 'June 2026' to open the year view (Step 1).",
+        "3. Observe that the year view modal is displayed.",
+        "4. Attempt to interact with the year view (Step 2).",
+        "5. Observe that the application has reverted to the single-month view, making the year view inaccessible."
+      ],
+      "screenshot_before": "executor_runs/T-025_a25005fe37/step_02_before.png",
+      "screenshot_after": "executor_runs/T-025_a25005fe37/step_02_after.png"
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "test_case_id": "T-024",
+  "run_id": "581ab30db4",
+  "goal": "Verify that a user can create a new Site Host account, navigate to the June 2026 calendar view, and successfully switch to the previous year (2025) using the calendar navigation controls.",
+  "description": "create_account \u2192 june \u2192 navigate_to_previous_year",
+  "instructions": [
+    "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+    "Once logged in, locate the calendar widget and click the button labeled 'June 2026' to open the full-year calendar view for 2026.",
+    "In the top-right corner of the 2026 calendar view, click the left-pointing arrow button (labeled 'Previous year') to navigate to the previous year."
+  ],
+  "success_criteria": [
+    "The user is successfully redirected from the signup page to the main dashboard after clicking 'Sign up'.",
+    "The calendar view displays the full year '2026' with the month of June highlighted or selected.",
+    "After clicking the previous year button, the calendar header updates to display '2025'.",
+    "The calendar grid correctly renders the months and dates for the year 2025.",
+    "No error messages or loading failures appear during the account creation or calendar navigation steps."
+  ],
+  "steps": [
+    {
+      "step_index": 0,
+      "instruction": "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+      "resolution_reason": "The page contains the required 'Username' and 'Password' input fields and a 'Sign up' button. The instruction specifies exact values to enter and then submit. Using the provided selectors, we can fill the username field with 'alice', the password field with 'SecureP@ss123!', and then click the 'Sign up' button to complete the action.",
+      "resolved_steps": [
+        {
+          "type": "fill",
+          "selector": "[placeholder=\"Username\"]",
+          "value": "alice"
+        },
+        {
+          "type": "fill",
+          "selector": "[placeholder=\"Password\"]",
+          "value": "SecureP@ss123!"
+        },
+        {
+          "type": "click",
+          "selector": "button:has-text(\"Sign up\")"
+        }
+      ],
+      "resolve_failure_kind": "",
+      "resolve_failure_detail": "",
+      "last_llm_preview": "{ \"reason\": \"The page contains the required 'Username' and 'Password' input fields and a 'Sign up' button. The instruction specifies exact values to enter and then submit. Using the provided selectors, we can fill the username field with...",
+      "verify_explanation": "The instruction was to enter credentials and sign up. The 'before' screenshot shows the 'Create your account' page with empty fields. The 'after' screenshot shows the main dashboard of the application (with a calendar and 'No data found' message), indicating that the user has successfully logged in or registered and the page has navigated away from the sign-up form. This transition confirms the action was successful.",
+      "retry_count": 0,
+      "screenshot_before": "executor_runs/T-024_581ab30db4/step_00_before.png",
+      "screenshot_after": "executor_runs/T-024_581ab30db4/step_00_after.png",
+      "url_before": "http://localhost:54713/auth/signup",
+      "url_after": "http://localhost:54713/",
+      "success": true,
+      "error": null
+    },
+    {
+      "step_index": 1,
+      "instruction": "Once logged in, locate the calendar widget and click the button labeled 'June 2026' to open the full-year calendar view for 2026.",
+      "resolution_reason": "The instruction requires clicking the button labeled 'June 2026' to open the full-year calendar view. The interactive element list includes a button with the exact label 'June 2026' and selector 'button:has-text(\"June 2026\")'. Clicking this button will execute the requested action.",
+      "resolved_steps": [
+        {
+          "type": "click",
+          "selector": "button:has-text(\"June 2026\")"
+        }
+      ],
+      "resolve_failure_kind": "",
+      "resolve_failure_detail": "",
+      "last_llm_preview": "{ \"reason\": \"The instruction requires clicking the button labeled 'June 2026' to open the full-year calendar view. The interactive element list includes a button with the exact label 'June 2026' and selector 'button:has-text(\\\"June 2026\\...",
+      "verify_explanation": "The instruction was to click the 'June 2026' button to open the full-year calendar view. In the 'before' image, the calendar widget displays only the month of June 2026. In the 'after' image, the view has changed to a full-year calendar for 2026, showing all 12 months. This confirms that the action was successfully executed.",
+      "retry_count": 0,
+      "screenshot_before": "executor_runs/T-024_581ab30db4/step_01_before.png",
+      "screenshot_after": "executor_runs/T-024_581ab30db4/step_01_after.png",
+      "url_before": "http://localhost:54713/",
+      "url_after": "http://localhost:54713/",
+      "success": true,
+      "error": null
+    },
+    {
+      "step_index": 2,
+      "instruction": "In the top-right corner of the 2026 calendar view, click the left-pointing arrow button (labeled 'Previous year') to navigate to the previous year.",
+      "resolution_reason": "",
+      "resolved_steps": [],
+      "resolve_failure_kind": "empty_steps",
+      "resolve_failure_detail": "The instruction asks to click a 'Previous year' button, but the available interactive elements only include 'Previous month' and 'Next month' buttons. There is no element labeled 'Previous year' or with an aria-label indicating year navigation. Therefore, the requested action cannot be performed on this page.",
+      "last_llm_preview": "{ \"reason\": \"The instruction asks to click a 'Previous year' button, but the available interactive elements only include 'Previous month' and 'Next month' buttons. There is no element labeled 'Previous year' or with an aria-label indicat...",
+      "verify_explanation": "",
+      "retry_count": 3,
+      "screenshot_before": "executor_runs/T-024_581ab30db4/step_02_before.png",
+      "screenshot_after": "executor_runs/T-024_581ab30db4/step_02_after.png",
+      "url_before": "http://localhost:54713/",
+      "url_after": "http://localhost:54713/",
+      "success": false,
+      "error": "empty_steps: The instruction asks to click a 'Previous year' button, but the available interactive elements only include 'Previous month' and 'Next month' buttons. There is no element labeled 'Previous year' or with an aria-label indicating year navigation. Therefore, the requested action cannot be performed on this page."
+    }
+  ],
+  "steps_executed": 3,
+  "steps_succeeded": 2,
+  "final_state": "partial",
+  "completed": false,
+  "error": null
+}

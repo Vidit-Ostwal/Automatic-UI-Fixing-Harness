@@ -1,0 +1,96 @@
+{
+  "test_case_id": "T-010",
+  "run_id": "71df959aec",
+  "goal": "Verify that a user can create a new account, navigate the calendar to the next month, and successfully create and save a new memo with specific content.",
+  "description": "create_account \u2192 navigate_to_next_month \u2192 create_memo_with_content",
+  "instructions": [
+    "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+    "Once logged in and viewing the calendar (initially showing June 2026), click the 'Next month' arrow button to navigate to July 2026.",
+    "In the memo input area labeled 'Any thoughts...', type the text 'Remember to buy groceries on the way home.' and click the 'Save' button."
+  ],
+  "success_criteria": [
+    "The user is successfully logged in and the main dashboard displays the calendar view.",
+    "The calendar header displays 'July 2026' after the navigation step.",
+    "A new memo card appears at the top of the feed with the timestamp 'now' and the exact text 'Remember to buy groceries on the way home.'",
+    "The input field 'Any thoughts...' is cleared after the memo is saved.",
+    "No error messages are displayed during account creation, navigation, or memo saving."
+  ],
+  "steps": [
+    {
+      "step_index": 0,
+      "instruction": "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+      "resolution_reason": "The page contains the required 'Username' and 'Password' input fields and a 'Sign up' button. The instruction specifies exact values to enter into these fields and then submit. The provided selectors match these elements precisely, allowing us to fill the inputs and click the button in sequence.",
+      "resolved_steps": [
+        {
+          "type": "fill",
+          "selector": "[placeholder=\"Username\"]",
+          "value": "alice"
+        },
+        {
+          "type": "fill",
+          "selector": "[placeholder=\"Password\"]",
+          "value": "SecureP@ss123!"
+        },
+        {
+          "type": "click",
+          "selector": "button:has-text(\"Sign up\")"
+        }
+      ],
+      "resolve_failure_kind": "",
+      "resolve_failure_detail": "",
+      "last_llm_preview": "{ \"reason\": \"The page contains the required 'Username' and 'Password' input fields and a 'Sign up' button. The instruction specifies exact values to enter into these fields and then submit. The provided selectors match these elements pre...",
+      "verify_explanation": "The instruction was to enter credentials and sign up. The 'before' screenshot shows the 'Create your account' page with empty fields. The 'after' screenshot shows the main application dashboard (with a calendar and 'No data found' message), indicating that the user has successfully logged in and the account creation process was completed.",
+      "retry_count": 0,
+      "screenshot_before": "executor_runs/T-010_71df959aec/step_00_before.png",
+      "screenshot_after": "executor_runs/T-010_71df959aec/step_00_after.png",
+      "url_before": "http://localhost:54379/auth/signup",
+      "url_after": "http://localhost:54379/",
+      "success": true,
+      "error": null
+    },
+    {
+      "step_index": 1,
+      "instruction": "Once logged in and viewing the calendar (initially showing June 2026), click the 'Next month' arrow button to navigate to July 2026.",
+      "resolution_reason": "The instruction requires navigating from June 2026 to July 2026 by clicking the 'Next month' arrow. The interactive elements list includes a button with aria-label 'Next month' (selector: [aria-label=\"Next\\ month\"]), which is the correct control to advance the calendar to the next month.",
+      "resolved_steps": [
+        {
+          "type": "click",
+          "selector": "[aria-label=\"Next\\ month\"]"
+        }
+      ],
+      "resolve_failure_kind": "",
+      "resolve_failure_detail": "",
+      "last_llm_preview": "{ \"reason\": \"The instruction requires navigating from June 2026 to July 2026 by clicking the 'Next month' arrow. The interactive elements list includes a button with aria-label 'Next month' (selector: [aria-label=\\\"Next\\\\ month\\\"]), whic...",
+      "verify_explanation": "The calendar in the first image displays 'June 2026'. In the second image, the calendar displays 'July 2026'. This change confirms that the 'Next month' button was successfully clicked, navigating the calendar to the following month as instructed.",
+      "retry_count": 0,
+      "screenshot_before": "executor_runs/T-010_71df959aec/step_01_before.png",
+      "screenshot_after": "executor_runs/T-010_71df959aec/step_01_after.png",
+      "url_before": "http://localhost:54379/",
+      "url_after": "http://localhost:54379/",
+      "success": true,
+      "error": null
+    },
+    {
+      "step_index": 2,
+      "instruction": "In the memo input area labeled 'Any thoughts...', type the text 'Remember to buy groceries on the way home.' and click the 'Save' button.",
+      "resolution_reason": "",
+      "resolved_steps": [],
+      "resolve_failure_kind": "empty_steps",
+      "resolve_failure_detail": "The instruction requires typing into the 'Any thoughts...' input and clicking 'Save'. However, the provided interactive element list does not include selectors for either the memo input field or the Save button. Without valid selectors from the element list, the automation cannot be executed safely.",
+      "last_llm_preview": "{ \"reason\": \"The instruction requires typing into the 'Any thoughts...' input and clicking 'Save'. However, the provided interactive element list does not include selectors for either the memo input field or the Save button. Without vali...",
+      "verify_explanation": "",
+      "retry_count": 3,
+      "screenshot_before": "executor_runs/T-010_71df959aec/step_02_before.png",
+      "screenshot_after": "executor_runs/T-010_71df959aec/step_02_after.png",
+      "url_before": "http://localhost:54379/",
+      "url_after": "http://localhost:54379/",
+      "success": false,
+      "error": "empty_steps: The instruction requires typing into the 'Any thoughts...' input and clicking 'Save'. However, the provided interactive element list does not include selectors for either the memo input field or the Save button. Without valid selectors from the element list, the automation cannot be executed safely."
+    }
+  ],
+  "steps_executed": 3,
+  "steps_succeeded": 2,
+  "final_state": "partial",
+  "completed": false,
+  "error": null
+}

@@ -1,9 +1,0 @@
-{
-  "test_case_id": "T-018",
-  "run_id": "e257282e71",
-  "goal": "Verify that a user can successfully create a new Site Host account, navigate the calendar to the previous month, and access the settings menu to adjust view preferences.",
-  "description": "create_account \u2192 navigate_to_previous_month \u2192 settings2",
-  "total_steps_verified": 3,
-  "total_findings": 0,
-  "findings": []
-}

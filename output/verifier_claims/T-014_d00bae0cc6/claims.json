@@ -1,0 +1,9 @@
+{
+  "test_case_id": "T-014",
+  "run_id": "d00bae0cc6",
+  "goal": "Verify that a user can create a new account as the Site Host and successfully navigate the calendar to view the month of July 2026.",
+  "description": "create_account \u2192 navigate_to_next_month \u2192 july",
+  "total_steps_verified": 3,
+  "total_findings": 0,
+  "findings": []
+}

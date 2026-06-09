@@ -1,0 +1,28 @@
+{
+  "test_case_id": "T-022",
+  "run_id": "2dcc8dd021",
+  "goal": "Verify that a user can successfully create a new Site Host account, access the main dashboard, and interact with the settings menu to trigger UI updates.",
+  "description": "create_account \u2192 open_settings_menu \u2192 tooltip_trigger",
+  "total_steps_verified": 3,
+  "total_findings": 1,
+  "findings": [
+    {
+      "id": "V-T-022-001",
+      "step_index": 2,
+      "instruction": "Click the settings icon again to toggle the menu and trigger the UI state change.",
+      "bug_type": "logic",
+      "severity": "medium",
+      "title": "Settings menu does not close when toggled again",
+      "description": "The settings menu is expected to close when the settings icon is clicked a second time. However, the menu remains open after the toggle action, indicating the toggle functionality is not working as intended.",
+      "evidence": "In the BEFORE screenshot, the settings menu is closed. In the AFTER screenshot, after clicking the settings icon again, the menu is still open showing 'Shown time' and 'Order' options. The UI state did not change to close the menu as expected.",
+      "reproduction_steps": [
+        "Navigate to the dashboard after logging in",
+        "Click the settings icon (gear symbol) in the left sidebar to open the settings menu",
+        "Click the settings icon again to toggle the menu closed",
+        "Observe that the settings menu remains open instead of closing"
+      ],
+      "screenshot_before": "executor_runs/T-022_2dcc8dd021/step_02_before.png",
+      "screenshot_after": "executor_runs/T-022_2dcc8dd021/step_02_after.png"
+    }
+  ]
+}

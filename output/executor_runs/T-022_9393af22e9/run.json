@@ -1,0 +1,100 @@
+{
+  "test_case_id": "T-022",
+  "run_id": "9393af22e9",
+  "goal": "Verify that a user can successfully create a new Site Host account, access the main dashboard, and interact with the settings menu to trigger UI updates.",
+  "description": "create_account \u2192 open_settings_menu \u2192 tooltip_trigger",
+  "instructions": [
+    "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+    "Once logged into the dashboard, click the settings icon (gear symbol) located in the left sidebar to open the settings menu.",
+    "Click the settings icon again to toggle the menu and trigger the UI state change."
+  ],
+  "success_criteria": [
+    "The user is successfully redirected from the registration page to the main dashboard view.",
+    "The settings menu appears in the top-right area of the dashboard, displaying options like 'Shown time' and 'Order'.",
+    "Clicking the settings icon again closes the menu and restores the default calendar view.",
+    "The main feed displays existing memo entries (e.g., 'Personal reminder for the weekend') without errors."
+  ],
+  "steps": [
+    {
+      "step_index": 0,
+      "instruction": "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+      "resolution_reason": "The page contains the required 'Username' and 'Password' input fields and a 'Sign up' button. The instruction specifies exact values to enter and then submit. Using the provided selectors, we can fill the username field with 'alice', the password field with 'SecureP@ss123!', and click the 'Sign up' button to complete the action.",
+      "resolved_steps": [
+        {
+          "type": "fill",
+          "selector": "[placeholder=\"Username\"]",
+          "value": "alice"
+        },
+        {
+          "type": "fill",
+          "selector": "[placeholder=\"Password\"]",
+          "value": "SecureP@ss123!"
+        },
+        {
+          "type": "click",
+          "selector": "button:has-text(\"Sign up\")"
+        }
+      ],
+      "resolve_failure_kind": "",
+      "resolve_failure_detail": "",
+      "last_llm_preview": "{ \"reason\": \"The page contains the required 'Username' and 'Password' input fields and a 'Sign up' button. The instruction specifies exact values to enter and then submit. Using the provided selectors, we can fill the username field with...",
+      "verify_explanation": "The instruction was to enter credentials and sign up. The 'before' screenshot shows the 'Create your account' page with empty fields. The 'after' screenshot shows the main application dashboard (with a calendar and 'No data found' message), indicating that the user has successfully logged in and the account creation process was completed.",
+      "retry_count": 0,
+      "screenshot_before": "executor_runs/T-022_9393af22e9/step_00_before.png",
+      "screenshot_after": "executor_runs/T-022_9393af22e9/step_00_after.png",
+      "url_before": "http://localhost:52797/auth/signup",
+      "url_after": "http://localhost:52797/",
+      "success": true,
+      "error": null
+    },
+    {
+      "step_index": 1,
+      "instruction": "Once logged into the dashboard, click the settings icon (gear symbol) located in the left sidebar to open the settings menu.",
+      "resolution_reason": "The previous attempts failed because the generic 'button' selector clicked the wrong button (filter icon). The interactive elements list shows a button with label 'settings2' which corresponds to the settings icon in the left sidebar. Since 'button:has-text(\"settings2\")' timed out, I need to use a different approach. Looking at the element list, the first item has selector 'button' and label 'settings2'. The issue is that there are multiple buttons, and the generic 'button' selector is ambiguous. However, since the element list explicitly shows this button with label 'settings2', and it's the first item in the list, it should be the correct target. The previous failures suggest the selector might need to be more specific or the element might not be directly clickable. Let me try using the exact selector from the list which is 'button' but ensure we're targeting the settings button specifically. Actually, looking at the accessibility tree and the screenshot, the settings icon (gear symbol) is clearly visible in the left sidebar. The interactive elements list has a button with label 'settings2' which should be this icon. Since the previous attempts with 'button' opened the filter menu, it means the wrong button was clicked. The correct approach is to use the selector that specifically targets the settings button. Given that the element list shows 'button' with label 'settings2', and this is the only button with that label, I'll use this selector.",
+      "resolved_steps": [
+        {
+          "type": "click",
+          "selector": "button"
+        }
+      ],
+      "resolve_failure_kind": "",
+      "resolve_failure_detail": "",
+      "last_llm_preview": "{ \"reason\": \"The previous attempts failed because the generic 'button' selector clicked the wrong button (filter icon). The interactive elements list shows a button with label 'settings2' which corresponds to the settings icon in the lef...",
+      "verify_explanation": "The instruction was to click the settings icon (gear symbol) in the left sidebar. However, the screenshot shows that a filter/sort menu (with options 'Shown time' and 'Order') was opened instead. This menu appears to be associated with the filter icon (funnel symbol), not the settings icon. The settings menu was not opened, so the instruction was not successfully carried out.",
+      "retry_count": 3,
+      "screenshot_before": "executor_runs/T-022_9393af22e9/step_01_before.png",
+      "screenshot_after": "executor_runs/T-022_9393af22e9/step_01_after.png",
+      "url_before": "http://localhost:52797/",
+      "url_after": "http://localhost:52797/",
+      "success": false,
+      "error": "The instruction was to click the settings icon (gear symbol) in the left sidebar. However, the screenshot shows that a filter/sort menu (with options 'Shown time' and 'Order') was opened instead. This menu appears to be associated with the filter icon (funnel symbol), not the settings icon. The settings menu was not opened, so the instruction was not successfully carried out."
+    },
+    {
+      "step_index": 2,
+      "instruction": "Click the settings icon again to toggle the menu and trigger the UI state change.",
+      "resolution_reason": "The instruction asks to click the settings icon to toggle the menu. The interactive element list includes a button with label 'settings2', which corresponds to the settings icon. Clicking this button will execute the requested action.",
+      "resolved_steps": [
+        {
+          "type": "click",
+          "selector": "button"
+        }
+      ],
+      "resolve_failure_kind": "",
+      "resolve_failure_detail": "",
+      "last_llm_preview": "{ \"reason\": \"The instruction asks to click the settings icon to toggle the menu. The interactive element list includes a button with label 'settings2', which corresponds to the settings icon. Clicking this button will execute the request...",
+      "verify_explanation": "The instruction was to click the settings icon to toggle the menu. In the 'before' image, the settings menu is closed. In the 'after' image, the settings menu is open, displaying options like 'Shown time' and 'Order'. This visual change confirms that the settings icon was successfully clicked and the menu toggled as requested.",
+      "retry_count": 0,
+      "screenshot_before": "executor_runs/T-022_9393af22e9/step_02_before.png",
+      "screenshot_after": "executor_runs/T-022_9393af22e9/step_02_after.png",
+      "url_before": "http://localhost:52797/",
+      "url_after": "http://localhost:52797/",
+      "success": true,
+      "error": null
+    }
+  ],
+  "steps_executed": 3,
+  "steps_succeeded": 2,
+  "final_state": "partial",
+  "completed": false,
+  "error": null
+}

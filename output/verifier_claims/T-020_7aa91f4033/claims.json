@@ -1,0 +1,28 @@
+{
+  "test_case_id": "T-020",
+  "run_id": "7aa91f4033",
+  "goal": "Verify that a user can successfully create a new Site Host account and navigate to the settings menu to adjust application configuration options.",
+  "description": "create_account \u2192 open_settings_menu \u2192 settings2",
+  "total_steps_verified": 3,
+  "total_findings": 1,
+  "findings": [
+    {
+      "id": "V-T-020-001",
+      "step_index": 2,
+      "instruction": "In the settings menu, click the 'settings2' button to apply the secondary configuration view.",
+      "bug_type": "logic",
+      "severity": "high",
+      "title": "Settings menu is not accessible via the gear icon in the sidebar",
+      "description": "The test goal requires the user to click the settings icon (gear symbol) in the left sidebar to open the settings menu and then click a 'settings2' button. However, the screenshots show that the settings menu never opens. The 'Before' screenshot for Step 2 shows the main dashboard without any settings panel, and the 'After' screenshot is identical, indicating the settings menu was never successfully opened. This prevents the user from accessing the 'settings2' configuration view, breaking the core workflow.",
+      "evidence": "In the 'Before' screenshot of Step 2, the main dashboard is visible with no settings menu open. The 'After' screenshot is identical, showing no change in UI state. The URL remains unchanged (http://localhost:5173/), and no new UI elements corresponding to a settings menu appear. This indicates the settings menu was not opened as expected.",
+      "reproduction_steps": [
+        "1. Log in to the application and navigate to the main dashboard.",
+        "2. Attempt to click the settings icon (gear symbol) in the left sidebar.",
+        "3. Observe that the settings menu does not open.",
+        "4. Attempt to click the 'settings2' button (which is not visible)."
+      ],
+      "screenshot_before": "executor_runs/T-020_7aa91f4033/step_02_before.png",
+      "screenshot_after": "executor_runs/T-020_7aa91f4033/step_02_after.png"
+    }
+  ]
+}

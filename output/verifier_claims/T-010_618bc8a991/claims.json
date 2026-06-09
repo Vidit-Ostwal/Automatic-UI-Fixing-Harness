@@ -1,0 +1,29 @@
+{
+  "test_case_id": "T-010",
+  "run_id": "618bc8a991",
+  "goal": "Verify that a user can create a new account, navigate the calendar to the next month, and successfully create and save a new memo with specific content.",
+  "description": "create_account \u2192 navigate_to_next_month \u2192 create_memo_with_content",
+  "total_steps_verified": 3,
+  "total_findings": 1,
+  "findings": [
+    {
+      "id": "V-T-010-001",
+      "step_index": 2,
+      "instruction": "In the memo input area labeled 'Any thoughts...', type the text 'Remember to buy groceries on the way home.' and click the 'Save' button.",
+      "bug_type": "logic",
+      "severity": "high",
+      "title": "Calendar month reverted from July 2026 to June 2026 without user action",
+      "description": "After successfully navigating to July 2026 in Step 1, the calendar unexpectedly reverted to June 2026 during Step 2. The current step failed due to an automation harness error (missing selectors), but the screenshots show a clear application state change: the calendar header changed from 'July 2026' (before) to 'June 2026' (after) without any user-initiated navigation. This indicates the application lost the selected month state.",
+      "evidence": "In the BEFORE screenshot, the calendar header clearly displays 'July 2026'. In the AFTER screenshot, despite no navigation action being performed by the user or automation, the calendar header displays 'June 2026'. The URL remained unchanged, confirming no page reload or navigation occurred.",
+      "reproduction_steps": [
+        "Log in to the application.",
+        "Navigate the calendar to July 2026 using the 'Next month' arrow.",
+        "Observe the calendar header showing 'July 2026'.",
+        "Attempt any other action on the page (or wait for a state update).",
+        "Observe that the calendar header unexpectedly reverts to 'June 2026'."
+      ],
+      "screenshot_before": "executor_runs/T-010_618bc8a991/step_02_before.png",
+      "screenshot_after": "executor_runs/T-010_618bc8a991/step_02_after.png"
+    }
+  ]
+}

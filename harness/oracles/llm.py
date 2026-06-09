@@ -3,8 +3,8 @@ LLM client — vision-capable provider transport for the harness.
 
 Supports Anthropic (claude-sonnet-4-6), OpenAI (gpt-4o), and a local
 OpenAI-compatible endpoint (Qwen/Qwen3.5-9B).  Provider priority:
-  1. Anthropic  — explicit LLM_PROVIDER=anthropic, or ANTHROPIC_API_KEY set
-  2. OpenAI     — explicit LLM_PROVIDER=openai,     or OPENAI_API_KEY set
+  1. Anthropic  — explicit LLM_PROVIDER=anthropic, or non-empty ANTHROPIC_API_KEY
+  2. OpenAI     — explicit LLM_PROVIDER=openai,     or non-empty OPENAI_API_KEY
   3. Local      — explicit LLM_PROVIDER=local,       or last-resort fallback
                   when neither cloud key is present
 
@@ -128,21 +128,29 @@ class _LocalProvider:
         return {"type": "image_url", "image_url": {"url": data_url}}
 
 
+def _has_api_key(name: str) -> bool:
+    """True when the env var is set to a non-empty value (not just present in .env)."""
+    return bool(env_str(name).strip())
+
+
 def _build_provider():
     """
     Select provider based on env vars.
 
     Priority:
-      1. anthropic  (explicit or ANTHROPIC_API_KEY present)
-      2. openai     (explicit or OPENAI_API_KEY present)
+      1. anthropic  (explicit or non-empty ANTHROPIC_API_KEY)
+      2. openai     (explicit or non-empty OPENAI_API_KEY)
       3. local      (explicit LLM_PROVIDER=local, or last-resort fallback)
     """
     explicit = env_str("LLM_PROVIDER").lower()
 
-    if explicit == "anthropic" or (not explicit and "ANTHROPIC_API_KEY" in os.environ):
+    if explicit == "local":
+        return _LocalProvider()
+
+    if explicit == "anthropic" or (not explicit and _has_api_key("ANTHROPIC_API_KEY")):
         return _AnthropicProvider()
 
-    if explicit == "openai" or (not explicit and "OPENAI_API_KEY" in os.environ):
+    if explicit == "openai" or (not explicit and _has_api_key("OPENAI_API_KEY")):
         return _OpenAIProvider()
 
     return _LocalProvider()

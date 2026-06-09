@@ -1,0 +1,28 @@
+{
+  "test_case_id": "T-008",
+  "run_id": "f2a85a7805",
+  "goal": "Verify that a user can create a new account, compose a private memo, and access the application settings menu.",
+  "description": "create_account \u2192 change_memo_privacy \u2192 open_settings",
+  "total_steps_verified": 3,
+  "total_findings": 1,
+  "findings": [
+    {
+      "id": "V-T-008-001",
+      "step_index": 2,
+      "instruction": "Click the settings icon (gear symbol) located in the left-hand sidebar to open the settings menu.",
+      "bug_type": "logic",
+      "severity": "high",
+      "title": "Clicking the settings icon opens view filter options instead of the settings menu",
+      "description": "The instruction was to click the settings icon (gear symbol) in the left sidebar to open the settings menu. However, the application responded by displaying a dropdown with 'Shown time' and 'Order' filter options near the calendar, which are view configuration controls, not the application settings menu. This indicates the settings icon is either mislabeled, miswired, or the wrong element was targeted by the application logic.",
+      "evidence": "In the BEFORE screenshot, the left sidebar shows a gear icon. In the AFTER screenshot, after the click, a dropdown panel appears at the top of the main content area with 'Shown time' and 'Order' options. No settings menu or configuration options are visible. The URL did not change, and the UI state transition is inconsistent with the expected behavior of opening a settings menu.",
+      "reproduction_steps": [
+        "Navigate to the main dashboard after logging in.",
+        "Locate the gear icon in the left-hand sidebar.",
+        "Click the gear icon.",
+        "Observe that a view filter dropdown appears instead of the settings menu."
+      ],
+      "screenshot_before": "executor_runs/T-008_f2a85a7805/step_02_before.png",
+      "screenshot_after": "executor_runs/T-008_f2a85a7805/step_02_after.png"
+    }
+  ]
+}

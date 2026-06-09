@@ -1,0 +1,29 @@
+{
+  "test_case_id": "T-010",
+  "run_id": "c15e5bce1b",
+  "goal": "Verify that a user can create a new account, navigate the calendar to the next month, and successfully create and save a new memo with specific content.",
+  "description": "create_account \u2192 navigate_to_next_month \u2192 create_memo_with_content",
+  "total_steps_verified": 3,
+  "total_findings": 1,
+  "findings": [
+    {
+      "id": "V-T-010-001",
+      "step_index": 2,
+      "instruction": "In the memo input area labeled 'Any thoughts...', type the text 'Remember to buy groceries on the way home.' and click the 'Save' button.",
+      "bug_type": "logic",
+      "severity": "high",
+      "title": "Calendar unexpectedly reverted from July 2026 to June 2026 during memo creation step",
+      "description": "The calendar header changed from 'July 2026' (visible in the BEFORE screenshot) to 'June 2026' (visible in the AFTER screenshot) without any intentional navigation action. This indicates an unintended state change or regression in the calendar component, violating the success criteria that the calendar should display 'July 2026' after navigation.",
+      "evidence": "BEFORE screenshot shows 'July 2026' in the calendar header. AFTER screenshot shows 'June 2026' in the calendar header. The step status indicates an automation failure ('empty_steps'), but the visible state change in the application (calendar month reverting) is an observable application defect independent of the harness error.",
+      "reproduction_steps": [
+        "Log in and navigate to the dashboard.",
+        "Click the 'Next month' arrow to navigate from June 2026 to July 2026.",
+        "Observe the calendar header showing 'July 2026'.",
+        "Attempt to perform any action (or even idle state) that triggers the current step.",
+        "Observe the calendar header unexpectedly changing back to 'June 2026'."
+      ],
+      "screenshot_before": "executor_runs/T-010_c15e5bce1b/step_02_before.png",
+      "screenshot_after": "executor_runs/T-010_c15e5bce1b/step_02_after.png"
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "test_case_id": "T-025",
+  "run_id": "a25005fe37",
+  "goal": "Verify that a user can create a new account, navigate to the calendar view, and select a specific date in January 2026 to view associated memos.",
+  "description": "create_account \u2192 june \u2192 select_date_january_1_2026",
+  "instructions": [
+    "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+    "Once logged in, click the 'June 2026' button in the calendar widget to open the full year view.",
+    "In the year view, locate the 'JAN' calendar grid and click on the date '1' to select January 1, 2026."
+  ],
+  "success_criteria": [
+    "The user is successfully redirected from the signup page to the main dashboard after clicking 'Sign up'.",
+    "The calendar view expands to show all months of 2026 after clicking 'June 2026'.",
+    "The main content area updates to display the list of memos specifically for January 1, 2026.",
+    "The calendar widget in the sidebar updates to show 'January 2026' with the 1st highlighted.",
+    "No error messages are displayed during the account creation or date selection process."
+  ],
+  "steps": [
+    {
+      "step_index": 0,
+      "instruction": "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+      "resolution_reason": "The page contains the required 'Username' and 'Password' input fields and a 'Sign up' button. The instruction specifies exact values to enter and then submit. Using the provided selectors, we can fill the username field with 'alice', the password field with 'SecureP@ss123!', and then click the 'Sign up' button to complete the action.",
+      "resolved_steps": [
+        {
+          "type": "fill",
+          "selector": "[placeholder=\"Username\"]",
+          "value": "alice"
+        },
+        {
+          "type": "fill",
+          "selector": "[placeholder=\"Password\"]",
+          "value": "SecureP@ss123!"
+        },
+        {
+          "type": "click",
+          "selector": "button:has-text(\"Sign up\")"
+        }
+      ],
+      "resolve_failure_kind": "",
+      "resolve_failure_detail": "",
+      "last_llm_preview": "{ \"reason\": \"The page contains the required 'Username' and 'Password' input fields and a 'Sign up' button. The instruction specifies exact values to enter and then submit. Using the provided selectors, we can fill the username field with...",
+      "verify_explanation": "The instruction was to enter credentials and sign up. The 'before' screenshot shows the 'Create your account' page with empty fields. The 'after' screenshot shows the main application dashboard (with a calendar and 'Any thoughts...' input), indicating that the user has successfully logged in and the account creation process was completed.",
+      "retry_count": 0,
+      "screenshot_before": "executor_runs/T-025_a25005fe37/step_00_before.png",
+      "screenshot_after": "executor_runs/T-025_a25005fe37/step_00_after.png",
+      "url_before": "http://localhost:53337/auth/signup",
+      "url_after": "http://localhost:53337/",
+      "success": true,
+      "error": null
+    },
+    {
+      "step_index": 1,
+      "instruction": "Once logged in, click the 'June 2026' button in the calendar widget to open the full year view.",
+      "resolution_reason": "The instruction asks to click the 'June 2026' button in the calendar widget. The interactive elements list includes a button with the label 'June 2026' and selector 'button:has-text(\"June 2026\")'. Clicking this button will execute the requested action.",
+      "resolved_steps": [
+        {
+          "type": "click",
+          "selector": "button:has-text(\"June 2026\")"
+        }
+      ],
+      "resolve_failure_kind": "",
+      "resolve_failure_detail": "",
+      "last_llm_preview": "{ \"reason\": \"The instruction asks to click the 'June 2026' button in the calendar widget. The interactive elements list includes a button with the label 'June 2026' and selector 'button:has-text(\\\"June 2026\\\")'. Clicking this button will...",
+      "verify_explanation": "The instruction was to click the 'June 2026' button to open the full year view. In the 'before' image, the calendar widget displays only the month of June 2026. In the 'after' image, the view has changed to display the entire year of 2026, with all 12 months visible. This confirms that the action of opening the full year view was successfully executed.",
+      "retry_count": 0,
+      "screenshot_before": "executor_runs/T-025_a25005fe37/step_01_before.png",
+      "screenshot_after": "executor_runs/T-025_a25005fe37/step_01_after.png",
+      "url_before": "http://localhost:53337/",
+      "url_after": "http://localhost:53337/",
+      "success": true,
+      "error": null
+    },
+    {
+      "step_index": 2,
+      "instruction": "In the year view, locate the 'JAN' calendar grid and click on the date '1' to select January 1, 2026.",
+      "resolution_reason": "",
+      "resolved_steps": [],
+      "resolve_failure_kind": "empty_steps",
+      "resolve_failure_detail": "The current page displays the calendar for June 2026, not the year view or January 2026. The instruction requires locating the 'JAN' calendar grid and clicking on date '1', but no such grid or date is visible or accessible in the provided interactive elements. Therefore, the task cannot be completed on this page.",
+      "last_llm_preview": "{ \"reason\": \"The current page displays the calendar for June 2026, not the year view or January 2026. The instruction requires locating the 'JAN' calendar grid and clicking on date '1', but no such grid or date is visible or accessible i...",
+      "verify_explanation": "",
+      "retry_count": 3,
+      "screenshot_before": "executor_runs/T-025_a25005fe37/step_02_before.png",
+      "screenshot_after": "executor_runs/T-025_a25005fe37/step_02_after.png",
+      "url_before": "http://localhost:53337/",
+      "url_after": "http://localhost:53337/",
+      "success": false,
+      "error": "empty_steps: The current page displays the calendar for June 2026, not the year view or January 2026. The instruction requires locating the 'JAN' calendar grid and clicking on date '1', but no such grid or date is visible or accessible in the provided interactive elements. Therefore, the task cannot be completed on this page."
+    }
+  ],
+  "steps_executed": 3,
+  "steps_succeeded": 2,
+  "final_state": "partial",
+  "completed": false,
+  "error": null
+}

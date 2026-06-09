@@ -1,0 +1,28 @@
+{
+  "test_case_id": "T-024",
+  "run_id": "581ab30db4",
+  "goal": "Verify that a user can create a new Site Host account, navigate to the June 2026 calendar view, and successfully switch to the previous year (2025) using the calendar navigation controls.",
+  "description": "create_account \u2192 june \u2192 navigate_to_previous_year",
+  "total_steps_verified": 3,
+  "total_findings": 1,
+  "findings": [
+    {
+      "id": "V-T-024-001",
+      "step_index": 2,
+      "instruction": "In the top-right corner of the 2026 calendar view, click the left-pointing arrow button (labeled 'Previous year') to navigate to the previous year.",
+      "bug_type": "logic",
+      "severity": "high",
+      "title": "Full-year calendar view closes unexpectedly, preventing year navigation",
+      "description": "The test requires navigating to the previous year from the full-year 2026 calendar view. However, the full-year calendar modal (visible in Step 1) is no longer open in the current step. The application has reverted to the monthly 'June 2026' view. This state transition prevents the user from accessing the year navigation controls ('Previous year' / 'Next year') which are only present in the full-year view, thus blocking the core workflow of switching years.",
+      "evidence": "Step 1 screenshot shows the full-year 2026 calendar modal open. The current step's BEFORE and AFTER screenshots show the application has returned to the monthly 'June 2026' view. The automation error 'empty_steps' confirms that the 'Previous year' button is missing because the full-year view is not active.",
+      "reproduction_steps": [
+        "1. Log in to the application.",
+        "2. Click the 'June 2026' button to open the full-year calendar view.",
+        "3. Observe that the full-year calendar modal is open.",
+        "4. Note that the modal has closed and the view has reverted to the monthly calendar, making year navigation impossible."
+      ],
+      "screenshot_before": "executor_runs/T-024_581ab30db4/step_02_before.png",
+      "screenshot_after": "executor_runs/T-024_581ab30db4/step_02_after.png"
+    }
+  ]
+}

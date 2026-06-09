@@ -1,0 +1,9 @@
+{
+  "test_case_id": "T-007",
+  "run_id": "7e9ab2de9e",
+  "goal": "Verify that a user can create a new account, save a private memo, and filter the memo list by selecting a specific date from the calendar.",
+  "description": "create_account \u2192 change_memo_privacy \u2192 select_date_june_15",
+  "total_steps_verified": 3,
+  "total_findings": 0,
+  "findings": []
+}

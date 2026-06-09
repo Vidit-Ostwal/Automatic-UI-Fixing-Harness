@@ -1,0 +1,29 @@
+{
+  "test_case_id": "T-010",
+  "run_id": "71df959aec",
+  "goal": "Verify that a user can create a new account, navigate the calendar to the next month, and successfully create and save a new memo with specific content.",
+  "description": "create_account \u2192 navigate_to_next_month \u2192 create_memo_with_content",
+  "total_steps_verified": 3,
+  "total_findings": 1,
+  "findings": [
+    {
+      "id": "V-T-010-001",
+      "step_index": 2,
+      "instruction": "In the memo input area labeled 'Any thoughts...', type the text 'Remember to buy groceries on the way home.' and click the 'Save' button.",
+      "bug_type": "logic",
+      "severity": "high",
+      "title": "Calendar month reverted from July 2026 to June 2026 without user action",
+      "description": "The calendar header changed from 'July 2026' (visible in the BEFORE screenshot) to 'June 2026' (visible in the AFTER screenshot) during the current step. No navigation action was intended or executed in this step; the step was to type a memo and save it. This unexpected state change indicates a logic defect where the calendar month is not persisting or is reverting unexpectedly.",
+      "evidence": "BEFORE screenshot shows 'July 2026' in the calendar header. AFTER screenshot shows 'June 2026' in the calendar header. The URL remained unchanged, and the step status indicates an automation failure to type/save, not a navigation action. The calendar state changed despite no user interaction targeting the calendar.",
+      "reproduction_steps": [
+        "Log in and navigate to the dashboard.",
+        "Navigate the calendar to July 2026 (Step 1).",
+        "Observe the calendar header showing 'July 2026'.",
+        "Attempt to perform a different action (e.g., typing in the memo input).",
+        "Observe that the calendar header unexpectedly reverts to 'June 2026'."
+      ],
+      "screenshot_before": "executor_runs/T-010_71df959aec/step_02_before.png",
+      "screenshot_after": "executor_runs/T-010_71df959aec/step_02_after.png"
+    }
+  ]
+}

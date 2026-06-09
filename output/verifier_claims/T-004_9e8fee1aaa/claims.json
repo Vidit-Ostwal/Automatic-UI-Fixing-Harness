@@ -1,0 +1,9 @@
+{
+  "test_case_id": "T-004",
+  "run_id": "9e8fee1aaa",
+  "goal": "Verify that a user can register as a Site Host, create a new memo, and successfully navigate to the June 2026 calendar view.",
+  "description": "create_account \u2192 create_new_memo \u2192 june",
+  "total_steps_verified": 3,
+  "total_findings": 0,
+  "findings": []
+}

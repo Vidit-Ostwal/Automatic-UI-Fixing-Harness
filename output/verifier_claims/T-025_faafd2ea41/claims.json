@@ -1,0 +1,9 @@
+{
+  "test_case_id": "T-025",
+  "run_id": "faafd2ea41",
+  "goal": "Verify that a user can create a new account, navigate to the calendar view, and select a specific date in January 2026 to view associated memos.",
+  "description": "create_account \u2192 june \u2192 select_date_january_1_2026",
+  "total_steps_verified": 3,
+  "total_findings": 0,
+  "findings": []
+}

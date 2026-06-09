@@ -1,0 +1,29 @@
+{
+  "test_case_id": "T-017",
+  "run_id": "9f80502a2c",
+  "goal": "Verify that a user can create a new account, navigate the calendar to the previous month, and successfully create a memo with specific content.",
+  "description": "create_account \u2192 navigate_to_previous_month \u2192 create_memo_with_specific_content",
+  "total_steps_verified": 3,
+  "total_findings": 1,
+  "findings": [
+    {
+      "id": "V-T-017-001",
+      "step_index": 2,
+      "instruction": "In the text input area labeled 'Any thoughts...', type the message 'Team meeting at 3 PM to discuss Q3 goals.' and click the 'Save' button.",
+      "bug_type": "logic",
+      "severity": "high",
+      "title": "Calendar month navigation state is not persistent",
+      "description": "The calendar view unexpectedly reverted from 'May 2026' back to 'June 2026' between the before and after screenshots of the current step. The previous step successfully navigated to May 2026, but the state was lost, indicating a failure in state persistence or an unintended reset of the calendar component.",
+      "evidence": "In the BEFORE screenshot for Step 2, the calendar clearly displays 'May 2026'. In the AFTER screenshot for the same step, the calendar displays 'June 2026'. No user action was intended to change the month in this step, yet the view changed.",
+      "reproduction_steps": [
+        "1. Log in to the application.",
+        "2. Navigate the calendar to the previous month (May 2026).",
+        "3. Observe the calendar state (it should be May 2026).",
+        "4. Attempt any subsequent action or wait for a state update.",
+        "5. Observe that the calendar has reverted to June 2026 without user interaction."
+      ],
+      "screenshot_before": "executor_runs/T-017_9f80502a2c/step_02_before.png",
+      "screenshot_after": "executor_runs/T-017_9f80502a2c/step_02_after.png"
+    }
+  ]
+}

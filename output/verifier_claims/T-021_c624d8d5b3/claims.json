@@ -1,9 +1,0 @@
-{
-  "test_case_id": "T-021",
-  "run_id": "c624d8d5b3",
-  "goal": "Verify that a user can successfully create a new Site Host account, navigate to the main dashboard, and access the settings menu to reveal additional configuration options.",
-  "description": "create_account \u2192 open_settings_menu \u2192 ellipsis_vertical",
-  "total_steps_verified": 3,
-  "total_findings": 0,
-  "findings": []
-}

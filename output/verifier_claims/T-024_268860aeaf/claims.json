@@ -1,0 +1,9 @@
+{
+  "test_case_id": "T-024",
+  "run_id": "268860aeaf",
+  "goal": "Verify that a user can create a new Site Host account, navigate to the June 2026 calendar view, and successfully switch to the previous year (2025) using the calendar navigation controls.",
+  "description": "create_account \u2192 june \u2192 navigate_to_previous_year",
+  "total_steps_verified": 3,
+  "total_findings": 0,
+  "findings": []
+}

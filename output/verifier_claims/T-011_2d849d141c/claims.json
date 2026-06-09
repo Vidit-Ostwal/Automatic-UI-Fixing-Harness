@@ -1,9 +1,0 @@
-{
-  "test_case_id": "T-011",
-  "run_id": "2d849d141c",
-  "goal": "Verify that a user can create a new Site Host account and successfully navigate the calendar view from June 2026 to August 2026.",
-  "description": "create_account \u2192 navigate_to_next_month \u2192 navigate_to_august_2026",
-  "total_steps_verified": 3,
-  "total_findings": 0,
-  "findings": []
-}

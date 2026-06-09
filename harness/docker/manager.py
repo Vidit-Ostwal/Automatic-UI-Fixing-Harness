@@ -39,6 +39,7 @@ _COMPOSE_TEMPLATE = """\
 services:
   memos-buggy:
     image: {image}
+    pull_policy: if_not_present
     container_name: {container_name}
     ports:
       - "{host_port}:{container_port}"

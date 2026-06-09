@@ -1,0 +1,108 @@
+{
+  "test_case_id": "T-016",
+  "run_id": "c096626f4f",
+  "goal": "Verify that a user can create a new Site Host account and successfully navigate the calendar view from the initial month to a future month using the navigation controls.",
+  "description": "create_account \u2192 navigate_to_previous_month \u2192 navigate_to_september_2026",
+  "instructions": [
+    "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+    "Once logged in and viewing the calendar for 'June 2026', click the 'Previous month' button (left arrow) to navigate to May 2026.",
+    "From the May 2026 view, click the 'Next month' button (right arrow) three consecutive times to advance the calendar to September 2026."
+  ],
+  "success_criteria": [
+    "The user is successfully redirected from the sign-up page to the main dashboard after clicking 'Sign up'.",
+    "The calendar view updates to display 'May 2026' immediately after clicking the previous month button.",
+    "The calendar view displays 'September 2026' after clicking the next month button three times.",
+    "The main content area displays existing memos or the 'No data found' state without errors during navigation."
+  ],
+  "steps": [
+    {
+      "step_index": 0,
+      "instruction": "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+      "resolution_reason": "The page contains the required 'Username' and 'Password' input fields and a 'Sign up' button. The instruction specifies exact values to enter and then submit. Using the provided selectors, we can fill the username field with 'alice', the password field with 'SecureP@ss123!', and then click the 'Sign up' button to complete the action.",
+      "resolved_steps": [
+        {
+          "type": "fill",
+          "selector": "[placeholder=\"Username\"]",
+          "value": "alice"
+        },
+        {
+          "type": "fill",
+          "selector": "[placeholder=\"Password\"]",
+          "value": "SecureP@ss123!"
+        },
+        {
+          "type": "click",
+          "selector": "button:has-text(\"Sign up\")"
+        }
+      ],
+      "resolve_failure_kind": "",
+      "resolve_failure_detail": "",
+      "last_llm_preview": "{ \"reason\": \"The page contains the required 'Username' and 'Password' input fields and a 'Sign up' button. The instruction specifies exact values to enter and then submit. Using the provided selectors, we can fill the username field with...",
+      "verify_explanation": "The instruction was to enter credentials and sign up. The 'before' screenshot shows the 'Create your account' page with empty fields. The 'after' screenshot shows the main application dashboard (with a calendar and 'No data found' message), indicating that the user has successfully logged in and the account creation process was completed.",
+      "retry_count": 0,
+      "screenshot_before": "executor_runs/T-016_c096626f4f/step_00_before.png",
+      "screenshot_after": "executor_runs/T-016_c096626f4f/step_00_after.png",
+      "url_before": "http://localhost:53810/auth/signup",
+      "url_after": "http://localhost:53810/",
+      "success": true,
+      "error": null
+    },
+    {
+      "step_index": 1,
+      "instruction": "Once logged in and viewing the calendar for 'June 2026', click the 'Previous month' button (left arrow) to navigate to May 2026.",
+      "resolution_reason": "The instruction requires navigating from June 2026 to May 2026 by clicking the 'Previous month' button. The interactive elements list includes a button with aria-label 'Previous month' which is the correct target for this action.",
+      "resolved_steps": [
+        {
+          "type": "click",
+          "selector": "[aria-label=\"Previous\\ month\"]"
+        }
+      ],
+      "resolve_failure_kind": "",
+      "resolve_failure_detail": "",
+      "last_llm_preview": "{ \"reason\": \"The instruction requires navigating from June 2026 to May 2026 by clicking the 'Previous month' button. The interactive elements list includes a button with aria-label 'Previous month' which is the correct target for this ac...",
+      "verify_explanation": "The calendar view successfully changed from 'June 2026' in the first image to 'May 2026' in the second image. This confirms that the 'Previous month' button was clicked and the navigation to the previous month was completed as instructed.",
+      "retry_count": 0,
+      "screenshot_before": "executor_runs/T-016_c096626f4f/step_01_before.png",
+      "screenshot_after": "executor_runs/T-016_c096626f4f/step_01_after.png",
+      "url_before": "http://localhost:53810/",
+      "url_after": "http://localhost:53810/",
+      "success": true,
+      "error": null
+    },
+    {
+      "step_index": 2,
+      "instruction": "From the May 2026 view, click the 'Next month' button (right arrow) three consecutive times to advance the calendar to September 2026.",
+      "resolution_reason": "The current calendar view is June 2026. The instruction requires advancing to September 2026. From June, we need to click the 'Next month' button three times: June \u2192 July \u2192 August \u2192 September. The selector [aria-label=\"Next\\ month\"] correctly targets the right arrow button to advance the calendar.",
+      "resolved_steps": [
+        {
+          "type": "click",
+          "selector": "[aria-label=\"Next\\ month\"]"
+        },
+        {
+          "type": "click",
+          "selector": "[aria-label=\"Next\\ month\"]"
+        },
+        {
+          "type": "click",
+          "selector": "[aria-label=\"Next\\ month\"]"
+        }
+      ],
+      "resolve_failure_kind": "",
+      "resolve_failure_detail": "",
+      "last_llm_preview": "{ \"reason\": \"The current calendar view is June 2026. The instruction requires advancing to September 2026. From June, we need to click the 'Next month' button three times: June \u2192 July \u2192 August \u2192 September. The selector [aria-label=\\\"Next...",
+      "verify_explanation": "The calendar view in the first image shows 'June 2026'. The instruction was to advance the calendar to September 2026. The second image shows the calendar displaying 'September 2026'. This confirms that the 'Next month' button was successfully clicked three times to reach the target month.",
+      "retry_count": 2,
+      "screenshot_before": "executor_runs/T-016_c096626f4f/step_02_before.png",
+      "screenshot_after": "executor_runs/T-016_c096626f4f/step_02_after.png",
+      "url_before": "http://localhost:53810/",
+      "url_after": "http://localhost:53810/",
+      "success": true,
+      "error": null
+    }
+  ],
+  "steps_executed": 3,
+  "steps_succeeded": 3,
+  "final_state": "success",
+  "completed": true,
+  "error": null
+}

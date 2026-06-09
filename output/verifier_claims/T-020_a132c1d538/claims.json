@@ -1,0 +1,9 @@
+{
+  "test_case_id": "T-020",
+  "run_id": "a132c1d538",
+  "goal": "Verify that a user can successfully create a new Site Host account and navigate to the settings menu to adjust application configuration options.",
+  "description": "create_account \u2192 open_settings_menu \u2192 settings2",
+  "total_steps_verified": 3,
+  "total_findings": 0,
+  "findings": []
+}

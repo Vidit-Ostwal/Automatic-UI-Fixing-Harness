@@ -1,0 +1,96 @@
+{
+  "test_case_id": "T-004",
+  "run_id": "c0839241c5",
+  "goal": "Verify that a user can register as a Site Host, create a new memo, and successfully navigate to the June 2026 calendar view.",
+  "description": "create_account \u2192 create_new_memo \u2192 june",
+  "instructions": [
+    "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+    "In the main dashboard, type 'Remember to review the project timeline tomorrow morning.' into the text input box labeled 'Any thoughts...' and click the 'Save' button.",
+    "Click the 'June 2026' button located in the calendar widget to switch the view to the full year calendar."
+  ],
+  "success_criteria": [
+    "The user is successfully logged in and the 'Create your account' form is replaced by the main dashboard interface.",
+    "The memo 'Remember to review the project timeline tomorrow morning.' is visible in the feed below the input area.",
+    "The UI transitions to a full-year calendar view displaying the year '2026' at the top.",
+    "The 'June' month grid within the 2026 calendar is visible and the 8th is highlighted.",
+    "The previously created memo remains visible in the list below the calendar view."
+  ],
+  "steps": [
+    {
+      "step_index": 0,
+      "instruction": "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+      "resolution_reason": "The page contains the required 'Username' and 'Password' input fields and a 'Sign up' button. The instruction specifies exact values to enter and then submit. Using the provided selectors, we can fill the username field with 'alice', the password field with 'SecureP@ss123!', and click the 'Sign up' button to complete the action.",
+      "resolved_steps": [
+        {
+          "type": "fill",
+          "selector": "[placeholder=\"Username\"]",
+          "value": "alice"
+        },
+        {
+          "type": "fill",
+          "selector": "[placeholder=\"Password\"]",
+          "value": "SecureP@ss123!"
+        },
+        {
+          "type": "click",
+          "selector": "button:has-text(\"Sign up\")"
+        }
+      ],
+      "resolve_failure_kind": "",
+      "resolve_failure_detail": "",
+      "last_llm_preview": "{ \"reason\": \"The page contains the required 'Username' and 'Password' input fields and a 'Sign up' button. The instruction specifies exact values to enter and then submit. Using the provided selectors, we can fill the username field with...",
+      "verify_explanation": "The instruction was to enter a username and password and click 'Sign up'. The 'before' screenshot shows the 'Create your account' page with empty fields. The 'after' screenshot shows the main dashboard of the application (Memos), indicating that the user has successfully logged in or registered. The transition from the sign-up page to the main application interface confirms that the form was filled and submitted successfully.",
+      "retry_count": 0,
+      "screenshot_before": "executor_runs/T-004_c0839241c5/step_00_before.png",
+      "screenshot_after": "executor_runs/T-004_c0839241c5/step_00_after.png",
+      "url_before": "http://localhost:52997/auth/signup",
+      "url_after": "http://localhost:52997/",
+      "success": true,
+      "error": null
+    },
+    {
+      "step_index": 1,
+      "instruction": "In the main dashboard, type 'Remember to review the project timeline tomorrow morning.' into the text input box labeled 'Any thoughts...' and click the 'Save' button.",
+      "resolution_reason": "",
+      "resolved_steps": [],
+      "resolve_failure_kind": "empty_steps",
+      "resolve_failure_detail": "The instruction requires typing into the 'Any thoughts...' input and clicking 'Save'. However, the provided interactive element list does not include selectors for the text input field or the 'Save' button. Without valid selectors from the element list, the automation cannot be executed reliably.",
+      "last_llm_preview": "{ \"reason\": \"The instruction requires typing into the 'Any thoughts...' input and clicking 'Save'. However, the provided interactive element list does not include selectors for the text input field or the 'Save' button. Without valid sel...",
+      "verify_explanation": "",
+      "retry_count": 3,
+      "screenshot_before": "executor_runs/T-004_c0839241c5/step_01_before.png",
+      "screenshot_after": "executor_runs/T-004_c0839241c5/step_01_after.png",
+      "url_before": "http://localhost:52997/",
+      "url_after": "http://localhost:52997/",
+      "success": false,
+      "error": "empty_steps: The instruction requires typing into the 'Any thoughts...' input and clicking 'Save'. However, the provided interactive element list does not include selectors for the text input field or the 'Save' button. Without valid selectors from the element list, the automation cannot be executed reliably."
+    },
+    {
+      "step_index": 2,
+      "instruction": "Click the 'June 2026' button located in the calendar widget to switch the view to the full year calendar.",
+      "resolution_reason": "The instruction explicitly asks to click the 'June 2026' button. The interactive element list contains a button with the label 'June 2026' and the selector 'button:has-text(\"June 2026\")'. Clicking this element directly fulfills the user's request.",
+      "resolved_steps": [
+        {
+          "type": "click",
+          "selector": "button:has-text(\"June 2026\")"
+        }
+      ],
+      "resolve_failure_kind": "",
+      "resolve_failure_detail": "",
+      "last_llm_preview": "{ \"reason\": \"The instruction explicitly asks to click the 'June 2026' button. The interactive element list contains a button with the label 'June 2026' and the selector 'button:has-text(\\\"June 2026\\\")'. Clicking this element directly ful...",
+      "verify_explanation": "The instruction was to click the 'June 2026' button to switch to the full year calendar view. In the 'before' screenshot, the calendar displays only the month of June 2026. In the 'after' screenshot, the view has changed to a full-year calendar for 2026, showing all 12 months. This confirms that the action successfully switched the view as requested.",
+      "retry_count": 0,
+      "screenshot_before": "executor_runs/T-004_c0839241c5/step_02_before.png",
+      "screenshot_after": "executor_runs/T-004_c0839241c5/step_02_after.png",
+      "url_before": "http://localhost:52997/",
+      "url_after": "http://localhost:52997/",
+      "success": true,
+      "error": null
+    }
+  ],
+  "steps_executed": 3,
+  "steps_succeeded": 2,
+  "final_state": "partial",
+  "completed": false,
+  "error": null
+}

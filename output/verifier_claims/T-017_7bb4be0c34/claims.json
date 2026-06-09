@@ -1,0 +1,28 @@
+{
+  "test_case_id": "T-017",
+  "run_id": "7bb4be0c34",
+  "goal": "Verify that a user can create a new account, navigate the calendar to the previous month, and successfully create a memo with specific content.",
+  "description": "create_account \u2192 navigate_to_previous_month \u2192 create_memo_with_specific_content",
+  "total_steps_verified": 3,
+  "total_findings": 1,
+  "findings": [
+    {
+      "id": "V-T-017-001",
+      "step_index": 2,
+      "instruction": "In the text input area labeled 'Any thoughts...', type the message 'Team meeting at 3 PM to discuss Q3 goals.' and click the 'Save' button.",
+      "bug_type": "logic",
+      "severity": "high",
+      "title": "Calendar unexpectedly reverted from May 2026 to June 2026 during memo creation step",
+      "description": "The calendar view changed from May 2026 (as set in Step 1) back to June 2026 in the AFTER screenshot of Step 2, even though the intended action was to type a memo and click Save. No navigation action was performed in this step, so the calendar should have remained on May 2026. This indicates an unintended state change in the application.",
+      "evidence": "BEFORE screenshot shows 'May 2026' in the calendar header. AFTER screenshot shows 'June 2026' in the calendar header. The URL remained unchanged (http://localhost:54606/), and no navigation action was executed in this step.",
+      "reproduction_steps": [
+        "Log in and reach the dashboard with the calendar showing June 2026.",
+        "Click the 'Previous month' button to navigate to May 2026.",
+        "Attempt to type a memo in the 'Any thoughts...' input and click 'Save' (or any other non-navigation action).",
+        "Observe that the calendar unexpectedly reverts to June 2026."
+      ],
+      "screenshot_before": "executor_runs/T-017_7bb4be0c34/step_02_before.png",
+      "screenshot_after": "executor_runs/T-017_7bb4be0c34/step_02_after.png"
+    }
+  ]
+}

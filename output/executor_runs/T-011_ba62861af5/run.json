@@ -1,0 +1,100 @@
+{
+  "test_case_id": "T-011",
+  "run_id": "ba62861af5",
+  "goal": "Verify that a user can create a new Site Host account and successfully navigate the calendar view from June 2026 to August 2026.",
+  "description": "create_account \u2192 navigate_to_next_month \u2192 navigate_to_august_2026",
+  "instructions": [
+    "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+    "Once the dashboard loads showing the 'June 2026' calendar, click the 'Next month' button (right arrow) to advance the view to July 2026.",
+    "Click the 'Next month' button again to advance the calendar view from July 2026 to August 2026."
+  ],
+  "success_criteria": [
+    "The user is successfully logged in and the 'Create your account' form is no longer visible.",
+    "The calendar header updates to display 'July 2026' after the first navigation action.",
+    "The calendar header updates to display 'August 2026' after the second navigation action.",
+    "The main content area displays a list of existing memos or reminders without any error messages."
+  ],
+  "steps": [
+    {
+      "step_index": 0,
+      "instruction": "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+      "resolution_reason": "The page contains the required 'Username' and 'Password' input fields and a 'Sign up' button. The instruction specifies exact values to enter and then submit. Using the provided selectors, we can fill the username field with 'alice', the password field with 'SecureP@ss123!', and then click the 'Sign up' button to complete the action.",
+      "resolved_steps": [
+        {
+          "type": "fill",
+          "selector": "[placeholder=\"Username\"]",
+          "value": "alice"
+        },
+        {
+          "type": "fill",
+          "selector": "[placeholder=\"Password\"]",
+          "value": "SecureP@ss123!"
+        },
+        {
+          "type": "click",
+          "selector": "button:has-text(\"Sign up\")"
+        }
+      ],
+      "resolve_failure_kind": "",
+      "resolve_failure_detail": "",
+      "last_llm_preview": "{ \"reason\": \"The page contains the required 'Username' and 'Password' input fields and a 'Sign up' button. The instruction specifies exact values to enter and then submit. Using the provided selectors, we can fill the username field with...",
+      "verify_explanation": "The instruction was to enter credentials and sign up. The 'before' screenshot shows the 'Create your account' page with empty fields. The 'after' screenshot shows the main application dashboard (with a calendar and 'Any thoughts...' input), indicating that the user has successfully logged in and the account creation process was completed.",
+      "retry_count": 0,
+      "screenshot_before": "executor_runs/T-011_ba62861af5/step_00_before.png",
+      "screenshot_after": "executor_runs/T-011_ba62861af5/step_00_after.png",
+      "url_before": "http://localhost:52480/auth/signup",
+      "url_after": "http://localhost:52480/",
+      "success": true,
+      "error": null
+    },
+    {
+      "step_index": 1,
+      "instruction": "Once the dashboard loads showing the 'June 2026' calendar, click the 'Next month' button (right arrow) to advance the view to July 2026.",
+      "resolution_reason": "The instruction requires advancing the calendar from June 2026 to July 2026 by clicking the 'Next month' button. The interactive elements list includes a button with aria-label 'Next month', which is the correct target for this action. Clicking this button will navigate the calendar to the next month.",
+      "resolved_steps": [
+        {
+          "type": "click",
+          "selector": "[aria-label=\"Next\\ month\"]"
+        }
+      ],
+      "resolve_failure_kind": "",
+      "resolve_failure_detail": "",
+      "last_llm_preview": "{ \"reason\": \"The instruction requires advancing the calendar from June 2026 to July 2026 by clicking the 'Next month' button. The interactive elements list includes a button with aria-label 'Next month', which is the correct target for t...",
+      "verify_explanation": "The calendar view successfully advanced from June 2026 to July 2026. The 'before' screenshot and accessibility tree show 'June 2026', while the 'after' screenshot and accessibility tree clearly display 'July 2026', confirming the 'Next month' button was clicked and the instruction was executed correctly.",
+      "retry_count": 0,
+      "screenshot_before": "executor_runs/T-011_ba62861af5/step_01_before.png",
+      "screenshot_after": "executor_runs/T-011_ba62861af5/step_01_after.png",
+      "url_before": "http://localhost:52480/",
+      "url_after": "http://localhost:52480/",
+      "success": true,
+      "error": null
+    },
+    {
+      "step_index": 2,
+      "instruction": "Click the 'Next month' button again to advance the calendar view from July 2026 to August 2026.",
+      "resolution_reason": "The instruction requires advancing the calendar from July 2026 to August 2026. The element list includes a button with aria-label 'Next month', which is the correct control to move the calendar forward by one month. Clicking this button will update the view to August 2026.",
+      "resolved_steps": [
+        {
+          "type": "click",
+          "selector": "[aria-label=\"Next\\ month\"]"
+        }
+      ],
+      "resolve_failure_kind": "",
+      "resolve_failure_detail": "",
+      "last_llm_preview": "{ \"reason\": \"The instruction requires advancing the calendar from July 2026 to August 2026. The element list includes a button with aria-label 'Next month', which is the correct control to move the calendar forward by one month. Clicking...",
+      "verify_explanation": "The calendar view in the first image shows 'July 2026'. In the second image, the calendar view has updated to 'August 2026'. This confirms that the 'Next month' button was successfully clicked, advancing the calendar as instructed.",
+      "retry_count": 0,
+      "screenshot_before": "executor_runs/T-011_ba62861af5/step_02_before.png",
+      "screenshot_after": "executor_runs/T-011_ba62861af5/step_02_after.png",
+      "url_before": "http://localhost:52480/",
+      "url_after": "http://localhost:52480/",
+      "success": true,
+      "error": null
+    }
+  ],
+  "steps_executed": 3,
+  "steps_succeeded": 3,
+  "final_state": "success",
+  "completed": true,
+  "error": null
+}

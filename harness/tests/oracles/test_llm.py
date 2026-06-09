@@ -74,6 +74,14 @@ def test_build_provider_no_keys_falls_back_to_local(monkeypatch):
     assert isinstance(_build_provider(), _LocalProvider)
 
 
+def test_build_provider_empty_keys_fall_back_to_local(monkeypatch):
+    monkeypatch.delenv("LLM_PROVIDER", raising=False)
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "")
+    monkeypatch.setenv("OPENAI_API_KEY", "")
+    monkeypatch.setenv("LOCAL_LLM_URL", _TEST_LOCAL_URL)
+    assert isinstance(_build_provider(), _LocalProvider)
+
+
 def test_build_provider_local_explicit(monkeypatch):
     monkeypatch.setenv("LLM_PROVIDER", "local")
     monkeypatch.setenv("LOCAL_LLM_URL", _TEST_LOCAL_URL)

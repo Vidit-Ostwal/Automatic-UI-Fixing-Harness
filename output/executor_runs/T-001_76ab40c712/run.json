@@ -1,0 +1,101 @@
+{
+  "test_case_id": "T-001",
+  "run_id": "76ab40c712",
+  "goal": "Verify that a user can successfully register as a Site Host, create a standard memo, and create a second memo that includes a hashtag tag.",
+  "description": "create_account \u2192 create_new_memo \u2192 create_memo_with_tag",
+  "instructions": [
+    "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+    "In the main dashboard, type 'Remember to review the project timeline tomorrow morning.' into the text area with the placeholder 'Any thoughts...' and click the 'Save' button.",
+    "In the same text area, type 'Meeting notes for #team-sync' and click the 'Save' button again."
+  ],
+  "success_criteria": [
+    "The user is successfully logged in and navigated to the main dashboard view after account creation.",
+    "The first memo containing the text 'Remember to review the project timeline tomorrow morning.' appears in the feed.",
+    "The second memo containing 'Meeting notes for #team-sync' appears in the feed.",
+    "The hashtag '#team-sync' in the second memo is rendered as a clickable tag element.",
+    "The 'Tags' section in the sidebar updates to display the new '#team-sync' tag."
+  ],
+  "steps": [
+    {
+      "step_index": 0,
+      "instruction": "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+      "resolution_reason": "The page contains the required 'Username' and 'Password' input fields and a 'Sign up' button. The instruction specifies exact values to enter and then submit. Using the provided selectors for the inputs and button, we can fill the fields and click the button to complete the task.",
+      "resolved_steps": [
+        {
+          "type": "fill",
+          "selector": "[placeholder=\"Username\"]",
+          "value": "alice"
+        },
+        {
+          "type": "fill",
+          "selector": "[placeholder=\"Password\"]",
+          "value": "SecureP@ss123!"
+        },
+        {
+          "type": "click",
+          "selector": "button:has-text(\"Sign up\")"
+        }
+      ],
+      "resolve_failure_kind": "",
+      "resolve_failure_detail": "",
+      "last_llm_preview": "{ \"reason\": \"The page contains the required 'Username' and 'Password' input fields and a 'Sign up' button. The instruction specifies exact values to enter and then submit. Using the provided selectors for the inputs and button, we can fi...",
+      "verify_explanation": "The instruction was to enter credentials and sign up. The 'before' screenshot shows the 'Create your account' page with empty fields. The 'after' screenshot shows the main application dashboard (with a calendar and 'No data found' message), indicating that the user has successfully logged in and the account creation process was completed.",
+      "retry_count": 0,
+      "screenshot_before": "executor_runs/T-001_76ab40c712/step_00_before.png",
+      "screenshot_after": "executor_runs/T-001_76ab40c712/step_00_after.png",
+      "url_before": "http://localhost:54370/auth/signup",
+      "url_after": "http://localhost:54370/",
+      "success": true,
+      "error": null
+    },
+    {
+      "step_index": 1,
+      "instruction": "In the main dashboard, type 'Remember to review the project timeline tomorrow morning.' into the text area with the placeholder 'Any thoughts...' and click the 'Save' button.",
+      "resolution_reason": "",
+      "resolved_steps": [],
+      "resolve_failure_kind": "empty_steps",
+      "resolve_failure_detail": "The instruction requires typing into a text area with placeholder 'Any thoughts...' and clicking 'Save'. However, the provided interactive element list does not include selectors for either the text area or the 'Save' button. Without valid selectors from the element list, the action cannot be executed reliably.",
+      "last_llm_preview": "{ \"reason\": \"The instruction requires typing into a text area with placeholder 'Any thoughts...' and clicking 'Save'. However, the provided interactive element list does not include selectors for either the text area or the 'Save' button...",
+      "verify_explanation": "",
+      "retry_count": 3,
+      "screenshot_before": "executor_runs/T-001_76ab40c712/step_01_before.png",
+      "screenshot_after": "executor_runs/T-001_76ab40c712/step_01_after.png",
+      "url_before": "http://localhost:54370/",
+      "url_after": "http://localhost:54370/",
+      "success": false,
+      "error": "empty_steps: The instruction requires typing into a text area with placeholder 'Any thoughts...' and clicking 'Save'. However, the provided interactive element list does not include selectors for either the text area or the 'Save' button. Without valid selectors from the element list, the action cannot be executed reliably."
+    },
+    {
+      "step_index": 2,
+      "instruction": "In the same text area, type 'Meeting notes for #team-sync' and click the 'Save' button again.",
+      "resolution_reason": "The instruction requires typing text into the 'Any thoughts...' text area and then clicking the 'Save' button. The text area is identified by its placeholder text 'Any thoughts...' in the screenshot, and the 'Save' button is clearly labeled. Since the exact selector for the text area isn't provided in the interactive elements list, I will use the most likely selector based on common patterns (textarea with placeholder). The 'Save' button selector is inferred from its label.",
+      "resolved_steps": [
+        {
+          "type": "fill",
+          "selector": "textarea[placeholder=\"Any thoughts...\"]",
+          "value": "Meeting notes for #team-sync"
+        },
+        {
+          "type": "click",
+          "selector": "button:has-text(\"Save\")"
+        }
+      ],
+      "resolve_failure_kind": "",
+      "resolve_failure_detail": "",
+      "last_llm_preview": "{ \"reason\": \"The instruction requires typing text into the 'Any thoughts...' text area and then clicking the 'Save' button. The text area is identified by its placeholder text 'Any thoughts...' in the screenshot, and the 'Save' button is...",
+      "verify_explanation": "The instruction was to type 'Meeting notes for #team-sync' into the text area and click 'Save'. In the 'after' screenshot, a new entry has appeared below the input field with the exact text 'Meeting notes for #team-sync', and the tag '#team-sync' is highlighted, indicating it was successfully processed. Additionally, the tag '# team-sync' now appears in the 'Tags' section on the right sidebar, confirming the action was completed.",
+      "retry_count": 0,
+      "screenshot_before": "executor_runs/T-001_76ab40c712/step_02_before.png",
+      "screenshot_after": "executor_runs/T-001_76ab40c712/step_02_after.png",
+      "url_before": "http://localhost:54370/",
+      "url_after": "http://localhost:54370/",
+      "success": true,
+      "error": null
+    }
+  ],
+  "steps_executed": 3,
+  "steps_succeeded": 2,
+  "final_state": "partial",
+  "completed": false,
+  "error": null
+}

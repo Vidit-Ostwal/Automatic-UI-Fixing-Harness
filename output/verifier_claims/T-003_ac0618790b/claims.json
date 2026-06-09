@@ -1,0 +1,9 @@
+{
+  "test_case_id": "T-003",
+  "run_id": "ac0618790b",
+  "goal": "Verify that a user can create a new account as the Site Host, save a new memo, and successfully open the settings menu from the sidebar.",
+  "description": "create_account \u2192 create_new_memo \u2192 open_settings_menu",
+  "total_steps_verified": 3,
+  "total_findings": 0,
+  "findings": []
+}

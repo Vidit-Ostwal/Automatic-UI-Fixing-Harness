@@ -1,0 +1,28 @@
+{
+  "test_case_id": "T-024",
+  "run_id": "022357f59c",
+  "goal": "Verify that a user can create a new Site Host account, navigate to the June 2026 calendar view, and successfully switch to the previous year (2025) using the calendar navigation controls.",
+  "description": "create_account \u2192 june \u2192 navigate_to_previous_year",
+  "total_steps_verified": 3,
+  "total_findings": 1,
+  "findings": [
+    {
+      "id": "V-T-024-001",
+      "step_index": 2,
+      "instruction": "In the top-right corner of the 2026 calendar view, click the left-pointing arrow button (labeled 'Previous year') to navigate to the previous year.",
+      "bug_type": "logic",
+      "severity": "high",
+      "title": "Missing year navigation controls in the full-year calendar view",
+      "description": "The test goal requires navigating from the 2026 calendar view to the 2025 view using a 'Previous year' button. However, the full-year calendar view (visible in Step 1's screenshot) only provides 'Previous month' and 'Next month' navigation arrows, not year-level navigation. This prevents the user from fulfilling the core requirement of switching to the previous year as specified in the success criteria.",
+      "evidence": "Step 1's screenshot shows the full-year 2026 calendar with navigation arrows labeled '<' and '>' next to a 'TODAY' button, but no explicit 'Previous year' or 'Next year' controls. The automation failure message confirms: 'The UI only supports month-level navigation, not year-level.' The current step failed because the required UI element does not exist.",
+      "reproduction_steps": [
+        "Log in to the application.",
+        "Click on the calendar widget to open the full-year view for 2026.",
+        "Attempt to locate and click a 'Previous year' button to navigate to 2025.",
+        "Observe that only month-level navigation controls are available, making year navigation impossible."
+      ],
+      "screenshot_before": "executor_runs/T-024_022357f59c/step_02_before.png",
+      "screenshot_after": "executor_runs/T-024_022357f59c/step_02_after.png"
+    }
+  ]
+}

@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from typing import TYPE_CHECKING
 
-from harness.utils.elements import serialize_elements
+from harness.utils.page_context import format_a11y_tree, format_element_list
 from harness.utils.llm import strip_code_fence
 
 if TYPE_CHECKING:
@@ -126,8 +126,8 @@ def build_page_actions_messages(
     elements: list[dict] | None = None,
     explored_context: str = "",
 ) -> list[dict]:
-    tree_json = json.dumps(a11y_tree, indent=2)[:3000]
-    element_list = serialize_elements(elements or [], limit=2000)[:2000]
+    tree_json = format_a11y_tree(a11y_tree)
+    element_list = format_element_list(elements)
     memory_section = f"\n\n{explored_context}" if explored_context else ""
     user_text = (
         f"Accessibility tree:\n{tree_json}\n\n"

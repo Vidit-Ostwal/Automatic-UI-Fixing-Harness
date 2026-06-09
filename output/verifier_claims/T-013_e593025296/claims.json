@@ -1,0 +1,9 @@
+{
+  "test_case_id": "T-013",
+  "run_id": "e593025296",
+  "goal": "Verify that a user can successfully create a new account, navigate the calendar to the next month, and access the settings menu via the settings button.",
+  "description": "create_account \u2192 navigate_to_next_month \u2192 open_settings_via_button",
+  "total_steps_verified": 3,
+  "total_findings": 0,
+  "findings": []
+}

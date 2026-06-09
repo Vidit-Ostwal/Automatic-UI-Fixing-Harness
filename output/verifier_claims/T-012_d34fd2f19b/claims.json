@@ -1,9 +1,0 @@
-{
-  "test_case_id": "T-012",
-  "run_id": "d34fd2f19b",
-  "goal": "Verify that a user can create a new account, navigate the calendar to the next month, and select a specific date to filter memos for that day.",
-  "description": "create_account \u2192 navigate_to_next_month \u2192 select_specific_date_july_15",
-  "total_steps_verified": 3,
-  "total_findings": 0,
-  "findings": []
-}

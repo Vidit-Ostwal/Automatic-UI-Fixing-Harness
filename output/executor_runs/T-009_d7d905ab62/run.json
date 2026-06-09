@@ -1,0 +1,114 @@
+{
+  "test_case_id": "T-009",
+  "run_id": "d7d905ab62",
+  "goal": "Verify that a user can create a new account, compose a private memo, and navigate to the June 2026 calendar view.",
+  "description": "create_account \u2192 change_memo_privacy \u2192 june",
+  "instructions": [
+    "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+    "In the main dashboard, type 'Personal reminder for the weekend.' into the text input field labeled 'Any thoughts...'.",
+    "Click the 'Private' button to set the memo's visibility, then click the 'Save' button to publish the entry.",
+    "Click the 'June 2026' button in the calendar widget to switch the view to the full year calendar."
+  ],
+  "success_criteria": [
+    "The user is successfully logged in and redirected to the main dashboard after signing up.",
+    "The memo 'Personal reminder for the weekend.' appears in the feed with a timestamp of 'now' and is marked as private.",
+    "The interface transitions to a full-year calendar view for 2026, displaying all months.",
+    "The 'June' month within the 2026 calendar view is highlighted or selected.",
+    "No error messages are displayed during account creation, memo saving, or navigation."
+  ],
+  "steps": [
+    {
+      "step_index": 0,
+      "instruction": "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+      "resolution_reason": "The page contains the required 'Username' and 'Password' input fields and a 'Sign up' button. The instruction specifies exact values to enter into each field and then submit. Using the provided selectors for the inputs and button, we can fill the fields and click the submit button to complete the task.",
+      "resolved_steps": [
+        {
+          "type": "fill",
+          "selector": "[placeholder=\"Username\"]",
+          "value": "alice"
+        },
+        {
+          "type": "fill",
+          "selector": "[placeholder=\"Password\"]",
+          "value": "SecureP@ss123!"
+        },
+        {
+          "type": "click",
+          "selector": "button:has-text(\"Sign up\")"
+        }
+      ],
+      "resolve_failure_kind": "",
+      "resolve_failure_detail": "",
+      "last_llm_preview": "{ \"reason\": \"The page contains the required 'Username' and 'Password' input fields and a 'Sign up' button. The instruction specifies exact values to enter into each field and then submit. Using the provided selectors for the inputs and b...",
+      "verify_explanation": "The instruction was to enter credentials and sign up. The 'before' screenshot shows the 'Create your account' page with empty fields. The 'after' screenshot shows the main application dashboard (with a calendar and 'No data found' message), indicating that the user has successfully logged in and the account creation process was completed. The transition from the signup page to the main app view confirms the action was successful.",
+      "retry_count": 0,
+      "screenshot_before": "executor_runs/T-009_d7d905ab62/step_00_before.png",
+      "screenshot_after": "executor_runs/T-009_d7d905ab62/step_00_after.png",
+      "url_before": "http://localhost:52478/auth/signup",
+      "url_after": "http://localhost:52478/",
+      "success": true,
+      "error": null
+    },
+    {
+      "step_index": 1,
+      "instruction": "In the main dashboard, type 'Personal reminder for the weekend.' into the text input field labeled 'Any thoughts...'.",
+      "resolution_reason": "",
+      "resolved_steps": [],
+      "resolve_failure_kind": "empty_steps",
+      "resolve_failure_detail": "The instruction requires typing into the 'Any thoughts...' input field. However, after reviewing the provided interactive element list, there is no selector corresponding to this text input field. The list includes buttons for settings, calendar navigation, and date selection, but not the text input. Without a valid selector from the list, the action cannot be executed.",
+      "last_llm_preview": "{ \"reason\": \"The instruction requires typing into the 'Any thoughts...' input field. However, after reviewing the provided interactive element list, there is no selector corresponding to this text input field. The list includes buttons f...",
+      "verify_explanation": "",
+      "retry_count": 3,
+      "screenshot_before": "executor_runs/T-009_d7d905ab62/step_01_before.png",
+      "screenshot_after": "executor_runs/T-009_d7d905ab62/step_01_after.png",
+      "url_before": "http://localhost:52478/",
+      "url_after": "http://localhost:52478/",
+      "success": false,
+      "error": "empty_steps: The instruction requires typing into the 'Any thoughts...' input field. However, after reviewing the provided interactive element list, there is no selector corresponding to this text input field. The list includes buttons for settings, calendar navigation, and date selection, but not the text input. Without a valid selector from the list, the action cannot be executed."
+    },
+    {
+      "step_index": 2,
+      "instruction": "Click the 'Private' button to set the memo's visibility, then click the 'Save' button to publish the entry.",
+      "resolution_reason": "",
+      "resolved_steps": [],
+      "resolve_failure_kind": "empty_steps",
+      "resolve_failure_detail": "The instruction requires clicking 'Private' and 'Save' buttons. However, reviewing the provided interactive element list, neither a 'Private' button nor a 'Save' button is present. The list contains calendar navigation controls, date selectors, and a settings button, but no elements matching the required actions. Therefore, the instruction cannot be executed with the available selectors.",
+      "last_llm_preview": "{ \"reason\": \"The instruction requires clicking 'Private' and 'Save' buttons. However, reviewing the provided interactive element list, neither a 'Private' button nor a 'Save' button is present. The list contains calendar navigation contr...",
+      "verify_explanation": "",
+      "retry_count": 3,
+      "screenshot_before": "executor_runs/T-009_d7d905ab62/step_02_before.png",
+      "screenshot_after": "executor_runs/T-009_d7d905ab62/step_02_after.png",
+      "url_before": "http://localhost:52478/",
+      "url_after": "http://localhost:52478/",
+      "success": false,
+      "error": "empty_steps: The instruction requires clicking 'Private' and 'Save' buttons. However, reviewing the provided interactive element list, neither a 'Private' button nor a 'Save' button is present. The list contains calendar navigation controls, date selectors, and a settings button, but no elements matching the required actions. Therefore, the instruction cannot be executed with the available selectors."
+    },
+    {
+      "step_index": 3,
+      "instruction": "Click the 'June 2026' button in the calendar widget to switch the view to the full year calendar.",
+      "resolution_reason": "The instruction explicitly asks to click the 'June 2026' button. The interactive element list contains a button with the label 'June 2026' and the selector 'button:has-text(\"June 2026\")'. Clicking this element directly fulfills the user's request.",
+      "resolved_steps": [
+        {
+          "type": "click",
+          "selector": "button:has-text(\"June 2026\")"
+        }
+      ],
+      "resolve_failure_kind": "",
+      "resolve_failure_detail": "",
+      "last_llm_preview": "{ \"reason\": \"The instruction explicitly asks to click the 'June 2026' button. The interactive element list contains a button with the label 'June 2026' and the selector 'button:has-text(\\\"June 2026\\\")'. Clicking this element directly ful...",
+      "verify_explanation": "The instruction was to click the 'June 2026' button to switch to the full year calendar view. In the 'before' image, the calendar displays only the month of June 2026. In the 'after' image, the view has changed to a full-year calendar for 2026, showing all 12 months. This confirms that the action successfully switched the view as requested.",
+      "retry_count": 0,
+      "screenshot_before": "executor_runs/T-009_d7d905ab62/step_03_before.png",
+      "screenshot_after": "executor_runs/T-009_d7d905ab62/step_03_after.png",
+      "url_before": "http://localhost:52478/",
+      "url_after": "http://localhost:52478/",
+      "success": true,
+      "error": null
+    }
+  ],
+  "steps_executed": 4,
+  "steps_succeeded": 2,
+  "final_state": "partial",
+  "completed": false,
+  "error": null
+}

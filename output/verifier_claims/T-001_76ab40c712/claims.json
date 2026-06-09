@@ -1,0 +1,28 @@
+{
+  "test_case_id": "T-001",
+  "run_id": "76ab40c712",
+  "goal": "Verify that a user can successfully register as a Site Host, create a standard memo, and create a second memo that includes a hashtag tag.",
+  "description": "create_account \u2192 create_new_memo \u2192 create_memo_with_tag",
+  "total_steps_verified": 3,
+  "total_findings": 1,
+  "findings": [
+    {
+      "id": "V-T-001-001",
+      "step_index": 2,
+      "instruction": "In the same text area, type 'Meeting notes for #team-sync' and click the 'Save' button again.",
+      "bug_type": "logic",
+      "severity": "high",
+      "title": "First memo created in Step 1 is missing from the feed",
+      "description": "The test goal requires two memos to appear in the feed. Step 1 failed to create the first memo ('Remember to review the project timeline tomorrow morning.'). Although Step 2 successfully created the second memo ('Meeting notes for #team-sync'), the feed in the 'After' screenshot only shows the second memo. The first memo is missing, indicating a failure in the core workflow to persist or display the first entry.",
+      "evidence": "The 'After' screenshot for Step 2 shows only one memo in the feed: 'Meeting notes for #team-sync'. The expected first memo from Step 1 is not visible. The 'No data found' state from Step 1 was replaced by the second memo, but the first memo never appeared.",
+      "reproduction_steps": [
+        "1. Register a new account.",
+        "2. Attempt to create the first memo with text 'Remember to review the project timeline tomorrow morning.' (Step 1 failed).",
+        "3. Create the second memo with text 'Meeting notes for #team-sync' (Step 2 succeeded).",
+        "4. Observe that only the second memo appears in the feed; the first memo is missing."
+      ],
+      "screenshot_before": "executor_runs/T-001_76ab40c712/step_02_before.png",
+      "screenshot_after": "executor_runs/T-001_76ab40c712/step_02_after.png"
+    }
+  ]
+}

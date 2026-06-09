@@ -1,0 +1,44 @@
+{
+  "test_case_id": "T-020",
+  "run_id": "21c578d20f",
+  "goal": "Verify that a user can successfully create a new Site Host account and navigate to the settings menu to adjust application configuration options.",
+  "description": "create_account \u2192 open_settings_menu \u2192 settings2",
+  "total_steps_verified": 3,
+  "total_findings": 2,
+  "findings": [
+    {
+      "id": "V-T-020-001",
+      "step_index": 1,
+      "instruction": "Once logged in and viewing the main dashboard, click the settings icon (gear symbol) located in the left sidebar to open the settings menu.",
+      "bug_type": "logic",
+      "severity": "high",
+      "title": "Clicking the settings icon opens a filter dropdown instead of the settings menu",
+      "description": "The test goal requires that clicking the settings icon (gear symbol) in the left sidebar opens the settings menu. However, the action resulted in a filter dropdown ('Shown time', 'Order') appearing near the top of the main content area, which is unrelated to settings. This indicates the wrong element was targeted or the settings icon is miswired, preventing access to application configuration options.",
+      "evidence": "In the BEFORE screenshot, the main content shows a calendar and 'No data found'. In the AFTER screenshot, a dropdown with 'Shown time' and 'Order' options appears above the calendar, while the sidebar remains unchanged. No settings panel or menu is visible. The URL did not change, confirming no navigation to a settings page occurred.",
+      "reproduction_steps": [
+        "Log in to the application and reach the main dashboard.",
+        "Click the settings icon (gear symbol) in the left sidebar.",
+        "Observe that a filter dropdown appears instead of the settings menu."
+      ],
+      "screenshot_before": "executor_runs/T-020_21c578d20f/step_01_before.png",
+      "screenshot_after": "executor_runs/T-020_21c578d20f/step_01_after.png"
+    },
+    {
+      "id": "V-T-020-002",
+      "step_index": 2,
+      "instruction": "In the settings menu, click the 'settings2' button to apply the secondary configuration view.",
+      "bug_type": "logic",
+      "severity": "high",
+      "title": "Settings menu does not open when clicking the gear icon",
+      "description": "The test goal requires the settings menu to be visible and accessible after clicking the gear icon in the sidebar. However, the screenshots show that the settings menu never appears. The 'Before' screenshot for Step 2 shows the dashboard without any settings panel, and the 'After' screenshot is identical, indicating the settings menu was never successfully opened. This prevents the user from accessing configuration options like the 'settings2' button.",
+      "evidence": "In the 'Before' screenshot of Step 2, the main dashboard is visible with no settings panel or menu overlay. The 'After' screenshot is identical, showing no change in UI state. The URL also remains unchanged (http://localhost:52775/), confirming no navigation or state transition occurred. The success criteria explicitly state the settings menu should be visible after clicking the gear icon, which is not met.",
+      "reproduction_steps": [
+        "Navigate to the main dashboard after logging in.",
+        "Click the gear icon (settings) in the left sidebar.",
+        "Observe that no settings menu or panel appears on the screen."
+      ],
+      "screenshot_before": "executor_runs/T-020_21c578d20f/step_02_before.png",
+      "screenshot_after": "executor_runs/T-020_21c578d20f/step_02_after.png"
+    }
+  ]
+}

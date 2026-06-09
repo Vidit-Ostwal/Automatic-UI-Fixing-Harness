@@ -1,9 +1,0 @@
-{
-  "test_case_id": "T-002",
-  "run_id": "1a9d858fdc",
-  "goal": "Verify that a user can create a new account, save a memo, and navigate the calendar to view the next month.",
-  "description": "create_account \u2192 create_new_memo \u2192 navigate_to_july_2026",
-  "total_steps_verified": 3,
-  "total_findings": 0,
-  "findings": []
-}

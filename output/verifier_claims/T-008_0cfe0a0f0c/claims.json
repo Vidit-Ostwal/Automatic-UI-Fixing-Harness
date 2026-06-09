@@ -1,0 +1,28 @@
+{
+  "test_case_id": "T-008",
+  "run_id": "0cfe0a0f0c",
+  "goal": "Verify that a user can create a new account, compose a private memo, and access the application settings menu.",
+  "description": "create_account \u2192 change_memo_privacy \u2192 open_settings",
+  "total_steps_verified": 3,
+  "total_findings": 1,
+  "findings": [
+    {
+      "id": "V-T-008-001",
+      "step_index": 2,
+      "instruction": "Click the settings icon (gear symbol) located in the left-hand sidebar to open the settings menu.",
+      "bug_type": "logic",
+      "severity": "high",
+      "title": "Clicking the settings icon opens view filter options instead of the settings menu",
+      "description": "The instruction was to click the settings icon (gear symbol) to open the settings menu. However, the application responded by displaying a dropdown with 'Shown time' and 'Order' filter options, which are view configuration controls, not the application settings menu. This indicates the settings icon is either mislabeled or incorrectly wired to the wrong functionality.",
+      "evidence": "In the BEFORE screenshot, the main dashboard shows the calendar and memo input area. In the AFTER screenshot, after clicking the settings icon, a dropdown appears with 'Shown time: Created at' and 'Order: Newest first' options. No settings menu or configuration options are visible.",
+      "reproduction_steps": [
+        "Navigate to the main dashboard after logging in.",
+        "Locate the settings icon (gear symbol) in the left-hand sidebar.",
+        "Click the settings icon.",
+        "Observe that a view filter dropdown appears instead of the settings menu."
+      ],
+      "screenshot_before": "executor_runs/T-008_0cfe0a0f0c/step_02_before.png",
+      "screenshot_after": "executor_runs/T-008_0cfe0a0f0c/step_02_after.png"
+    }
+  ]
+}

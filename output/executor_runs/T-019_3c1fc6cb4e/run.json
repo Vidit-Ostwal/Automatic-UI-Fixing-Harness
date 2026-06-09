@@ -1,0 +1,139 @@
+{
+  "test_case_id": "T-019",
+  "run_id": "3c1fc6cb4e",
+  "goal": "Verify that a user can successfully create a new account as the Site Host and then navigate the calendar view backward to display previous months.",
+  "description": "create_account \u2192 navigate_to_previous_month \u2192 previous_month",
+  "instructions": [
+    "On the 'Create your account' page, enter 'alice' into the 'Username' field.",
+    "Enter 'SecureP@ss123!' into the 'Password' field.",
+    "Click the 'Sign up' button to complete the registration.",
+    "Once the dashboard loads showing the calendar for 'June 2026', click the left-pointing arrow button (Previous month) located next to the month title.",
+    "Click the left-pointing arrow button again to navigate to the month prior to the current view."
+  ],
+  "success_criteria": [
+    "The user is successfully redirected from the sign-up page to the main dashboard interface.",
+    "The calendar view initially displays 'June 2026' upon successful login.",
+    "After the first navigation click, the calendar updates to display 'May 2026'.",
+    "After the second navigation click, the calendar updates to display 'April 2026'.",
+    "The feed of notes or reminders remains visible and accessible during the calendar navigation."
+  ],
+  "steps": [
+    {
+      "step_index": 0,
+      "instruction": "On the 'Create your account' page, enter 'alice' into the 'Username' field.",
+      "resolution_reason": "The instruction requires entering 'alice' into the Username field. The interactive element list provides a selector for the Username input field: [placeholder=\"Username\"]. Using the 'fill' action with this selector and the value 'alice' will accomplish the task.",
+      "resolved_steps": [
+        {
+          "type": "fill",
+          "selector": "[placeholder=\"Username\"]",
+          "value": "alice"
+        }
+      ],
+      "resolve_failure_kind": "",
+      "resolve_failure_detail": "",
+      "last_llm_preview": "{ \"reason\": \"The instruction requires entering 'alice' into the Username field. The interactive element list provides a selector for the Username input field: [placeholder=\\\"Username\\\"]. Using the 'fill' action with this selector and the...",
+      "verify_explanation": "The instruction was to enter 'alice' into the 'Username' field. Comparing the before and after screenshots, the 'Username' input field in the first image is empty (showing the placeholder text), while in the second image, it clearly contains the text 'alice'. This confirms the action was successfully performed.",
+      "retry_count": 0,
+      "screenshot_before": "executor_runs/T-019_3c1fc6cb4e/step_00_before.png",
+      "screenshot_after": "executor_runs/T-019_3c1fc6cb4e/step_00_after.png",
+      "url_before": "http://localhost:54628/auth/signup",
+      "url_after": "http://localhost:54628/auth/signup",
+      "success": true,
+      "error": null
+    },
+    {
+      "step_index": 1,
+      "instruction": "Enter 'SecureP@ss123!' into the 'Password' field.",
+      "resolution_reason": "The instruction requires entering a specific password into the 'Password' field. The interactive element list provides a selector for the password input field: [placeholder=\"Password\"]. Using the 'fill' action with this selector and the specified value will accomplish the task.",
+      "resolved_steps": [
+        {
+          "type": "fill",
+          "selector": "[placeholder=\"Password\"]",
+          "value": "SecureP@ss123!"
+        }
+      ],
+      "resolve_failure_kind": "",
+      "resolve_failure_detail": "",
+      "last_llm_preview": "{ \"reason\": \"The instruction requires entering a specific password into the 'Password' field. The interactive element list provides a selector for the password input field: [placeholder=\\\"Password\\\"]. Using the 'fill' action with this se...",
+      "verify_explanation": "The instruction was to enter 'SecureP@ss123!' into the 'Password' field. In the 'before' image, the password field is empty (showing the placeholder text). In the 'after' image, the password field contains masked characters (dots), indicating that a password has been successfully entered. This visual change confirms the action was completed.",
+      "retry_count": 0,
+      "screenshot_before": "executor_runs/T-019_3c1fc6cb4e/step_01_before.png",
+      "screenshot_after": "executor_runs/T-019_3c1fc6cb4e/step_01_after.png",
+      "url_before": "http://localhost:54628/auth/signup",
+      "url_after": "http://localhost:54628/auth/signup",
+      "success": true,
+      "error": null
+    },
+    {
+      "step_index": 2,
+      "instruction": "Click the 'Sign up' button to complete the registration.",
+      "resolution_reason": "The instruction explicitly asks to click the 'Sign up' button. The form fields (username and password) are already filled as shown in the screenshot, so no additional input is required. The only necessary action is to click the submit button to complete the registration.",
+      "resolved_steps": [
+        {
+          "type": "click",
+          "selector": "button:has-text(\"Sign up\")"
+        }
+      ],
+      "resolve_failure_kind": "",
+      "resolve_failure_detail": "",
+      "last_llm_preview": "{ \"reason\": \"The instruction explicitly asks to click the 'Sign up' button. The form fields (username and password) are already filled as shown in the screenshot, so no additional input is required. The only necessary action is to click ...",
+      "verify_explanation": "The instruction was to click the 'Sign up' button. The 'before' screenshot shows the registration form with the 'Sign up' button visible. The 'after' screenshot shows the main dashboard of the application, indicating that the user has successfully logged in or registered. The transition from the registration page to the main application interface confirms that the 'Sign up' action was completed successfully.",
+      "retry_count": 0,
+      "screenshot_before": "executor_runs/T-019_3c1fc6cb4e/step_02_before.png",
+      "screenshot_after": "executor_runs/T-019_3c1fc6cb4e/step_02_after.png",
+      "url_before": "http://localhost:54628/auth/signup",
+      "url_after": "http://localhost:54628/",
+      "success": true,
+      "error": null
+    },
+    {
+      "step_index": 3,
+      "instruction": "Once the dashboard loads showing the calendar for 'June 2026', click the left-pointing arrow button (Previous month) located next to the month title.",
+      "resolution_reason": "The instruction requires clicking the left-pointing arrow button (Previous month) next to the 'June 2026' title. The interactive element list includes a button with aria-label 'Previous month', which matches the target. Clicking this selector will navigate to the previous month as requested.",
+      "resolved_steps": [
+        {
+          "type": "click",
+          "selector": "[aria-label=\"Previous\\ month\"]"
+        }
+      ],
+      "resolve_failure_kind": "",
+      "resolve_failure_detail": "",
+      "last_llm_preview": "{ \"reason\": \"The instruction requires clicking the left-pointing arrow button (Previous month) next to the 'June 2026' title. The interactive element list includes a button with aria-label 'Previous month', which matches the target. Clic...",
+      "verify_explanation": "The instruction was to click the 'Previous month' button while viewing 'June 2026'. The 'before' screenshot shows the calendar for June 2026. The 'after' screenshot shows the calendar has updated to May 2026, which is the correct previous month. This confirms the action was successful.",
+      "retry_count": 0,
+      "screenshot_before": "executor_runs/T-019_3c1fc6cb4e/step_03_before.png",
+      "screenshot_after": "executor_runs/T-019_3c1fc6cb4e/step_03_after.png",
+      "url_before": "http://localhost:54628/",
+      "url_after": "http://localhost:54628/",
+      "success": true,
+      "error": null
+    },
+    {
+      "step_index": 4,
+      "instruction": "Click the left-pointing arrow button again to navigate to the month prior to the current view.",
+      "resolution_reason": "The instruction asks to navigate to the month prior to the current view (May 2026). The accessibility tree and interactive element list include a button with aria-label 'Previous month', which is the correct control to move backward in the calendar. Clicking this button will achieve the desired navigation.",
+      "resolved_steps": [
+        {
+          "type": "click",
+          "selector": "[aria-label=\"Previous\\ month\"]"
+        }
+      ],
+      "resolve_failure_kind": "",
+      "resolve_failure_detail": "",
+      "last_llm_preview": "{ \"reason\": \"The instruction asks to navigate to the month prior to the current view (May 2026). The accessibility tree and interactive element list include a button with aria-label 'Previous month', which is the correct control to move ...",
+      "verify_explanation": "The instruction was to navigate to the month prior to the current view. The 'before' screenshot shows the calendar displaying 'May 2026'. The 'after' screenshot shows the calendar displaying 'April 2026'. This confirms that the calendar successfully moved back one month, satisfying the instruction.",
+      "retry_count": 0,
+      "screenshot_before": "executor_runs/T-019_3c1fc6cb4e/step_04_before.png",
+      "screenshot_after": "executor_runs/T-019_3c1fc6cb4e/step_04_after.png",
+      "url_before": "http://localhost:54628/",
+      "url_after": "http://localhost:54628/",
+      "success": true,
+      "error": null
+    }
+  ],
+  "steps_executed": 5,
+  "steps_succeeded": 5,
+  "final_state": "success",
+  "completed": true,
+  "error": null
+}

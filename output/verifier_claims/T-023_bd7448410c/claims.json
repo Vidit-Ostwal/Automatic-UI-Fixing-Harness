@@ -1,0 +1,9 @@
+{
+  "test_case_id": "T-023",
+  "run_id": "bd7448410c",
+  "goal": "Verify that a user can create a new account as the Site Host, navigate to the June 2026 calendar view, and successfully advance the calendar to the next year (2027).",
+  "description": "create_account \u2192 june \u2192 navigate_to_next_year",
+  "total_steps_verified": 4,
+  "total_findings": 0,
+  "findings": []
+}

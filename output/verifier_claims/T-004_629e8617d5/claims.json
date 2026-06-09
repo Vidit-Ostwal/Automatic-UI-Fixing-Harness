@@ -1,0 +1,29 @@
+{
+  "test_case_id": "T-004",
+  "run_id": "629e8617d5",
+  "goal": "Verify that a user can register as a Site Host, create a new memo, and successfully navigate to the June 2026 calendar view.",
+  "description": "create_account \u2192 create_new_memo \u2192 june",
+  "total_steps_verified": 3,
+  "total_findings": 1,
+  "findings": [
+    {
+      "id": "V-T-004-001",
+      "step_index": 2,
+      "instruction": "Click the 'June 2026' button located in the calendar widget to switch the view to the full year calendar.",
+      "bug_type": "logic",
+      "severity": "high",
+      "title": "Calendar view switched to full year but the 8th of June is not highlighted",
+      "description": "The application correctly transitioned to the full-year 2026 calendar view as requested. However, the success criteria requires that the 8th of June be highlighted in this view. In the 'AFTER' screenshot, the June grid is visible, but the date '8' has no visual highlight or selection indicator, unlike what is typically expected for a selected date.",
+      "evidence": "The 'AFTER' screenshot shows the full-year 2026 calendar. The 'JUN' month grid is present, but the number '8' is displayed with the same styling as other unselected dates (e.g., '7', '9', '10'). There is no background color change, border, or other visual cue to indicate it is the selected or highlighted date.",
+      "reproduction_steps": [
+        "1. Log in to the application.",
+        "2. Navigate to the calendar view.",
+        "3. Click on the 'June 2026' header to switch to the full-year view.",
+        "4. Observe the June month grid within the full-year view.",
+        "5. Note that the 8th of June is not visually highlighted."
+      ],
+      "screenshot_before": "executor_runs/T-004_629e8617d5/step_02_before.png",
+      "screenshot_after": "executor_runs/T-004_629e8617d5/step_02_after.png"
+    }
+  ]
+}

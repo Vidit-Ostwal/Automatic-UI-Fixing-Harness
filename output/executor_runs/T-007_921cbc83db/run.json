@@ -1,0 +1,96 @@
+{
+  "test_case_id": "T-007",
+  "run_id": "921cbc83db",
+  "goal": "Verify that a user can create a new account, save a private memo, and filter the memo list by selecting a specific date from the calendar.",
+  "description": "create_account \u2192 change_memo_privacy \u2192 select_date_june_15",
+  "instructions": [
+    "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+    "In the main dashboard, type 'Personal reminder for the weekend.' into the text input box labeled 'Any thoughts...', click the 'Private' button to set visibility, and then click the 'Save' button.",
+    "Click on the date '15' within the 'June 2026' calendar widget to filter the view for that specific day."
+  ],
+  "success_criteria": [
+    "The user is successfully logged in and navigated to the main dashboard after account creation.",
+    "The memo 'Personal reminder for the weekend.' is visible in the feed with a timestamp of 'now'.",
+    "The calendar view updates to show the date '15' as selected.",
+    "The input box displays the selected date '2026-06-15' as a filter tag.",
+    "The memo list displays 'No data found' because no memos exist for the filtered date."
+  ],
+  "steps": [
+    {
+      "step_index": 0,
+      "instruction": "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+      "resolution_reason": "The page contains the required 'Username' and 'Password' input fields and a 'Sign up' button. The instruction specifies exact values to enter and then submit. Using the provided selectors, we can fill the username field with 'alice', the password field with 'SecureP@ss123!', and click the 'Sign up' button to complete the action.",
+      "resolved_steps": [
+        {
+          "type": "fill",
+          "selector": "[placeholder=\"Username\"]",
+          "value": "alice"
+        },
+        {
+          "type": "fill",
+          "selector": "[placeholder=\"Password\"]",
+          "value": "SecureP@ss123!"
+        },
+        {
+          "type": "click",
+          "selector": "button:has-text(\"Sign up\")"
+        }
+      ],
+      "resolve_failure_kind": "",
+      "resolve_failure_detail": "",
+      "last_llm_preview": "{ \"reason\": \"The page contains the required 'Username' and 'Password' input fields and a 'Sign up' button. The instruction specifies exact values to enter and then submit. Using the provided selectors, we can fill the username field with...",
+      "verify_explanation": "The instruction was to enter credentials and sign up. The 'before' screenshot shows the 'Create your account' page with empty fields. The 'after' screenshot shows the main application dashboard (with a calendar and 'Any thoughts...' input), indicating that the user has successfully logged in and the account creation process was completed. The transition from the signup form to the main app interface confirms the action was successful.",
+      "retry_count": 0,
+      "screenshot_before": "executor_runs/T-007_921cbc83db/step_00_before.png",
+      "screenshot_after": "executor_runs/T-007_921cbc83db/step_00_after.png",
+      "url_before": "http://localhost:52476/auth/signup",
+      "url_after": "http://localhost:52476/",
+      "success": true,
+      "error": null
+    },
+    {
+      "step_index": 1,
+      "instruction": "In the main dashboard, type 'Personal reminder for the weekend.' into the text input box labeled 'Any thoughts...', click the 'Private' button to set visibility, and then click the 'Save' button.",
+      "resolution_reason": "",
+      "resolved_steps": [],
+      "resolve_failure_kind": "empty_steps",
+      "resolve_failure_detail": "The instruction requires typing into the 'Any thoughts...' input, clicking the 'Private' button, and then clicking 'Save'. However, the provided interactive element list does not include selectors for the text input field, the 'Private' button, or the 'Save' button. Without valid selectors from the element list, these actions cannot be executed reliably.",
+      "last_llm_preview": "{ \"reason\": \"The instruction requires typing into the 'Any thoughts...' input, clicking the 'Private' button, and then clicking 'Save'. However, the provided interactive element list does not include selectors for the text input field, t...",
+      "verify_explanation": "",
+      "retry_count": 3,
+      "screenshot_before": "executor_runs/T-007_921cbc83db/step_01_before.png",
+      "screenshot_after": "executor_runs/T-007_921cbc83db/step_01_after.png",
+      "url_before": "http://localhost:52476/",
+      "url_after": "http://localhost:52476/",
+      "success": false,
+      "error": "empty_steps: The instruction requires typing into the 'Any thoughts...' input, clicking the 'Private' button, and then clicking 'Save'. However, the provided interactive element list does not include selectors for the text input field, the 'Private' button, or the 'Save' button. Without valid selectors from the element list, these actions cannot be executed reliably."
+    },
+    {
+      "step_index": 2,
+      "instruction": "Click on the date '15' within the 'June 2026' calendar widget to filter the view for that specific day.",
+      "resolution_reason": "The instruction requires clicking on the date '15' in the June 2026 calendar. The interactive elements list includes a button with aria-label '2026-06-15', which corresponds to the 15th of June 2026. Clicking this element will filter the view for that specific day.",
+      "resolved_steps": [
+        {
+          "type": "click",
+          "selector": "[data-slot=\"tooltip-trigger\"][aria-label=\"\\32 026-06-15\"]"
+        }
+      ],
+      "resolve_failure_kind": "",
+      "resolve_failure_detail": "",
+      "last_llm_preview": "{ \"reason\": \"The instruction requires clicking on the date '15' in the June 2026 calendar. The interactive elements list includes a button with aria-label '2026-06-15', which corresponds to the 15th of June 2026. Clicking this element wi...",
+      "verify_explanation": "The instruction was to click on the date '15' in the June 2026 calendar. In the 'after' screenshot, the date '15' is highlighted in the calendar, and a new entry with the timestamp '2026-06-15' has appeared in the main content area, along with a filter tag '2026-06-15'. This confirms that the view was successfully filtered for that specific day.",
+      "retry_count": 0,
+      "screenshot_before": "executor_runs/T-007_921cbc83db/step_02_before.png",
+      "screenshot_after": "executor_runs/T-007_921cbc83db/step_02_after.png",
+      "url_before": "http://localhost:52476/",
+      "url_after": "http://localhost:52476/?filter=displayTime%3A2026-06-15",
+      "success": true,
+      "error": null
+    }
+  ],
+  "steps_executed": 3,
+  "steps_succeeded": 2,
+  "final_state": "partial",
+  "completed": false,
+  "error": null
+}

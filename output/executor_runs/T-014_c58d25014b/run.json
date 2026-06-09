@@ -1,0 +1,100 @@
+{
+  "test_case_id": "T-014",
+  "run_id": "c58d25014b",
+  "goal": "Verify that a user can create a new account as the Site Host and successfully navigate the calendar to view the month of July 2026.",
+  "description": "create_account \u2192 navigate_to_next_month \u2192 july",
+  "instructions": [
+    "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+    "Once logged in and viewing the calendar for June 2026, click the 'Next month' button (indicated by a right arrow icon) to advance the calendar view.",
+    "Click on the 'July 2026' button or header within the calendar interface to open the full year view and confirm the selection of July."
+  ],
+  "success_criteria": [
+    "The user is successfully redirected from the sign-up page to the main application dashboard after clicking 'Sign up'.",
+    "The calendar view updates from 'June 2026' to 'July 2026' after clicking the navigation button.",
+    "The full year calendar view for 2026 is displayed, with the 'JUL' (July) section clearly visible.",
+    "The main feed below the calendar displays existing entries (e.g., 'Personal reminder for the weekend') without any error messages."
+  ],
+  "steps": [
+    {
+      "step_index": 0,
+      "instruction": "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+      "resolution_reason": "The page contains the required 'Username' and 'Password' input fields and a 'Sign up' button. The instruction specifies exact values to enter into these fields and then submit. The provided selectors match these elements precisely, allowing us to fill the username, fill the password, and click the submit button in sequence.",
+      "resolved_steps": [
+        {
+          "type": "fill",
+          "selector": "[placeholder=\"Username\"]",
+          "value": "alice"
+        },
+        {
+          "type": "fill",
+          "selector": "[placeholder=\"Password\"]",
+          "value": "SecureP@ss123!"
+        },
+        {
+          "type": "click",
+          "selector": "button:has-text(\"Sign up\")"
+        }
+      ],
+      "resolve_failure_kind": "",
+      "resolve_failure_detail": "",
+      "last_llm_preview": "{ \"reason\": \"The page contains the required 'Username' and 'Password' input fields and a 'Sign up' button. The instruction specifies exact values to enter into these fields and then submit. The provided selectors match these elements pre...",
+      "verify_explanation": "The instruction was to enter credentials and sign up. The 'before' screenshot shows the 'Create your account' page with empty fields. The 'after' screenshot shows the main application dashboard (with a calendar and 'Any thoughts...' input), indicating that the user has successfully logged in and the account creation process was completed. The transition from the signup page to the main app view confirms the action was successful.",
+      "retry_count": 0,
+      "screenshot_before": "executor_runs/T-014_c58d25014b/step_00_before.png",
+      "screenshot_after": "executor_runs/T-014_c58d25014b/step_00_after.png",
+      "url_before": "http://localhost:52483/auth/signup",
+      "url_after": "http://localhost:52483/",
+      "success": true,
+      "error": null
+    },
+    {
+      "step_index": 1,
+      "instruction": "Once logged in and viewing the calendar for June 2026, click the 'Next month' button (indicated by a right arrow icon) to advance the calendar view.",
+      "resolution_reason": "The instruction requires clicking the 'Next month' button to advance the calendar. The interactive elements list includes a button with aria-label 'Next month', which matches the requirement. Clicking this button will navigate to the next month view.",
+      "resolved_steps": [
+        {
+          "type": "click",
+          "selector": "[aria-label=\"Next\\ month\"]"
+        }
+      ],
+      "resolve_failure_kind": "",
+      "resolve_failure_detail": "",
+      "last_llm_preview": "{ \"reason\": \"The instruction requires clicking the 'Next month' button to advance the calendar. The interactive elements list includes a button with aria-label 'Next month', which matches the requirement. Clicking this button will naviga...",
+      "verify_explanation": "The calendar view successfully advanced from June 2026 to July 2026, as evidenced by the change in the month header and the dates displayed in the calendar grid between the before and after screenshots. This confirms the 'Next month' button was clicked and functioned correctly.",
+      "retry_count": 0,
+      "screenshot_before": "executor_runs/T-014_c58d25014b/step_01_before.png",
+      "screenshot_after": "executor_runs/T-014_c58d25014b/step_01_after.png",
+      "url_before": "http://localhost:52483/",
+      "url_after": "http://localhost:52483/",
+      "success": true,
+      "error": null
+    },
+    {
+      "step_index": 2,
+      "instruction": "Click on the 'July 2026' button or header within the calendar interface to open the full year view and confirm the selection of July.",
+      "resolution_reason": "The instruction requires clicking the 'July 2026' header to open the full year view. The interactive elements list includes a button with the label 'July 2026' and selector 'button:has-text(\"July 2026\")', which matches the target element in the calendar interface. Clicking this button will execute the requested action.",
+      "resolved_steps": [
+        {
+          "type": "click",
+          "selector": "button:has-text(\"July 2026\")"
+        }
+      ],
+      "resolve_failure_kind": "",
+      "resolve_failure_detail": "",
+      "last_llm_preview": "{ \"reason\": \"The instruction requires clicking the 'July 2026' header to open the full year view. The interactive elements list includes a button with the label 'July 2026' and selector 'button:has-text(\\\"July 2026\\\")', which matches the...",
+      "verify_explanation": "The instruction was to click the 'July 2026' header to open the full year view. In the 'before' image, the calendar displays only the month of July 2026. In the 'after' image, the view has changed to a full-year calendar for 2026, showing all 12 months. This confirms that the action of opening the full year view was successfully executed.",
+      "retry_count": 0,
+      "screenshot_before": "executor_runs/T-014_c58d25014b/step_02_before.png",
+      "screenshot_after": "executor_runs/T-014_c58d25014b/step_02_after.png",
+      "url_before": "http://localhost:52483/",
+      "url_after": "http://localhost:52483/",
+      "success": true,
+      "error": null
+    }
+  ],
+  "steps_executed": 3,
+  "steps_succeeded": 3,
+  "final_state": "success",
+  "completed": true,
+  "error": null
+}

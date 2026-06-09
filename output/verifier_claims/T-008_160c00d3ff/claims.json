@@ -1,0 +1,28 @@
+{
+  "test_case_id": "T-008",
+  "run_id": "160c00d3ff",
+  "goal": "Verify that a user can create a new account, compose a private memo, and access the application settings menu.",
+  "description": "create_account \u2192 change_memo_privacy \u2192 open_settings",
+  "total_steps_verified": 3,
+  "total_findings": 1,
+  "findings": [
+    {
+      "id": "V-T-008-001",
+      "step_index": 2,
+      "instruction": "Click the settings icon (gear symbol) located in the left-hand sidebar to open the settings menu.",
+      "bug_type": "logic",
+      "severity": "high",
+      "title": "Clicking the settings icon opens view filter options instead of the settings menu",
+      "description": "The test goal requires that clicking the settings icon (gear symbol) in the left sidebar opens the settings menu or configuration options. However, after clicking the gear icon, a dropdown with 'Shown time' and 'Order' filter options appears instead. This indicates the gear icon is incorrectly mapped to view filtering functionality rather than application settings, breaking the expected settings access flow.",
+      "evidence": "In the BEFORE screenshot, the main dashboard shows no settings menu. In the AFTER screenshot, after clicking the gear icon, a dropdown appears with 'Shown time: Created at' and 'Order: Newest first' options. No settings menu or configuration options are visible. The URL remains unchanged, confirming no navigation to a settings page occurred.",
+      "reproduction_steps": [
+        "Navigate to the main dashboard after logging in",
+        "Locate the gear icon (settings icon) in the left-hand sidebar",
+        "Click the gear icon",
+        "Observe that a filter dropdown appears instead of a settings menu"
+      ],
+      "screenshot_before": "executor_runs/T-008_160c00d3ff/step_02_before.png",
+      "screenshot_after": "executor_runs/T-008_160c00d3ff/step_02_after.png"
+    }
+  ]
+}

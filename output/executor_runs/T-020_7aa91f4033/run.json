@@ -1,0 +1,102 @@
+{
+  "test_case_id": "T-020",
+  "run_id": "7aa91f4033",
+  "goal": "Verify that a user can successfully create a new Site Host account and navigate to the settings menu to adjust application configuration options.",
+  "description": "create_account \u2192 open_settings_menu \u2192 settings2",
+  "instructions": [
+    "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+    "Once logged in and viewing the main dashboard, click the settings icon (gear symbol) located in the left sidebar to open the settings menu.",
+    "In the settings menu, click the 'settings2' button to apply the secondary configuration view."
+  ],
+  "success_criteria": [
+    "The user is successfully redirected from the registration page to the main dashboard after clicking 'Sign up'.",
+    "The settings menu is visible and accessible after clicking the gear icon in the sidebar.",
+    "The application state updates to reflect the 'settings2' configuration (e.g., specific UI elements or data views change as expected).",
+    "No error messages are displayed during the account creation or navigation process.",
+    "The user remains logged in and retains access to the dashboard after the settings interaction."
+  ],
+  "steps": [
+    {
+      "step_index": 0,
+      "instruction": "On the 'Create your account' page, enter 'alice' into the 'Username' field and 'SecureP@ss123!' into the 'Password' field, then click the 'Sign up' button.",
+      "resolution_reason": "The page contains the required 'Username' and 'Password' input fields and a 'Sign up' button. The instruction specifies exact values to enter and then submit. Using the provided selectors, we can fill the username field with 'alice', the password field with 'SecureP@ss123!', and then click the 'Sign up' button to complete the action.",
+      "resolved_steps": [
+        {
+          "type": "fill",
+          "selector": "[placeholder=\"Username\"]",
+          "value": "alice"
+        },
+        {
+          "type": "fill",
+          "selector": "[placeholder=\"Password\"]",
+          "value": "SecureP@ss123!"
+        },
+        {
+          "type": "click",
+          "selector": "button:has-text(\"Sign up\")"
+        }
+      ],
+      "resolve_failure_kind": "",
+      "resolve_failure_detail": "",
+      "last_llm_preview": "{ \"reason\": \"The page contains the required 'Username' and 'Password' input fields and a 'Sign up' button. The instruction specifies exact values to enter and then submit. Using the provided selectors, we can fill the username field with...",
+      "verify_explanation": "The instruction was to enter credentials and sign up. The 'before' screenshot shows the 'Create your account' page with empty fields. The 'after' screenshot shows the main application dashboard (with a calendar and 'No data found' message), indicating that the user has successfully logged in and the account creation process was completed.",
+      "retry_count": 0,
+      "screenshot_before": "executor_runs/T-020_7aa91f4033/step_00_before.png",
+      "screenshot_after": "executor_runs/T-020_7aa91f4033/step_00_after.png",
+      "url_before": "http://localhost:54082/auth/signup",
+      "url_after": "http://localhost:54082/",
+      "success": true,
+      "error": null
+    },
+    {
+      "step_index": 1,
+      "instruction": "Once logged in and viewing the main dashboard, click the settings icon (gear symbol) located in the left sidebar to open the settings menu.",
+      "resolution_reason": "The previous attempts failed because the selector 'button' was too generic and matched the filter icon in the calendar widget instead of the settings icon in the sidebar. The interactive elements list shows a button with label 'settings2', which corresponds to the settings gear icon. To correctly target the settings icon in the left sidebar, I will use the specific selector 'button' with the label 'settings2' to ensure the correct element is clicked.",
+      "resolved_steps": [
+        {
+          "type": "click",
+          "selector": "button",
+          "value": "settings2"
+        }
+      ],
+      "resolve_failure_kind": "",
+      "resolve_failure_detail": "",
+      "last_llm_preview": "{ \"reason\": \"The previous attempts failed because the selector 'button' was too generic and matched the filter icon in the calendar widget instead of the settings icon in the sidebar. The interactive elements list shows a button with lab...",
+      "verify_explanation": "The instruction was to click the settings icon in the left sidebar. However, the visual evidence shows that a filter/sort menu (containing 'Shown time' and 'Order' dropdowns) appeared in the main content area, near the calendar widget. This indicates that the filter icon in the calendar widget was clicked instead of the settings icon in the sidebar. The settings menu did not open.",
+      "retry_count": 3,
+      "screenshot_before": "executor_runs/T-020_7aa91f4033/step_01_before.png",
+      "screenshot_after": "executor_runs/T-020_7aa91f4033/step_01_after.png",
+      "url_before": "http://localhost:54082/",
+      "url_after": "http://localhost:54082/",
+      "success": false,
+      "error": "The instruction was to click the settings icon in the left sidebar. However, the visual evidence shows that a filter/sort menu (containing 'Shown time' and 'Order' dropdowns) appeared in the main content area, near the calendar widget. This indicates that the filter icon in the calendar widget was clicked instead of the settings icon in the sidebar. The settings menu did not open."
+    },
+    {
+      "step_index": 2,
+      "instruction": "In the settings menu, click the 'settings2' button to apply the secondary configuration view.",
+      "resolution_reason": "The previous attempt failed because the generic selector 'button' matched the wrong element (likely the filter/sort toggle). The instruction specifically asks to click the 'settings2' button. The interactive elements list contains a button with label 'settings2' and selector 'button'. Since the previous attempt used the same selector and failed, it's possible the selector is ambiguous or the button is not directly clickable in the current state. However, given the constraints and the explicit instruction, I will retry clicking the 'button' selector, as it is the only one labeled 'settings2' in the provided list. If this fails again, it may indicate the button is not present or accessible in the current view.",
+      "resolved_steps": [
+        {
+          "type": "click",
+          "selector": "button"
+        }
+      ],
+      "resolve_failure_kind": "",
+      "resolve_failure_detail": "",
+      "last_llm_preview": "{ \"reason\": \"The previous attempt failed because the generic selector 'button' matched the wrong element (likely the filter/sort toggle). The instruction specifically asks to click the 'settings2' button. The interactive elements list co...",
+      "verify_explanation": "The instruction was to click the 'settings2' button to apply a secondary configuration view. In the 'before' screenshot, the calendar header shows 'June 2026' with navigation arrows. In the 'after' screenshot, a dropdown menu has appeared below the search bar, displaying options for 'Shown time' and 'Order'. This change indicates that a settings or filter menu was successfully opened, which aligns with the goal of applying a configuration view.",
+      "retry_count": 1,
+      "screenshot_before": "executor_runs/T-020_7aa91f4033/step_02_before.png",
+      "screenshot_after": "executor_runs/T-020_7aa91f4033/step_02_after.png",
+      "url_before": "http://localhost:54082/",
+      "url_after": "http://localhost:54082/",
+      "success": true,
+      "error": null
+    }
+  ],
+  "steps_executed": 3,
+  "steps_succeeded": 2,
+  "final_state": "partial",
+  "completed": false,
+  "error": null
+}

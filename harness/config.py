@@ -22,6 +22,7 @@ DEFAULTS: dict[str, str] = {
     "OUTPUT_DIR": "output",
     "MAX_ACTIONS_PER_NODE": "8",
     "BFS_VERBOSE": "0",
+    "EXECUTOR_INSTRUCTION_RETRIES": "3",
     # LLM provider (anthropic | openai | local, or leave empty for auto-detect)
     "LLM_PROVIDER": "",
     "ANTHROPIC_API_KEY": "",

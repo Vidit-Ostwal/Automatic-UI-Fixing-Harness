@@ -1,0 +1,27 @@
+{
+  "test_case_id": "T-010",
+  "run_id": "24a6ddc5b2",
+  "goal": "Verify that a user can create a new account, navigate the calendar to the next month, and successfully create and save a new memo with specific content.",
+  "description": "create_account \u2192 navigate_to_next_month \u2192 create_memo_with_content",
+  "total_steps_verified": 3,
+  "total_findings": 1,
+  "findings": [
+    {
+      "id": "V-T-010-001",
+      "step_index": 2,
+      "instruction": "In the memo input area labeled 'Any thoughts...', type the text 'Remember to buy groceries on the way home.' and click the 'Save' button.",
+      "bug_type": "logic",
+      "severity": "high",
+      "title": "Calendar month reverted from July 2026 to June 2026 during memo creation step",
+      "description": "The calendar header changed from 'July 2026' (visible in the BEFORE screenshot) to 'June 2026' (visible in the AFTER screenshot) even though the intended action was to type into the memo input and click Save. This indicates an unintended state change in the calendar component, breaking the expected workflow where the user should remain on July 2026 while creating a memo.",
+      "evidence": "BEFORE screenshot shows 'July 2026' in the calendar header. AFTER screenshot shows 'June 2026' in the calendar header. The URL remained unchanged, and no navigation action was intended in this step.",
+      "reproduction_steps": [
+        "Log in and navigate to the dashboard.",
+        "Click the 'Next month' arrow to navigate from June 2026 to July 2026.",
+        "Attempt to type into the 'Any thoughts...' input field and click 'Save' (even if the automation fails, observe the calendar state)."
+      ],
+      "screenshot_before": "executor_runs/T-010_24a6ddc5b2/step_02_before.png",
+      "screenshot_after": "executor_runs/T-010_24a6ddc5b2/step_02_after.png"
+    }
+  ]
+}
